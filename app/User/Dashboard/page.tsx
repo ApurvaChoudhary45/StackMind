@@ -12,7 +12,6 @@ export default async function DashboardPage() {
 
     const { data: projects } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
 
-    
 
     return (
         <>
@@ -23,7 +22,12 @@ export default async function DashboardPage() {
                 </nav>
             </div>
             <div className='bg-black/80 h-[85vh]'>
-                <h1 className='py-3 text-2xl font-extrabold text-green-400 font-mono text-center'>Your Projects</h1>
+            <div className='flex justify-between items-center px-4'>
+                <h1 className='py-3 text-2xl font-extrabold text-green-400 font-mono text-center text-md bg-green-400 rounded-2xl '>Your Projects</h1>
+                
+                   
+            </div>
+                
                 {projects?.length === 0 ? <div className='flex justify-center items-center flex-col gap-3 min-h-[60vh]'><p className='text-sm text-gray-400'>No projects created yet!</p><CreateProject /></div> : projects?.map(project => {
                     return (
                         <div key={project?.id}>
@@ -35,11 +39,13 @@ export default async function DashboardPage() {
                         
                         </Link>
                         <Link href={`/User/dashboard/projects/${project?.id}/bugs`}><div>Bugs</div></Link>
+                        <Link href={`/User/dashboard/projects/${project?.id}/snippets`}> <button className='text-green-400 text-xl rounded-2xl'>Project Section</button></Link>
                         </div>
 
                     
                     )
                 })}
+                
                 
 
             </div>
