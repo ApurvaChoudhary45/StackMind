@@ -1,55 +1,66 @@
 import CreateProject from '@/components/CreateProject'
+import LogOut from '@/components/LogOut'
+import ProjectCard from '@/components/ProjectCard'
 import { createClient } from '@/lib/supabase/server'
+import { div } from 'framer-motion/client'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+
+
 
 export default async function DashboardPage() {
     const supabase = await createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) redirect('/login')
+    if (!user) redirect('/Login')
 
-    const { data: projects } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
+    const [{ data: projects }, { data: recentActivity }] = await Promise.all([supabase.from('projects').select('*').order('created_at', { ascending: false }), supabase.from('notes').select('title, created_at, projects(name)').order('created_at', { ascending: false }).limit(5)])
 
+    
 
     return (
-        <>
-            <div className="p-8 bg-black/90">
+        <div className='bg-black/80 '>
+            <div className="p-5 bg-black/90 ">
                 <nav className='flex justify-between items-center'>
-                    <h1 className="text-2xl font-bold text-green-400">Welcome to StackMind</h1>
-                    <p className="text-gray-400">Logged in as: {user.email}</p>
+                    <h1 className="md:text-2xl font-bold text-green-400">Welcome to StackMind</h1>
+                    <div className='flex justify-center items-center md:gap-6'>
+                        <p className="text-gray-400 text-sm md:text-lg">Logged in as: {user.email}</p>
+                        <LogOut />
+                    </div>
                 </nav>
             </div>
-            <div className='bg-black/80 h-[85vh]'>
-            <div className='flex justify-between items-center px-4'>
-                <h1 className='py-3 text-2xl font-extrabold text-green-400 font-mono text-center text-md bg-green-400 rounded-2xl '>Your Projects</h1>
-                
-                   
+            <div className='bg-black/80 h-screen'>
+                <div className='flex justify-between items-center px-5'>
+                    <h1 className='py-3 text-xl font-extrabold text-green-400 font-mono text-md rounded-2xl px-5 '>Your Projects</h1>
+                    <CreateProject />
+                </div>
+                <ProjectCard/>
+
+
+                {/* Recent Activity */}
+                <div className='mt-8 px-8 '>
+                    <h2 className='text-lg font-bold text-green-400 mb-4'>Recent Activity</h2>
+                    {recentActivity?.length === 0 && (
+                        <p className='text-gray-400 text-sm'>No recent activity yet.</p>
+                    )}
+                    <div className='flex flex-col gap-4'>
+                        {recentActivity?.map((note: any) => (
+                            <div key={note.title + note.created_at} className='flex justify-between items-center border border-zinc-800 rounded p-3'>
+                                <div>
+                                    <span className='text-white text-sm'>{note.title}</span>
+                                    <span className='text-gray-500 text-xs ml-2'>in {note.projects?.name}</span>
+                                </div>
+                                <span className='text-gray-500 text-xs'>
+                                    {new Date(note.created_at).toLocaleDateString()}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
             </div>
-                
-                {projects?.length === 0 ? <div className='flex justify-center items-center flex-col gap-3 min-h-[60vh]'><p className='text-sm text-gray-400'>No projects created yet!</p><CreateProject /></div> : projects?.map(project => {
-                    return (
-                        <div key={project?.id}>
-                        <Link href={`/User/dashboard/projects/${project?.id}/notes`}>
-                        <div  className="border border-green-400/20 rounded-lg p-4 hover:border-green-400 transition-colors cursor-pointer">
-                            <h2 className='font-semibold text-green-400'>{project.name}</h2>
-                            <p className='text-gray-400 text-sm'>{project.description}</p>
-                        </div>
-                        
-                        </Link>
-                        <Link href={`/User/dashboard/projects/${project?.id}/bugs`}><div>Bugs</div></Link>
-                        <Link href={`/User/dashboard/projects/${project?.id}/snippets`}> <button className='text-green-400 text-xl rounded-2xl'>Project Section</button></Link>
-                        </div>
 
-                    
-                    )
-                })}
-                
-                
-
-            </div>
-
-        </>
+        </div>
     )
 }

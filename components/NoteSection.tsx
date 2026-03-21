@@ -32,6 +32,9 @@ const NoteSection = ({ project, notes, userId }: {
     const [isCreating, setIsCreating] = useState(false)
     const [loading, setLoading] = useState(false)
 
+    const [userNotes, setuserNotes] = useState(notes)
+    
+
     const handleSave = async () => {
         if (!title.trim()) return
 
@@ -51,16 +54,23 @@ const NoteSection = ({ project, notes, userId }: {
         router.refresh()
     }
 
+    const deleteNote = async(note : Note)=>{
+        console.log(note.id)
+        await supabase.from('notes').delete().eq('id', note.id)
+        setuserNotes(prev=>prev.filter(i=> i.id !== note.id))
+
+    }
+
     return (
         <div className="p-8 bg-black/90 min-h-screen text-white">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <p className="text-gray-400 text-sm">Project</p>
-                    <h1 className="text-2xl font-bold text-green-400">{project.name}</h1>
+                    <h1 className="md:text-2xl font-bold text-green-400 text-lg">{project.name}</h1>
                 </div>
                 <button
                     onClick={() => setIsCreating(true)}
-                    className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
+                    className="md:px-4 md:py-2 bg-green-400 px-2 py-1 text-black font-semibold rounded hover:bg-green-300"
                 >
                     + New Note
                 </button>
@@ -91,18 +101,23 @@ const NoteSection = ({ project, notes, userId }: {
                 </div>
             )}
 
-            {notes.length === 0 && !isCreating && (
+            {userNotes.length === 0 && !isCreating && (
                 <p className="text-gray-400 text-center mt-20">No notes yet. Create your first one!</p>
             )}
 
             <div className="grid grid-cols-1 gap-4">
-                {notes.map((note) => (
-                    <div key={note.id} className="border border-zinc-700 rounded-lg p-4 hover:border-green-400/50 transition-colors">
+                {userNotes.map((note) => (
+                    <div key={note.id} className="border border-zinc-700 rounded-lg p-4 hover:border-green-400/50 transition-colors grid grid-cols-2">
+                        <div className='flex flex-col'>
                         <h2 className="font-semibold text-green-400 text-lg">{note.title}</h2>
                         <div
                             className="text-gray-400 text-sm mt-1 prose prose-invert max-w-none"
                             dangerouslySetInnerHTML={{ __html: note.content }}
                         />
+                        </div>
+                        <div className='flex justify-end gap-3'>
+                        <button className='text-red-500 hover:text-red-600' onClick={()=>deleteNote(note)}>Delete</button>
+                        </div>
                     </div>
                 ))}
             </div>

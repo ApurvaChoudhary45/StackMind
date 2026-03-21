@@ -1,5 +1,7 @@
 'use client'
 
+import Landing from '@/components/Landing'
+import LandingPage from '@/components/LandingPage'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
@@ -15,6 +17,6 @@ export default function LoginPage() {
   }
 
   return (
-    <h1>StackMind</h1>
+    <Landing/>
   )
 }

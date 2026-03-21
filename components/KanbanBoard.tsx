@@ -1,13 +1,12 @@
 'use client'
 
-import React, { act } from 'react'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 import { DndContext, DragEndEvent } from '@dnd-kit/core'
-
+import { useMemo } from 'react'
 import KanbanColumn from './KanbanColumn'
 
 type Bug = {
@@ -37,8 +36,41 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium')
-  const supabase = createClient()
+   const supabase = useMemo(() => createClient(), [])
   const router = useRouter()
+
+  useEffect(() => {
+  const channel = supabase
+    .channel('bugs-channel')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // listen to INSERT, UPDATE, DELETE
+        schema: 'public',
+        table: 'bugs',
+        filter: `project_id=eq.${projectId}`
+      },
+      (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setallBugs(prev => [payload.new as Bug, ...prev])
+        }
+        if (payload.eventType === 'UPDATE') {
+          setallBugs(prev =>
+            prev.map(bug => bug.id === payload.new.id ? payload.new as Bug : bug)
+          )
+        }
+        if (payload.eventType === 'DELETE') {
+          setallBugs(prev => prev.filter(bug => bug.id !== payload.old.id))
+        }
+      }
+    )
+    .subscribe()
+
+  // cleanup when component unmounts
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}, [projectId, supabase])
 
   async function handleDragEvent(event: DragEndEvent) {
 
@@ -51,7 +83,6 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
     const newStatus = over.id as string
 
     setallBugs(prev => prev.map(bug => bug.id == active.id ? { ...bug, status: newStatus } : bug))
-
 
     await supabase.from('bugs').update({ status: newStatus }).eq('id', active.id)
 
@@ -85,6 +116,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
 
   return (
     <div className="p-8 bg-black/90 min-h-screen">
+      
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-green-400">Bug Tracker</h1>
         <button
@@ -134,7 +166,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
       )}
 
       <DndContext onDragEnd={handleDragEvent}>
-        <div className="flex gap-4">
+        <div className="md:flex md:gap-4 grid grid-cols-1 gap-4">
           {columns.map(column => (
             <KanbanColumn
               key={column.id}

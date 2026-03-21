@@ -12,8 +12,8 @@ export default async function SnippetPage({params} : {params : {id : string}}) {
 
     if(!user) redirect('/Login')
     
-    const {data : snippets} = await supabase.from('snippets').select('*').eq('project_id', id).order('created_at', {ascending : false})
-
+    const {data : snippets, error : SnippetError} = await supabase.from('snippets').select('*').eq('project_id', id).order('created_at', {ascending : false})
+    if(SnippetError) throw new Error(SnippetError?.message)
     return(
         <SnippetLibrary snippets={snippets ?? []} 
         projectId={id} 

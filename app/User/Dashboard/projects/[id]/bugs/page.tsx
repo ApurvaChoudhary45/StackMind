@@ -11,11 +11,11 @@ export default async function BugsPage({params} : {params : {id : string}}) {
 
     const {data : {user}} = await supabase.auth.getUser()
 
-    if(!user) redirect('/login')
+    if(!user) redirect('/Login')
 
     
-    const {data : bugs} = await supabase.from('bugs').select('*').eq('project_id', id).order('created_at', {ascending : false})
-
+    const {data : bugs, error: bugsError} = await supabase.from('bugs').select('*').eq('project_id', id).order('created_at', {ascending : false})
+    if(bugsError) throw new Error(bugsError.message)
   return (
     <div>
       <KanbanBoard

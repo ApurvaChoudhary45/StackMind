@@ -3,8 +3,18 @@
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { s } from "framer-motion/client"
+
 
 type Snippet = {
+    id: string,
+    title: string,
+    code: string,
+    language: string,
+    description: string
+}
+
+type UpdatedSnippet = {
     id: string,
     title: string,
     code: string,
@@ -29,6 +39,13 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     const [description, setDescription] = useState('')
     const [copied, setCopied] = useState<string | null>(null)
     const supabase = createClient()
+    const [isEditing, setisEditing] = useState(false)
+    const [newTitle, setnewTitle] = useState('')
+    const [newDescription, setnewDescription] = useState('')
+    const [newLanguage, setnewLanguage] = useState('')
+    const [newCode, setnewCode] = useState('')
+    const [newId, setnewId] = useState('')
+    const router = useRouter()
 
     async function handleCreate() {
         if (!title.trim() || !code.trim()) return
@@ -48,9 +65,16 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
             setCode('')
             setDescription('')
             setLanguage('javascript')
-            setIsCreating(false)
+            
 
         }
+        setIsCreating(false)
+        router.refresh()
+    }
+
+    async function deletNote(snippet:Snippet) {
+        await supabase.from('snippets').delete().eq('id', snippet.id)
+        setAllSnippets(prev => prev.filter(i=> i.id !== snippet.id))
     }
 
     async function handleCopy(snippet: Snippet) {
@@ -63,15 +87,40 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
     const filtered = allSnippets.filter(s => filterLang || s.language === filterLang).filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
 
+    function selectNote(snippet:Snippet) {
+        setnewId(snippet.id)
+        setnewTitle(snippet.title)
+        setnewDescription(snippet.description)
+        setnewLanguage(snippet.language)
+        setnewCode(snippet.code)
+    }
+
+    
+
+    const saveEditedNote = async ()=>{
+        await supabase.from('snippets').update({
+            title :newTitle,
+            description : newDescription,
+            language : newLanguage,
+            code : newCode
+        })
+        .eq('id', newId)
+
+        setAllSnippets(prev=> prev.map(bug=> bug.id === newId ? {...bug, title : newTitle, description : newDescription, language : newLanguage, code : newCode} : bug))
+        setisEditing(false)
+    }
+
+    
+    
     return (
         <div className="p-8 min-h-screen bg-black/90 text-white">
             <div className="flex justify-between items-center">
-                <h1 className="text-green-400">Snippet Library</h1>
-                <button className="py-4 px-2 rounded-2xl font-semibold bg-green-400 text-black"  onClick={()=>setIsCreating(true)}>
+                <h1 className="text-green-400 text-2xl">Snippet Library</h1>
+                <button className="py-2 px-2 rounded-xl font-semibold bg-green-400 text-black text-sm"  onClick={()=>setIsCreating(true)}>
                     + New Snippet
                 </button>
             </div>
-            <div className="flex gap-3 mb-6">
+            <div className="flex gap-3 mb-6 mt-8">
                 <input
                     type="text"
                     placeholder="Search snippets..."
@@ -134,6 +183,49 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                 </div>
             </div>}
 
+            {isEditing && <div className="mb-8 border border-zinc-700 rounded-lg p-6">
+                <input
+                    type="text"
+                    placeholder="Snippet title"
+                    value={newTitle}
+                    onChange={(e) => setnewTitle(e.target.value)}
+                    className="w-full bg-transparent border-b border-zinc-700 text-white text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
+                />
+                <input
+                    type="text"
+                    placeholder="Description (optional)"
+                    value={newDescription}
+                    onChange={(e) => setnewDescription(e.target.value)}
+                    className="w-full bg-black/50 border border-zinc-700 text-white rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                />
+                <select
+                    value={newLanguage}
+                    onChange={(e) => setnewLanguage(e.target.value)}
+                    className="bg-zinc-800 text-white border border-zinc-700 rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                >
+                    {languages.map(l => (
+                        <option key={l} value={l}>{l}</option>
+                    ))}
+                </select>
+                <textarea
+                    placeholder="Paste your code here..."
+                    value={newCode}
+                    onChange={(e) => setnewCode(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-700 text-green-400 font-mono rounded p-3 mb-4 focus:outline-none focus:border-green-400 resize-none h-40"
+                />
+                <div className="flex gap-3 justify-end">
+                    <button onClick={() => setisEditing(false)} className="px-4 py-2 text-gray-400 hover:text-white">
+                        Cancel
+                    </button>
+                    <button
+                        onClick={saveEditedNote}
+                        className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
+                    >
+                        Edit Snippet
+                    </button>
+                </div>
+            </div>}
+
             {filtered.length === 0 && (
                 <p className="text-gray-400 text-center mt-20">No snippets found.</p>
             )}
@@ -158,6 +250,18 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                                     className="text-xs px-3 py-1 border border-zinc-600 rounded hover:border-green-400 text-gray-400 hover:text-green-400 transition-colors"
                                 >
                                     {copied === snippet.id ? '✓ Copied!' : 'Copy'}
+                                </button>
+                                <button
+                                    onClick={()=>{setisEditing(true), selectNote(snippet)}}
+                                    className="text-xs px-3 py-1 border border-blue-800 rounded hover:border-blue-700 text-blue-600 hover:text-blue-400 transition-colors"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={()=>deletNote(snippet)}
+                                    className="text-xs px-3 py-1 border border-red-800 rounded hover:border-red-700 text-red-600 hover:text-red-400 transition-colors"
+                                >
+                                    Delete
                                 </button>
                             </div>
                         </div>

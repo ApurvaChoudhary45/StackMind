@@ -47,6 +47,8 @@ export default function KanbanColumn({id, title, bugs, color} : Props) {
           <BugCard key={bug.id} bug={bug} />
         ))}
       </div>
+      
     </div>
+    
   )
 }
