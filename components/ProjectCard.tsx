@@ -49,9 +49,9 @@ export default  function  ProjectCard() {
 
                             
                             <div className='flex justify-between items-center mt-10'>
-                                <Link href={`/User/dashboard/projects/${project?.id}/notes`}><div className='text-green-400 cursor-pointer hover:text-green-300'>Notes</div></Link>
-                                <Link href={`/User/dashboard/projects/${project?.id}/bugs`}><div className='text-green-400 cursor-pointer hover:text-green-300'>Bugs</div></Link>
-                                <Link href={`/User/dashboard/projects/${project?.id}/snippets`}> <button className='text-green-400 text-md rounded-xl hover:text-green-300 cursor-pointer'>Snippets Section</button></Link>
+                                <Link href={`/dashboard/projects/${project?.id}/notes`}><div className='text-green-400 cursor-pointer hover:text-green-300'>Notes</div></Link>
+                                <Link href={`/dashboard/projects/${project?.id}/bugs`}><div className='text-green-400 cursor-pointer hover:text-green-300'>Bugs</div></Link>
+                                <Link href={`/dashboard/projects/${project?.id}/snippets`}> <button className='text-green-400 text-md rounded-xl hover:text-green-300 cursor-pointer'>Snippets Section</button></Link>
                             </div>
                         </div>
 
