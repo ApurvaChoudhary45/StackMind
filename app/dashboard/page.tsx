@@ -13,7 +13,7 @@ export default async function DashboardPage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) redirect('/Login')
+    if (!user) redirect('/login')
 
     const [{ data: projects }, { data: recentActivity }] = await Promise.all([supabase.from('projects').select('*').order('created_at', { ascending: false }), supabase.from('notes').select('title, created_at, projects(name)').order('created_at', { ascending: false }).limit(5)])
 
