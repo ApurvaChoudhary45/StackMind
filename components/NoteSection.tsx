@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import NoteEditor from './NoteEditor'
@@ -34,6 +34,11 @@ const NoteSection = ({ project, notes, userId }: {
 
     const [userNotes, setuserNotes] = useState(notes)
     
+    const [editable, setEditable] = useState(false)
+    const [newNoteTitle, setnewNoteTitle] = useState('')
+    const [newNoteContent, setnewNoteContent] = useState('')
+    const [noteID, setnoteID] = useState('')
+
 
     const handleSave = async () => {
         if (!title.trim()) return
@@ -54,12 +59,32 @@ const NoteSection = ({ project, notes, userId }: {
         router.refresh()
     }
 
+    const canWeEdit =async(note : Note)=>{
+        setEditable(true)
+        const data = await supabase.from('notes').select('*').eq('id', note.id)
+        setnewNoteTitle(data?.data?.[0]?.title)
+        setnewNoteContent(data?.data?.[0]?.content)
+        setnoteID(note.id)
+
+    }
+
+    const editNote = async(id : string)=>{
+        await supabase.from('notes').update({
+            title : newNoteTitle,
+            content : newNoteContent
+        }).eq('id', id)
+
+        setEditable(false)
+    }
+
     const deleteNote = async(note : Note)=>{
         console.log(note.id)
         await supabase.from('notes').delete().eq('id', note.id)
         setuserNotes(prev=>prev.filter(i=> i.id !== note.id))
 
     }
+
+
 
     return (
         <div className="p-8 bg-black/90 min-h-screen text-white">
@@ -101,6 +126,35 @@ const NoteSection = ({ project, notes, userId }: {
                 </div>
             )}
 
+            {editable && <div className="mb-8 border border-zinc-700 rounded-lg p-6">
+                <input
+                    type="text"
+                    placeholder="Note Title"
+                    value={newNoteTitle}
+                    onChange={(e) => setnewNoteTitle(e.target.value)}
+                    className="w-full bg-transparent border-b border-zinc-700 text-white text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
+                />
+                <input
+                    type="text"
+                    placeholder="Description (optional)"
+                    value={newNoteContent}
+                    onChange={(e) => setnewNoteContent(e.target.value)}
+                    className="w-full bg-black/50 border border-zinc-700 text-white rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                />
+                
+                <div className="flex gap-3 justify-end">
+                    <button onClick={() => setEditable(false)} className="px-4 py-2 text-gray-400 hover:text-white">
+                        Cancel
+                    </button>
+                    <button
+                        
+                        className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300" onClick={()=>editNote(noteID)}
+                    >
+                        Edit Note
+                    </button>
+                </div>
+            </div>}
+
             {userNotes.length === 0 && !isCreating && (
                 <p className="text-gray-400 text-center mt-20">No notes yet. Create your first one!</p>
             )}
@@ -116,6 +170,7 @@ const NoteSection = ({ project, notes, userId }: {
                         />
                         </div>
                         <div className='flex justify-end gap-3'>
+                        <button className='text-blue-500 hover:text-blue-600' onClick={()=>canWeEdit(note)}>Edit</button>
                         <button className='text-red-500 hover:text-red-600' onClick={()=>deleteNote(note)}>Delete</button>
                         </div>
                     </div>
