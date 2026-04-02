@@ -11,7 +11,7 @@ const LogOut = () => {
 
     const handleLogOut = async ()=>{
         await supabase.auth.signOut()
-        router.push('/login')
+        router.push('/Login')
     }
 
   return (

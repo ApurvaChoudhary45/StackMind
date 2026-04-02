@@ -2,7 +2,7 @@ import CreateProject from '@/components/CreateProject'
 import LogOut from '@/components/LogOut'
 import ProjectCard from '@/components/ProjectCard'
 import { createClient } from '@/lib/supabase/server'
-import { div } from 'framer-motion/client'
+
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -13,7 +13,7 @@ export default async function DashboardPage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) redirect('/login')
+    if (!user) redirect('/Login')
 
     const [{ data: projects }, { data: recentActivity }] = await Promise.all([supabase.from('projects').select('*').order('created_at', { ascending: false }), supabase.from('notes').select('title, created_at, projects(name)').order('created_at', { ascending: false }).limit(5)])
 

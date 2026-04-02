@@ -12,7 +12,7 @@ const LandingPage = () => {
         <div className="flex items-center md:gap-8 gap-2">
           <a href="#features" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">Features</a>
           <a href="#how" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">How it works</a>
-          <Link href="/login" className="bg-green-400 text-black font-mono font-bold md:text-sm md:px-5 md:py-2 rounded hover:opacity-80 transition-opacity text-xs py-1 px-1">
+          <Link href="/Login" className="bg-green-400 text-black font-mono font-bold md:text-sm md:px-5 md:py-2 rounded hover:opacity-80 transition-opacity text-xs py-1 px-1">
             Get started →
           </Link>
         </div>
@@ -33,7 +33,7 @@ const LandingPage = () => {
               Notes with syntax highlighting, bug tracking, and a searchable code snippet library — all in one place.
             </p>
             <div className="flex gap-4 items-center">
-              <Link href="/login" className="bg-green-400 text-black font-mono font-bold px-6 py-3 rounded hover:opacity-85 transition-opacity">
+              <Link href="/Login" className="bg-green-400 text-black font-mono font-bold px-6 py-3 rounded hover:opacity-85 transition-opacity">
                 Start for free →
               </Link>
               <a href="#features" className="text-green-400 border border-green-400/30 font-mono text-sm px-6 py-3 rounded hover:bg-green-400/10 transition-colors">
@@ -124,7 +124,7 @@ const LandingPage = () => {
         <p className="font-mono text-xs text-green-400 tracking-widest uppercase mb-4">// Get started</p>
         <h2 className="text-4xl font-extrabold tracking-tight mb-4">Your dev brain deserves better</h2>
         <p className="text-gray-500 mb-8">Free forever. Sign in with GitHub and start in 30 seconds.</p>
-        <Link href="/login" className="bg-green-400 text-black font-mono font-bold px-8 py-3 rounded hover:opacity-85 transition-opacity text-sm">
+        <Link href="/Login" className="bg-green-400 text-black font-mono font-bold px-8 py-3 rounded hover:opacity-85 transition-opacity text-sm">
           Start for free →
         </Link>
       </section>

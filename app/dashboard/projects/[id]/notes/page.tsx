@@ -8,7 +8,7 @@ export default async function NotesPage({params}: {params : {id : string}}) {
 
     const supabase = await createClient()
     const {data : {user}} = await supabase.auth.getUser()
-    if (!user) redirect('/login')
+    if (!user) redirect('/Login')
     
     const {id} = await params
     const {data : project} = await supabase
