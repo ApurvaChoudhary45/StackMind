@@ -84,8 +84,6 @@ const NoteSection = ({ project, notes, userId }: {
 
     }
 
-
-
     return (
         <div className="p-8 bg-black/90 min-h-screen text-white">
             <div className="flex justify-between items-center mb-8">

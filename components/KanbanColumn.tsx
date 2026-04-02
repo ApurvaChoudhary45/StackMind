@@ -10,7 +10,8 @@ type Bug = {
     title: string
     description: string
     priority: 'low' | 'medium' | 'high'
-    status: string
+    status: string,
+    img_src : string 
 }
 
 type Props = {

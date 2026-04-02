@@ -12,7 +12,8 @@ type Bug = {
     title: string
     description: string
     priority: 'low' | 'medium' | 'high'
-    status: string
+    status: string,
+    img_src : string 
 }
 
 const priorityColors = {
@@ -54,6 +55,12 @@ export default function BugCard({ bug }: { bug: Bug }) {
         transform: CSS.Translate.toString(transform)
     }
 
+    const viewError = (bug : Bug)=>{
+        setIsOpen(true)
+        console.log('King')
+        console.log(bug.id)
+    }
+
     return (
         <>
 
@@ -66,13 +73,30 @@ export default function BugCard({ bug }: { bug: Bug }) {
             >
                 <h3 className="text-white font-medium text-sm">{bug.title}</h3>
                 <p className="text-gray-400 text-xs mt-1 line-clamp-2">{bug.description}</p>
+                <div className='flex justify-between items-center'>
                 <span className={`text-xs font-semibold mt-2 block ${priorityColors[bug.priority]}`}>
                     {bug.priority.toUpperCase()}
                 </span>
+                <button className='text-green-400 underline text-sm hover:text-green-600 cursor-pointer' onPointerDown={(e) => e.stopPropagation()} onClick={(e)=>{e.stopPropagation(), viewError(bug)}}>View</button>
+                </div>
+
             </div>
+            {isOpen && <div className='fixed inset-0 flex justify-center items-center bg-black/50'>
+              <div className='bg-zinc-900 h-[83vh] w-1/2 rounded-2xl p-6 flex flex-col gap-4'>
+              
+              <div className='flex justify-between items-center'>
+              <h1 className='text-green-400'>Attached error screenshot</h1>
+              <p className='text-green-400 hover:text cursor-pointer' onClick={()=>setIsOpen(false)}>X</p>
+                </div>
+                {bug.img_src ? <div>
+                    <img src={bug.img_src} alt="no img" className='w-full rounded-lg h-[70vh]' />
+                </div> : <div><p className='text-green-500'>No screenshot added</p></div>}
+                
+              </div></div>}
             {bug.status === 'open' && <div>
                 <p className='text-green-500' onClick={(e)=> {e.stopPropagation(), analyze()}}>🤖 AI Bot</p>
             </div>}
+            
 
         </>
     )
