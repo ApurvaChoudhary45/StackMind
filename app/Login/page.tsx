@@ -2,9 +2,9 @@
 
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { FcGoogle } from 'react-icons/fc'       // Google
-import { FaTwitter } from 'react-icons/fa'     // Twitter
-import { FaGithub } from 'react-icons/fa'      // GitHub
+// import { FcGoogle } from 'react-icons/fc'       // Google
+// import { FaTwitter } from 'react-icons/fa'     // Twitter
+// import { FaGithub } from 'react-icons/fa'      // GitHub
 export default function LoginPage() {
   const supabase = createClient()
 
