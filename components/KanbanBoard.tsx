@@ -176,14 +176,14 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-              className="bg-zinc-800 text-white border border-zinc-700 rounded p-2 mb-4 focus:outline-none focus:border-green-400"
+              className="bg-zinc-800 text-white border border-zinc-700 rounded md:p-2 md:mb-4 py-2 focus:outline-none focus:border-green-400"
             >
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
               <option value="high">High Priority</option>
             </select>
 
-            <button className='px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300' onClick={() => setisErrorScreen(true)}>+ Add a screenshot</button>
+            <button className='md:px-4 md:py-2 px-2 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300' onClick={() => setisErrorScreen(true)}>+ Add a screenshot</button>
 
           </div>
           {isErrorScreen && (
@@ -235,7 +235,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
             </div>
           )}
 
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-3 justify-end mt-5">
             <button onClick={() => setisCreating(false)} className="px-4 py-2 text-gray-400 hover:text-white">
               Cancel
             </button>

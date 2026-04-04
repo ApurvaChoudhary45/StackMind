@@ -1,6 +1,7 @@
 import CreateProject from '@/components/CreateProject'
 import LogOut from '@/components/LogOut'
 import ProjectCard from '@/components/ProjectCard'
+import Toggle from '@/components/Toggle'
 import { createClient } from '@/lib/supabase/server'
 
 import Link from 'next/link'
@@ -25,7 +26,8 @@ export default async function DashboardPage() {
                 <nav className='flex justify-between items-center'>
                     <h1 className="md:text-2xl font-bold text-green-400">Welcome to StackMind</h1>
                     <div className='flex justify-center items-center md:gap-6'>
-                        <p className="text-gray-400 text-sm md:text-lg">Logged in as: {user.email}</p>
+                        <p className="text-gray-400 text-sm">Logged in as: {user.email}</p>
+                        <Toggle/>
                         <LogOut />
                     </div>
                 </nav>

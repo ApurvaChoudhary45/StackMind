@@ -17,7 +17,7 @@ const Navbar = async () => {
             <nav className='flex justify-between items-center'>
                 <h1 className="text-2xl font-bold text-green-400">Welcome to StackMind</h1>
                 <div className='flex justify-center items-center gap-6'>
-                    <p className="text-gray-400">Logged in as: {user.email}</p>
+                    <p className="text-gray-40">Logged in as: {user.email}</p>
                     <LogOut />
                 </div>
             </nav>

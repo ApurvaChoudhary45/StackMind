@@ -82,7 +82,7 @@ export default function BugCard({ bug }: { bug: Bug }) {
 
             </div>
             {isOpen && <div className='fixed inset-0 flex justify-center items-center bg-black/50'>
-              <div className='bg-zinc-900 h-[83vh] w-1/2 rounded-2xl p-6 flex flex-col gap-4'>
+              <div className='bg-zinc-900 md:h-[83vh] md:w-1/2 h-[60vh] rounded-2xl p-6 flex flex-col gap-4'>
               
               <div className='flex justify-between items-center'>
               <h1 className='text-green-400'>Attached error screenshot</h1>
