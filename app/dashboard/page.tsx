@@ -34,7 +34,7 @@ export default async function DashboardPage() {
             </div>
             <div className='bg-black/80 h-screen'>
                 <div className='flex justify-between items-center px-5'>
-                    <h1 className='py-3 text-xl font-extrabold text-green-400 font-mono text-md rounded-2xl px-5 '>Your Projects</h1>
+                    <h1 className='py-3 text-xl font-extrabold text-green-200 font-mono text-md rounded-2xl px-5 '>Your Projects</h1>
                     <CreateProject />
                 </div>
                 <ProjectCard/>
