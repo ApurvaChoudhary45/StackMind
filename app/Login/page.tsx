@@ -30,11 +30,11 @@ export default function LoginPage() {
       <div className='p-4 bg-black/90'>
         <Link href='/'><span className="font-mono text-green-400 text-lg px-5">Stack<span className="text-gray-500">//</span>Mind</span></Link>
       </div>
-      <div className="min-h-screen bg-black flex items-center justify-center p-6">
-        <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 bg-zinc-900 rounded-2xl overflow-hidden border border-green-400/20">
+      <div className="md:min-h-screen bg-black flex items-center justify-center p-6 h-[80vh]">
+        <div className="max-w-4xl w-full flex flex-col md:grid md:grid-cols-2 md:gap-6 gap-6 bg-zinc-900 rounded-2xl overflow-hidden border border-green-400/20">
 
           {/* Left: Welcome / Branding */}
-          <aside className="hidden md:flex flex-col justify-center items-start p-8 bg-black border-r border-green-400/20">
+          <aside className=" md:flex flex-col justify-center items-start p-8 bg-black border-r border-green-400/20">
             <span className="font-mono text-green-400 text-lg mb-6">
               Stack<span className="text-gray-500">//</span>Mind
             </span>

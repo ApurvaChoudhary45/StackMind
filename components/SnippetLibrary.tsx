@@ -4,6 +4,7 @@ import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { s } from "framer-motion/client"
+import GlobalSearch from "./GlobalSearch"
 
 
 type Snippet = {
@@ -109,8 +110,6 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         setAllSnippets(prev=> prev.map(bug=> bug.id === newId ? {...bug, title : newTitle, description : newDescription, language : newLanguage, code : newCode} : bug))
         setisEditing(false)
     }
-
-    
     
     return (
         <div className="p-8 min-h-screen bg-black/90 text-white">
