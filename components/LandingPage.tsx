@@ -12,7 +12,7 @@ const LandingPage = () => {
         <div className="flex items-center md:gap-8 gap-2">
           <a href="#features" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">Features</a>
           <a href="#how" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">How it works</a>
-          <Link href="/Login" className="bg-green-400 text-black font-mono font-bold md:text-sm md:px-5 md:py-2 rounded hover:opacity-80 transition-opacity text-xs py-1 px-1">
+          <Link href="/Login" className="bg-green-400 text-black font-mono font-bold md:text-sm md:px-5 md:py-2 rounded hover:opacity-80 transition-opacity text-xs py-2 px-1">
             Get started →
           </Link>
         </div>
@@ -33,7 +33,7 @@ const LandingPage = () => {
               Notes with syntax highlighting, bug tracking, and a searchable code snippet library — all in one place.
             </p>
             <div className="flex gap-4 items-center">
-              <Link href="/Login" className="bg-green-400 text-black font-mono font-bold px-6 py-3 rounded hover:opacity-85 transition-opacity">
+              <Link href="/Login" className="bg-green-400 text-black font-mono font-bold md:px-6 md:py-3 px-2 py-2 rounded hover:opacity-85 transition-opacity">
                 Start for free →
               </Link>
               <a href="#features" className="text-green-400 border border-green-400/30 font-mono text-sm px-6 py-3 rounded hover:bg-green-400/10 transition-colors">

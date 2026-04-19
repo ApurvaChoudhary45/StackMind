@@ -22,7 +22,7 @@ export default function ImportReposButton({projectId, userId}:
     setimpGithub(true)
     const supabase = createClient()
     const { data, error } = await supabase.auth.getSession()
-    console.log(data)
+    
     if (error) {
       console.error("Error fetching session:", error.message)
       return
@@ -55,9 +55,8 @@ export default function ImportReposButton({projectId, userId}:
   }
 
   const getRepoFiles = async (details: any) => {
-
     setimpFiles(true)
-    console.log(details.split('/'))
+
     let userData = details.split('/')
     let obj = {
       owner: userData[0],
@@ -88,7 +87,7 @@ export default function ImportReposButton({projectId, userId}:
     <div>
       <button
         onClick={importRepos}
-        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointer"
+        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointer md:text-md text-sm"
       >
         Import Github Repo
       </button>

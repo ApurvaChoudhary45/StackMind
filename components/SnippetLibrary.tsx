@@ -114,7 +114,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     return (
         <div className="p-8 min-h-screen bg-black/90 text-white">
             <div className="flex justify-between items-center">
-                <h1 className="text-green-400 text-2xl">Snippet Library</h1>
+                <h1 className="text-green-400 md:text-2xl text-lg">Snippet Library</h1>
                 <div className="flex justify-between items-center gap-5">
                 <button className="py-2 px-2 rounded-lg font-semibold bg-green-400 text-black text-sm" onClick={() => setIsCreating(true)}>
                     + New Snippet
@@ -239,9 +239,9 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                 {filtered.map(snippet => (
 
                     <div key={snippet.id} className="border border-zinc-700 rounded-lg p-4 hover:border-green-400/50 transition-colors">
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="md:flex md:justify-between md:flex-row items-start mb-2 flex flex-col gap-2">
                             <div>
-                                <h2 className="font-semibold text-white">{snippet.title}</h2>
+                                <h2 className="font-semibold text-white ">{snippet.title}</h2>
                                 {snippet.description && (
                                     <p className="text-gray-400 text-sm">{snippet.description}</p>
                                 )}

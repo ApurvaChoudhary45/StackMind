@@ -3,14 +3,15 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   const { title, description } = await request.json()
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const response = await fetch('https://api.together.xyz/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Authorization': `Bearer ${process.env.TOGETHER_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'google/gemma-3-4b-it:free',
+      model: 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo',
+      max_tokens: 512,
       messages: [
         {
           role: 'user',
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
 Bug title: ${title}
 Bug description: ${description}
 
-Keep your response concise and practical. Format it with clear sections.`
+Keep your response concise and practical.`
         }
       ]
     })
@@ -30,7 +31,10 @@ Keep your response concise and practical. Format it with clear sections.`
 
   const data = await response.json()
   console.log(JSON.stringify(data))
-  const text = data.choices[0].message.content
+  if (!data.choices?.[0]?.message?.content) {
+    return NextResponse.json({ analysis: 'AI analysis temporarily unavailable. Please try again.' })
+  }
 
+  const text = data.choices[0].message.content
   return NextResponse.json({ analysis: text })
 }

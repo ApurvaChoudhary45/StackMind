@@ -40,7 +40,8 @@ export default function BugCard({ bug }: { bug: Bug }) {
             body: JSON.stringify({title : bug.title, description: bug.description})
         })
         const res = await data.json()
-        console.log(res.analysiss)
+        setanalysis(res.analysis)
+        console.log(res.analysis)
         } catch (error) {
             
         }
@@ -93,6 +94,7 @@ export default function BugCard({ bug }: { bug: Bug }) {
                 </div> : <div><p className='text-green-500'>No screenshot added</p></div>}
                 
               </div></div>}
+              <p className='text-green-300'>{analysis}</p>
             {bug.status === 'open' && <div>
                 <p className='text-green-500' onClick={(e)=> {e.stopPropagation(), analyze()}}>🤖 AI Bot</p>
             </div>}
