@@ -1,4 +1,5 @@
 import CreateProject from '@/components/CreateProject'
+import GithubImport from '@/components/GithubImport'
 import LogOut from '@/components/LogOut'
 import ProjectCard from '@/components/ProjectCard'
 import Toggle from '@/components/Toggle'
@@ -14,6 +15,8 @@ export default async function DashboardPage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
+    
+
     if (!user) redirect('/Login')
 
     const [{ data: projects }, { data: recentActivity }] = await Promise.all([supabase.from('projects').select('*').order('created_at', { ascending: false }), supabase.from('notes').select('title, created_at, projects(name)').order('created_at', { ascending: false }).limit(5)])
@@ -26,6 +29,8 @@ export default async function DashboardPage() {
                 <nav className='flex justify-between items-center'>
                     <h1 className="md:text-2xl font-bold text-green-400">Welcome to StackMind</h1>
                     <div className='flex justify-center items-center md:gap-6'>
+                       
+                       
                         <p className="text-gray-400 text-sm">Logged in as: {user.email}</p>
                         <Toggle/>
                         <LogOut />

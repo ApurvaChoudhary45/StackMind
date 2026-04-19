@@ -59,8 +59,8 @@ const GlobalSearch = () => {
                     <div className="mt-7">
                         <h1 className="text-green-400 md:text-xl text-sm">Search Results....</h1>
                         <div>
-                            {results.length === 0 ? <p className="text-white">No results found</p> : Array.isArray(results) && results.map(item => (
-                                <div key={item?.id}>
+                            {query.length > 0 && (results.length === 0 ? <p className="text-white">No results found</p> : results.length > 0 && Array.isArray(results) && results.map(item => (
+                                <div key={item?.id} className="border-2 border-white p-2 rounded-2xl">
 
                                     {item.type === 'bug' ? (<Link href={`/dashboard/projects/${item?.project_id}/bugs`}><div className="flex justify-between items-center"><h1 className="text-red-200">{item?.title}</h1>
                                         <p className="text-red-400">{item?.type}</p></div></Link>) :
@@ -71,7 +71,7 @@ const GlobalSearch = () => {
                                             (<Link href={`/dashboard/projects/${item?.project_id}/notes`}><div className="flex justify-between items-center"><h1 className="text-blue-400">{item?.title}</h1>
                                                 <p className="text-blue-200">{item?.type}</p></div></Link>)}
                                 </div>
-                            ))}
+                            )))}
                         </div>
                     </div>
                 </div>

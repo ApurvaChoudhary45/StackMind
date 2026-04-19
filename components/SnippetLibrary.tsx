@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { s } from "framer-motion/client"
 import GlobalSearch from "./GlobalSearch"
-
+import GithubImport from '@/components/GithubImport'
 
 type Snippet = {
     id: string,
@@ -66,16 +66,16 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
             setCode('')
             setDescription('')
             setLanguage('javascript')
-            
+
 
         }
         setIsCreating(false)
         router.refresh()
     }
 
-    async function deletNote(snippet:Snippet) {
+    async function deletNote(snippet: Snippet) {
         await supabase.from('snippets').delete().eq('id', snippet.id)
-        setAllSnippets(prev => prev.filter(i=> i.id !== snippet.id))
+        setAllSnippets(prev => prev.filter(i => i.id !== snippet.id))
     }
 
     async function handleCopy(snippet: Snippet) {
@@ -88,7 +88,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
     const filtered = allSnippets.filter(s => filterLang || s.language === filterLang).filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
 
-    function selectNote(snippet:Snippet) {
+    function selectNote(snippet: Snippet) {
         setnewId(snippet.id)
         setnewTitle(snippet.title)
         setnewDescription(snippet.description)
@@ -96,28 +96,34 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         setnewCode(snippet.code)
     }
 
-    
 
-    const saveEditedNote = async ()=>{
+
+    const saveEditedNote = async () => {
         await supabase.from('snippets').update({
-            title :newTitle,
-            description : newDescription,
-            language : newLanguage,
-            code : newCode
+            title: newTitle,
+            description: newDescription,
+            language: newLanguage,
+            code: newCode
         })
-        .eq('id', newId)
+            .eq('id', newId)
 
-        setAllSnippets(prev=> prev.map(bug=> bug.id === newId ? {...bug, title : newTitle, description : newDescription, language : newLanguage, code : newCode} : bug))
+        setAllSnippets(prev => prev.map(bug => bug.id === newId ? { ...bug, title: newTitle, description: newDescription, language: newLanguage, code: newCode } : bug))
         setisEditing(false)
     }
-    
+
     return (
         <div className="p-8 min-h-screen bg-black/90 text-white">
             <div className="flex justify-between items-center">
                 <h1 className="text-green-400 text-2xl">Snippet Library</h1>
-                <button className="py-2 px-2 rounded-xl font-semibold bg-green-400 text-black text-sm"  onClick={()=>setIsCreating(true)}>
+                <div className="flex justify-between items-center gap-5">
+                <button className="py-2 px-2 rounded-lg font-semibold bg-green-400 text-black text-sm" onClick={() => setIsCreating(true)}>
                     + New Snippet
                 </button>
+                <GithubImport
+                    projectId={projectId}
+                    userId={userId}/>
+                </div>
+                
             </div>
             <div className="flex gap-3 mb-6 mt-8">
                 <input
@@ -251,21 +257,21 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                                     {copied === snippet.id ? '✓ Copied!' : 'Copy'}
                                 </button>
                                 <button
-                                    onClick={()=>{setisEditing(true), selectNote(snippet)}}
+                                    onClick={() => { setisEditing(true), selectNote(snippet) }}
                                     className="text-xs px-3 py-1 border border-blue-800 rounded hover:border-blue-700 text-blue-600 hover:text-blue-400 transition-colors"
                                 >
                                     Edit
                                 </button>
                                 <button
-                                    onClick={()=>deletNote(snippet)}
+                                    onClick={() => deletNote(snippet)}
                                     className="text-xs px-3 py-1 border border-red-800 rounded hover:border-red-700 text-red-600 hover:text-red-400 transition-colors"
                                 >
                                     Delete
                                 </button>
                             </div>
                         </div>
-                        <pre className="bg-zinc-900 rounded p-3 overflow-x-auto">
-                            <code className="text-green-400 font-mono text-sm">{snippet.code}</code>
+                        <pre className="bg-zinc-900 rounded p-3 overflow-x-auto max-h-100">
+                            <code className="text-green-400 font-mono text-sm whitespace-pre-wrap">{snippet.code}</code>
                         </pre>
                     </div>
                 ))}
