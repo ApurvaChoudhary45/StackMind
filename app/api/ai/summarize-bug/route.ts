@@ -3,15 +3,16 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   const { title, description } = await request.json()
 
-  const response = await fetch('https://api.together.xyz/v1/chat/completions', {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.TOGETHER_API_KEY}`,
+      'x-api-key': process.env.ANTHROPIC_API_KEY!,
+      'anthropic-version': '2023-06-01',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo',
-      max_tokens: 512,
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
       messages: [
         {
           role: 'user',
@@ -19,8 +20,8 @@ export async function POST(request: Request) {
 1. A clear explanation of what's likely causing it
 2. 2-3 specific steps to fix it
 3. How to prevent it in future
-
-Bug title: ${title}
+4. Format the solutions properly give proper space and line break after every steps. It should look clean and concise.
+Bug title: ${title} 
 Bug description: ${description}
 
 Keep your response concise and practical.`
@@ -31,10 +32,10 @@ Keep your response concise and practical.`
 
   const data = await response.json()
   console.log(JSON.stringify(data))
-  if (!data.choices?.[0]?.message?.content) {
-    return NextResponse.json({ analysis: 'AI analysis temporarily unavailable. Please try again.' })
+  if (!data.content?.[0]?.text) {
+    return NextResponse.json({ analysis: 'AI analysis temporarily unavailable.' })
   }
-
-  const text = data.choices[0].message.content
+  const text = data.content[0].text
+  console.log(text)
   return NextResponse.json({ analysis: text })
 }

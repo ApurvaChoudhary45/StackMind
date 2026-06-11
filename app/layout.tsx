@@ -38,7 +38,10 @@ export const metadata: Metadata = {
     title: 'StackMind — Second Brain for Developers',
     description: 'Notes with code blocks, Kanban bug tracker, and snippet library with GitHub import.',
     images: ['https://stack-mind-ten.vercel.app/og-image.png'],
-  }
+  },
+  icons: {
+    icon: "/favicon.png", 
+  },
 }
 
 export default function RootLayout({

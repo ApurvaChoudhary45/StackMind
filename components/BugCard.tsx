@@ -7,13 +7,15 @@ import { CSS } from "@dnd-kit/utilities"
 
 import { useState } from 'react'
 
+import { createClient } from '@/lib/supabase/client'
+
 type Bug = {
     id: string
     title: string
     description: string
     priority: 'low' | 'medium' | 'high'
     status: string,
-    img_src : string 
+    img_src: string
 }
 
 const priorityColors = {
@@ -28,24 +30,29 @@ export default function BugCard({ bug }: { bug: Bug }) {
     const [isOpen, setIsOpen] = useState(false)
     const [analysis, setanalysis] = useState('')
 
+    const [closeAI, setcloseAI] = useState(false)
+
+    const supabase = createClient()
+
     const analyze = async () => {
         setloading(true)
         setIsOpen(true)
         try {
             const data = await fetch('/api/ai/summarize-bug', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({title : bug.title, description: bug.description})
-        })
-        const res = await data.json()
-        setanalysis(res.analysis)
-        console.log(res.analysis)
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title: bug.title, description: bug.description })
+            })
+            const res = await data.json()
+            setanalysis(res.analysis)
+            console.log(res.analysis)
+            setcloseAI(true)
         } catch (error) {
-            
+
         }
-        
+
     }
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -56,11 +63,20 @@ export default function BugCard({ bug }: { bug: Bug }) {
         transform: CSS.Translate.toString(transform)
     }
 
-    const viewError = (bug : Bug)=>{
+    const viewError = (bug: Bug) => {
         setIsOpen(true)
         console.log('King')
         console.log(bug.id)
     }
+
+    const bugFixed = async (id: string) => {
+        await supabase.from('bugs').update({ status: 'in-progress' }).eq('id', id)
+    }
+
+    const closerAI = () => {
+        setcloseAI(false)
+    }
+
 
     return (
         <>
@@ -75,30 +91,50 @@ export default function BugCard({ bug }: { bug: Bug }) {
                 <h3 className="text-white font-medium text-sm">{bug.title}</h3>
                 <p className="text-gray-400 text-xs mt-1 line-clamp-2">{bug.description}</p>
                 <div className='flex justify-between items-center'>
-                <span className={`text-xs font-semibold mt-2 block ${priorityColors[bug.priority]}`}>
-                    {bug.priority.toUpperCase()}
-                </span>
-                <button className='text-green-400 underline text-sm hover:text-green-600 cursor-pointer' onPointerDown={(e) => e.stopPropagation()} onClick={(e)=>{e.stopPropagation(), viewError(bug)}}>View</button>
+                    <span className={`text-xs font-semibold mt-2 block ${priorityColors[bug.priority]}`}>
+                        {bug.priority.toUpperCase()}
+                    </span>
+
+                    {bug.status === 'open' && <button className='text-green-400 underline text-sm hover:text-green-600 cursor-pointer' onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(), viewError(bug) }}>View</button>}
                 </div>
 
+
+
             </div>
-            {isOpen && <div className='fixed inset-0 flex justify-center items-center bg-black/50'>
-              <div className='bg-zinc-900 md:h-[83vh] md:w-1/2 h-[60vh] rounded-2xl p-6 flex flex-col gap-4'>
-              
-              <div className='flex justify-between items-center'>
-              <h1 className='text-green-400'>Attached error screenshot</h1>
-              <p className='text-green-400 hover:text cursor-pointer' onClick={()=>setIsOpen(false)}>X</p>
+            {isOpen && <div className='fixed inset-0 flex justify-center items-center bg-black/50 '>
+                <div className='bg-zinc-900 md:h-[83vh] md:w-1/2 h-[60vh] rounded-2xl p-6 flex flex-col gap-4  overflow-y-scroll'>
+
+                    <div className='flex justify-between items-center'>
+                        <h1 className='text-green-400'>Attached error screenshot</h1>
+                        <p className='text-green-400 hover:text cursor-pointer' onClick={() => setIsOpen(false)}>X</p>
+                    </div>
+                    {bug.img_src ? <div><img src={bug.img_src} alt="no img" className='w-full rounded-lg h-[70vh]' />
+                    </div> : <div><p className='text-green-500'>No screenshot added</p></div>}
+
+                    <div className='pt-10'>
+                        <span className='text-white pt-10 font-mono'>AI Suggested Solution...</span>
+                        <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col mt-10'>
+
+                            <p className='text-green-300 text-sm font-mono'>{analysis}</p>
+                        </div>
+
+                    </div>
+
+                </div></div>}
+            {bug.status === 'open' && closeAI && <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col'>
+                <p className='text-green-300 text-xs font-mono'>{analysis}</p>
+                <div className='flex justify-center items-center gap-3 pt-2'>
+                    <button className='border-1 border-gray-600 rounded-lg p-2' onClick={() => bugFixed(bug.id)}>✔️</button>
+                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2'>❌</button>
+                    <span className='p-1 bg-green-200 rounded-2xl text-xs font-mono font-bold'>🤖 AI Suggestion</span>
                 </div>
-                {bug.img_src ? <div>
-                    <img src={bug.img_src} alt="no img" className='w-full rounded-lg h-[70vh]' />
-                </div> : <div><p className='text-green-500'>No screenshot added</p></div>}
-                
-              </div></div>}
-              <p className='text-green-300'>{analysis}</p>
-            {bug.status === 'open' && <div>
-                <p className='text-green-500' onClick={(e)=> {e.stopPropagation(), analyze()}}>🤖 AI Bot</p>
+
             </div>}
-            
+
+            {bug.status === 'open' && <div>
+                <p className='text-green-500 cursor-pointer hover:text-green-300' onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(), analyze() }}>🤖 AI Bot</p>
+            </div>}
+
 
         </>
     )
