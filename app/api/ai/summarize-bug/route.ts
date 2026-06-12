@@ -20,7 +20,12 @@ export async function POST(request: Request) {
 1. A clear explanation of what's likely causing it
 2. 2-3 specific steps to fix it
 3. How to prevent it in future
-4. Format the solutions properly give proper space and line break after every steps. It should look clean and concise.
+
+Important:
+- Put each step on a new line
+- Add a blank line between steps
+- Keep the response concise and practical
+
 Bug title: ${title} 
 Bug description: ${description}
 

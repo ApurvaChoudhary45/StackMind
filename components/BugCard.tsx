@@ -124,8 +124,9 @@ export default function BugCard({ bug }: { bug: Bug }) {
             {bug.status === 'open' && closeAI && <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col'>
                 <p className='text-green-300 text-xs font-mono'>{analysis}</p>
                 <div className='flex justify-center items-center gap-3 pt-2'>
-                    <button className='border-1 border-gray-600 rounded-lg p-2' onClick={() => bugFixed(bug.id)}>✔️</button>
-                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2'>❌</button>
+                    <span className='text-white font-mono text-sm'>Was it helpful?</span>
+                    <button className='border-1 border-gray-600 rounded-lg p-2 hover:bg-white hover:cursor-pointer' onClick={() => bugFixed(bug.id)}>✔️</button>
+                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2 hover:bg-white hover:cursor-pointer'>❌</button>
                     <span className='p-1 bg-green-200 rounded-2xl text-xs font-mono font-bold'>🤖 AI Suggestion</span>
                 </div>
 

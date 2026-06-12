@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 // import { FcGoogle } from 'react-icons/fc'       // Google
@@ -8,21 +9,37 @@ import Link from 'next/link'
 export default function LoginPage() {
   const supabase = createClient()
 
+  const [loading, setloading] = useState(false)
+  const [googleLoad, setGoogleLoad] = useState(false)
+
   async function signInWithGitHub() {
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
+    
+    try {
+      setloading(true)
+      await supabase.auth.signInWithOAuth({
+      provider: 'github', 
       options: {
         redirectTo: `${window.location.origin}/auth/callback`
       }
     })
+    } catch (error) {
+      console.log(error)
+      setloading(false)
+    }
   }
   async function signInWithGoogle() {
-    await supabase.auth.signInWithOAuth({
+    try {
+      setGoogleLoad(true)
+      await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`
       }
     })
+    } catch (error) {
+      console.log(error)
+      setGoogleLoad(false)
+    }
   }
 
   return (
@@ -66,17 +83,26 @@ export default function LoginPage() {
               <p className="font-mono text-xs text-gray-600">// built with Next.js + Supabase</p>
             </div>
           </aside>
-          <div className="flex flex-col items-center justify-center bg-black/10 gap-2">
-          <button
-            onClick={signInWithGitHub}
-            className="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 cursor-pointer"
-          >
-            Continue with GitHub
-          </button>
-          <button onClick={signInWithGoogle} className='bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800'>
-            Continue with Google
-          </button>
-        </div>
+          <div className="flex flex-col items-center justify-center  gap-4 p-8">
+            {loading ? <button className='cursor-not-allowed bg-black/40 px-6 py-3 rounded-lg w-full'><span className='animate-pulse font-bold text font-mono text-white'>Loading...</span></button> : <div className='flex justify-between items-center gap-5 w-full'>
+            <button
+              onClick={signInWithGitHub}
+              className="bg-black/60 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 cursor-pointer flex justify-center items-center gap-5 font-mono w-full"
+            >
+             <img src="/github.png" alt="" className='w-7.7 h-7' /> 
+              Continue with GitHub
+            </button>
+            </div>}
+            {googleLoad ? <button className='cursor-not-allowed bg-green-700 px-6 py-3 rounded-lg w-full'><span className='animate-pulse font-bold text font-mono text-white'>Loading...</span></button> : <div className='flex justify-between items-center gap-5 w-full'>
+            <button
+              onClick={signInWithGoogle}
+              className="bg-green-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 cursor-pointer flex justify-center items-center gap-5 font-mono w-full"
+            >
+             <img src="/google.png" alt="" className='w-7.7 h-7' /> 
+              Continue with Google
+            </button>
+            </div>}
+          </div>
         </div>
         
       </div>
