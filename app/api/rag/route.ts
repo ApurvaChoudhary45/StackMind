@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const queryVector = await embedText(query)
 
         // Step 2 — Search Qdrant for similar notes
-        const results = await searchVectors(queryVector, 5)
+        const results = await searchVectors(queryVector, 5, userId)
 
 
 
