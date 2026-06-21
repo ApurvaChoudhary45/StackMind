@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import Image from 'next/image'
 type Source = {
     title: string
     score: number
@@ -38,18 +39,34 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
     }
 
     return (
-        <div className="p-6 border border-zinc-700 rounded-xl bg-black/40 backdrop-blur-md shadow-lg transition hover:shadow-green-400/20" >
-            <div className='flex justify-between items-center'>
-                
-                <h2 className="text-green-400 font-semibold mb-4 text-lg tracking-wide">
-                    🔍 Ask your notes
-                </h2>
-                <span className='text-md hover:text-green-400 cursor-pointer' onClick={(e)=>setaskSI(false)}>X</span>
+        <div className="md:p-7  border border-zinc-700 rounded-xl bg-black/40 backdrop-blur-md shadow-lg transition hover:shadow-green-400/20 w-3/4" >
+            <div className="flex items-center justify-between space-x-3">
+                <div className="flex items-center gap-2">
+                    <Image
+                        src="/Ailogo.png"
+                        alt="AI Logo"
+                        height={40}
+                        width={40}
+                        className="object-contain"
+                    />
+                    <h2 className="text-green-400 font-semibold text-lg tracking-wide">
+                        Ask your notes
+                    </h2>
+                </div>
+                <span
+                    className="text-md hover:text-green-400 cursor-pointer"
+                    onClick={(e) => {
+                        setaskSI(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    X
+                </span>
             </div>
 
 
             {/* Input */}
-            <div className="flex gap-2 mb-5 pt-5">
+            <div className="flex gap-2 mb-5 pt-5 md:flex-row flex-col">
                 <input
                     type="text"
                     value={query}

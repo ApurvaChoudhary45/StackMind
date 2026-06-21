@@ -1,80 +1,24 @@
-import React from 'react';
-import styled from 'styled-components';
+'use client'
 
-const Switch = () => {
-  return (
-    <StyledWrapper>
-      <label className="switch">
-        <input type="checkbox" />
-        <span className="slider" />
-      </label>
-    </StyledWrapper>
-  );
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
+
+const ThemeToggle = () => {
+    const { theme, setTheme } = useTheme()
+    const [mounted, setMounted] = useState(false)
+
+    // Avoid hydration mismatch
+    useEffect(() => setMounted(true), [])
+    if (!mounted) return null
+
+    return (
+        <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-lg border border-zinc-700 hover:border-green-400 transition-colors"
+        >
+            {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+    )
 }
 
-const StyledWrapper = styled.div`
-  /* The switch - the box around the slider */
-  .switch {
-    font-size: 17px;
-    position: relative;
-    display: inline-block;
-    width: 3.5em;
-    height: 2em;
-  }
-
-  /* Hide default HTML checkbox */
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  /* The slider */
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: white;
-    border-radius: 50px;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.215, 0.610, 0.355, 1);
-  }
-
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 1.4em;
-    width: 1.4em;
-    right: 0.3em;
-    bottom: 0.3em;
-    transform: translateX(150%);
-    background-color: #59d102;
-    border-radius: inherit;
-    transition: all 0.4s cubic-bezier(0.215, 0.610, 0.355, 1);
-  }
-
-  .slider:after {
-    position: absolute;
-    content: "";
-    height: 1.4em;
-    width: 1.4em;
-    left: 0.3em;
-    bottom: 0.3em;
-    background-color: #cccccc;
-    border-radius: inherit;
-    transition: all 0.4s cubic-bezier(0.215, 0.610, 0.355, 1);
-  }
-
-  .switch input:focus + .slider {
-    box-shadow: 0 0 1px #59d102;
-  }
-
-  .switch input:checked + .slider:before {
-    transform: translateY(0);
-  }
-
-  .switch input:checked + .slider::after {
-    transform: translateX(-150%);
-  }`;
-
-export default Switch;
+export default ThemeToggle

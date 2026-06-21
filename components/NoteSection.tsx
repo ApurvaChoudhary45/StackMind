@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import NoteEditor from './NoteEditor'
 import RagSearch from './RagSearch'
-
+import Image from 'next/image'
 
 type Note = {
     id: string
@@ -42,7 +42,7 @@ const NoteSection = ({ project, notes, userId }: {
 
     const [askSI, setaskSI] = useState<boolean | null>(false)
 
-    const [expanded, setExpanded] = useState(false);
+    const [mode, setmode] = useState<boolean | null>(false)
 
     const [expandedNoteId, setexpandedNoteId] =  useState<string | null>(null)
 
@@ -108,7 +108,7 @@ const NoteSection = ({ project, notes, userId }: {
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <p className="text-gray-400 text-sm">Project</p>
-                    <h1 className="md:text-2xl font-bold text-green-400 text-lg">{project.name}</h1>
+                    <h1 className="md:text-2xl font-bold text-green-400 text-sm">{project.name}</h1>
                 </div>
                 <div className='flex items-center gap-10'>
                 <button
@@ -117,8 +117,9 @@ const NoteSection = ({ project, notes, userId }: {
                 >
                     + New Note
                 </button>
-                <button className='bg-green-400 rounded-2xl p-3 text-black font-mono font-extrabold' onClick={() => setaskSI(true)}>
-                    Ask AI
+                <button className='md:bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600 hover:from-teal-600 hover:to-green-400 transition-all duration-300 rounded-2xl p-2 flex items-center' onClick={() => setaskSI(true)}>
+                    <Image src={`/Ailogo.png`} alt='No Logo' height={50} width={50} className='md:h-7 md:w-7' />
+                    <span className='md:text-xl hidden md:block'>Ask AI</span>
                 </button>
                 </div>
             </div>

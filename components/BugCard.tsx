@@ -50,7 +50,10 @@ export default function BugCard({ bug }: { bug: Bug }) {
             console.log(res.analysis)
             setcloseAI(true)
         } catch (error) {
-
+            console.log(error)
+        }
+        finally{
+            setloading(false)
         }
 
     }
@@ -105,18 +108,18 @@ export default function BugCard({ bug }: { bug: Bug }) {
                 <div className='bg-zinc-900 md:h-[83vh] md:w-1/2 h-[60vh] rounded-2xl p-6 flex flex-col gap-4  overflow-y-scroll'>
 
                     <div className='flex justify-between items-center'>
-                        <h1 className='text-green-400'>Attached error screenshot</h1>
+                        <h1 className='text-green-400 font-mono'>Screenshot</h1>
                         <p className='text-green-400 hover:text cursor-pointer' onClick={() => setIsOpen(false)}>X</p>
                     </div>
                     {bug.img_src ? <div><img src={bug.img_src} alt="no img" className='w-full rounded-lg h-[70vh]' />
-                    </div> : <div><p className='text-green-500'>No screenshot added</p></div>}
+                    </div> : <div><p className='text-green-500 font-mono'>No screenshot added</p></div>}
 
                     <div className='pt-10'>
-                        <span className='text-white pt-10 font-mono'>AI Suggested Solution...</span>
-                        <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col mt-10'>
+                        {loading ? <span className='text-white pt-10 font-mono animate-pulse'>AI Suggested Solution...</span> : <span className='text-white pt-10 font-mono'>AI Suggested Solution...</span>}
+                        {loading ? <div><span className='animate-pulse'>Looking for the best fix....</span></div> : <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col mt-10'>
 
                             <p className='text-green-300 text-sm font-mono'>{analysis}</p>
-                        </div>
+                        </div>}
 
                     </div>
 

@@ -32,7 +32,7 @@ export default async function DashboardPage() {
                        
                        
                         <p className="text-gray-400 text-sm">Logged in as: {user.email}</p>
-                        <Toggle/>
+                        
                         <LogOut />
                     </div>
                 </nav>
