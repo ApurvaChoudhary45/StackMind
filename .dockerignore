@@ -1,0 +1,26 @@
+# Dependencies (will be reinstalled inside container)
+node_modules
+
+# Build output (will be rebuilt inside container)
+.next
+
+# Environment files (NEVER bake secrets into image)
+.env
+.env.local
+
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dev tools
+.eslintcache
+README.md
