@@ -7,7 +7,7 @@ export async function PUT(req: NextRequest) {
     try {
         const { noteId, title, content, projectId, userId } = await req.json()
 
-        const supabase = createClient()
+        const supabase = await createClient()
 
         // Step 1 — Update in Supabase
         const { error } = await supabase
