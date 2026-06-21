@@ -42,8 +42,6 @@ const NoteSection = ({ project, notes, userId }: {
 
     const [askSI, setaskSI] = useState<boolean | null>(false)
 
-    const [mode, setmode] = useState<boolean | null>(false)
-
     const [expandedNoteId, setexpandedNoteId] =  useState<string | null>(null)
 
     const handleSave = async () => {

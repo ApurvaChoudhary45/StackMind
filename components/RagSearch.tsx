@@ -11,7 +11,7 @@ type Source = {
 type RagSearchProps = {
     userId: string
     askSI: boolean
-    setaskSI: React.Dispatch<React.SetStateAction<boolean>>
+    setaskSI: React.Dispatch<React.SetStateAction<boolean | null>>
 }
 
 const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
