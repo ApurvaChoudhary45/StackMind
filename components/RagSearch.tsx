@@ -41,7 +41,7 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
     }
 
     return (
-        <div className="md:p-7  border border-zinc-700 rounded-xl bg-black/40 backdrop-blur-md shadow-lg transition hover:shadow-green-400/20 w-3/4" >
+        <div className="md:p-7  border border-zinc-700 rounded-xl bg-black/40 backdrop-blur-md shadow-lg transition hover:shadow-green-400/20 w-3/4 p-2" >
             <div className="flex items-center justify-between space-x-3">
                 <div className="flex items-center gap-2">
                     <Image
@@ -88,7 +88,7 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
 
             {/* Answer */}
             {answer && (
-                <div className="mb-5 p-5 bg-zinc-900/70 border border-zinc-700 rounded-xl shadow-inner">
+                <div className="mb-5 md:p-5 p-1 bg-zinc-900/70 border border-zinc-700 rounded-xl shadow-inner md:h-40 h-80 overflow-y-auto">
                     <p className="text-gray-300 text-sm leading-relaxed">{answer}</p>
                 </div>
             )}
