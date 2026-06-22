@@ -33,7 +33,7 @@ const NoteSection = ({ project, notes, userId }: {
     const [isCreating, setIsCreating] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    const [userNotes, setuserNotes] = useState(notes)
+    const [userNotes, setuserNotes] = useState<Note[]>(notes ?? []);
 
     const [editable, setEditable] = useState(false)
     const [newNoteTitle, setnewNoteTitle] = useState('')
@@ -58,6 +58,8 @@ const NoteSection = ({ project, notes, userId }: {
                 userId
             })
         })
+
+        
 
         if (res.ok) {
             setTitle('')

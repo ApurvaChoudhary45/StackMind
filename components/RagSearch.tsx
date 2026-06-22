@@ -26,6 +26,8 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
         setAnswer('')
         setSources([])
 
+        console.log(userId)
+
         const res = await fetch('/api/rag', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
