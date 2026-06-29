@@ -1,4 +1,5 @@
 // app/dashboard/bugs/page.tsx
+import AddBugs from '@/components/AddBugs'
 import { createClient } from '@/lib/supabase/server'
 
 const columns = ['todo', 'in_progress', 'done'] as const
@@ -29,9 +30,7 @@ export default async function BugsPage() {
                 <p className="font-mono text-sm text-zinc-600">
                     // <span className="text-green-400">all bugs</span> — {bugs?.length ?? 0} total
                 </p>
-                <button className="flex items-center gap-2 bg-green-400 text-black text-sm font-semibold px-4 py-2 rounded-lg">
-                    + Add bug
-                </button>
+                <AddBugs/>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

@@ -1,4 +1,5 @@
 // app/dashboard/notes/page.tsx
+import AddNote from '@/components/AddNote'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function NotesPage() {
@@ -17,9 +18,7 @@ export default async function NotesPage() {
                 <p className="font-mono text-sm text-zinc-600">
                     // <span className="text-green-400">all notes</span> — {notes?.length ?? 0} total
                 </p>
-                <button className="flex items-center gap-2 bg-green-400 text-black text-sm font-semibold px-4 py-2 rounded-lg">
-                    + Add note
-                </button>
+                <AddNote/>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

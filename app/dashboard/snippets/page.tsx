@@ -1,4 +1,5 @@
 // app/dashboard/snippets/page.tsx
+import AddSnippet from '@/components/AddSnippet'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function SnippetsPage() {
@@ -17,9 +18,7 @@ export default async function SnippetsPage() {
                 <p className="font-mono text-sm text-zinc-600">
                     // <span className="text-green-400">all snippets</span> — {snippets?.length ?? 0} total
                 </p>
-                <button className="flex items-center gap-2 bg-green-400 text-black text-sm font-semibold px-4 py-2 rounded-lg">
-                    + Add snippet
-                </button>
+                <AddSnippet/>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2  gap-3">
