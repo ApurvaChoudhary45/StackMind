@@ -16,8 +16,6 @@ export async function DELETE(req: NextRequest) {
             process.env.SUPABASE_SERVICE_ROLE_KEY!
         )
 
-
-
         // Delete User
         const { error } = await adminClient.auth.admin.deleteUser(user.id)
         if (error) throw new Error(error.message)

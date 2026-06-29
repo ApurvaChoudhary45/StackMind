@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import TerminalAnimation from './TerminalAnimation'
 
 const LandingPage = () => {
   return (
-     <main className="bg-black text-white min-h-screen font-sans">
+    <main className="bg-black text-white min-h-screen font-sans">
 
       {/* NAV */}
       <nav className="flex justify-between items-center md:px-10 py-5 px-4 border-b border-green-400/10 sticky top-0 bg-[#080c0a]/90 backdrop-blur-md z-50 ">
@@ -41,31 +42,11 @@ const LandingPage = () => {
                 See features
               </a>
             </div>
-            <p className="font-mono text-xs text-gray-600 mt-4">// No credit card required. Free forever.</p>
+            <p className="font-mono text-xs text-gray-600 mt-4">// Free to start. No credit card required.</p>
           </div>
 
           {/* TERMINAL */}
-          <div className="bg-[#0f1510] border border-green-400/12 rounded-xl overflow-hidden font-mono text-xs">
-            <div className="bg-[#161d17] px-4 py-3 flex items-center gap-2 border-b border-green-400/10">
-              <span className="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
-              <span className="w-3 h-3 rounded-full bg-[#febc2e]"></span>
-              <span className="w-3 h-3 rounded-full bg-[#28c840]"></span>
-              <span className="text-gray-600 text-xs ml-2">stackmind — dashboard</span>
-            </div>
-            <div className="p-5 leading-8">
-              <div><span className="text-green-400">→ </span><span className="text-blue-300">project.notes.create</span></div>
-              <div className="text-gray-600">// Title: Auth bug investigation</div>
-              <div className="text-gray-600">// Adding code block...</div>
-              <br />
-              <div><span className="text-green-400">→ </span><span className="text-blue-300">bugs.move</span><span className="text-gray-600">( "fix JWT expiry" )</span></div>
-              <div className="text-yellow-300">  status: "open" → "fixed"</div>
-              <div className="text-green-400">  ✓ synced in real-time</div>
-              <br />
-              <div><span className="text-green-400">→ </span><span className="text-blue-300">snippets.save</span></div>
-              <div className="text-gray-600">// tags: ["auth", "jwt", "utils"]</div>
-              <div className="text-green-400">  ✓ saved to library</div>
-            </div>
-          </div>
+          <TerminalAnimation />
         </div>
       </section>
 
@@ -77,11 +58,11 @@ const LandingPage = () => {
           <p className="text-gray-500 mb-12 max-w-lg">Not another generic tool. Built around how developers actually think.</p>
           <div className="md:grid grid-cols-3 gap-px bg-green-400/10 border border-green-400/10 rounded-xl overflow-hidden">
             {[
+              { icon: "🧠", title: "Ask your notes anything", desc: "RAG-powered AI search across all your notes. Ask why a bug happened last week — it knows." },
+              { icon: "🤖", title: "AI bug analyzer", desc: "Describe a bug, get a diagnosis. Powered by Claude with full context from your project notes." },
               { icon: "📝", title: "Rich notes + code blocks", desc: "Syntax-highlighted code blocks for 30+ languages. Your docs live where you work." },
               { icon: "🐛", title: "Kanban bug tracker", desc: "Drag bugs across Open → In Progress → Fixed with real-time sync." },
               { icon: "📌", title: "Snippet library", desc: "Save, tag, and search reusable code. Never rewrite the same utility twice." },
-              { icon: "⚡", title: "Real-time collaboration", desc: "Changes sync live. Your teammate sees the board update instantly." },
-              { icon: "🔐", title: "Secure by default", desc: "Row Level Security + GitHub OAuth. No passwords, no friction." },
               { icon: "🗂️", title: "Project workspaces", desc: "Each project has its own notes, bugs, and snippets — fully isolated." },
             ].map((f) => (
               <div key={f.title} className="bg-[#0f1510] p-8 hover:bg-[#161d17] transition-colors">
@@ -132,55 +113,54 @@ const LandingPage = () => {
 
       {/* FOOTER */}
       <footer className="px-8 pt-12 pb-8 border-t border-zinc-800">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        {/* Brand */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-green-400" />
-            <span className="text-green-400 font-mono text-lg font-medium">StackMind</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          {/* Brand */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-green-400" />
+              <span className="text-green-400 font-mono text-lg font-medium">StackMind</span>
+            </div>
+            <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+              A second brain for developers. Notes, bugs, and snippets — organized and searchable with AI.
+            </p>
+            <div className="mt-3 inline-flex items-center gap-2 text-xs font-mono text-gray-500 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              Built with Next.js · Claude · Qdrant
+            </div>
           </div>
-          <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-            A second brain for developers. Notes, bugs, and snippets — organized and searchable with AI.
-          </p>
-          <div className="mt-3 inline-flex items-center gap-2 text-xs font-mono text-gray-500 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-            Built with Next.js · Claude · Qdrant
+
+          {/* Product */}
+          <div>
+            <p className="text-xs font-medium tracking-widest uppercase text-gray-600 mb-4">Product</p>
+            <ul className="flex flex-col gap-2">
+              {['Notes', 'Bug Tracker', 'Snippets', 'AI Search'].map(link => (
+                <li key={link}>
+                  <a href="#" className="text-sm text-gray-400 cursor-auto">{link}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Developer */}
+          <div>
+            <p className="text-xs font-medium tracking-widest uppercase text-gray-600 mb-4">Developer</p>
+            <ul className="flex flex-col gap-2">
+              <li><a href="https://github.com/ApurvaChoudhary45/StackMind" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-green-400 cursor-pointer ">Github</a></li>
+              <li className="text-sm text-gray-400 hover:text-green-400 cursor-pointer  "><Link href={`/changelog`}>Changelog</Link></li>
+              <li className="text-sm text-gray-400 hover:text-green-400 cursor-pointer  "><Link href={`/privacy`}>Privacy</Link></li>
+
+            </ul>
           </div>
         </div>
 
-        {/* Product */}
-        <div>
-          <p className="text-xs font-medium tracking-widest uppercase text-gray-600 mb-4">Product</p>
-          <ul className="flex flex-col gap-2">
-            {['Notes', 'Bug Tracker', 'Snippets', 'AI Search'].map(link => (
-              <li key={link}>
-                <a href="#" className="text-sm text-gray-400 hover:text-green-400 transition-colors">{link}</a>
-              </li>
-            ))}
-          </ul>
+        {/* Bottom */}
+        <div className="flex justify-between items-center pt-6 border-t border-zinc-800">
+          <span className="text-xs font-mono text-gray-600">// © 2026 StackMind — all rights reserved</span>
+          <div className="flex gap-3">
+            {/* Add your social links here */}
+          </div>
         </div>
-
-        {/* Developer */}
-        <div>
-          <p className="text-xs font-medium tracking-widest uppercase text-gray-600 mb-4">Developer</p>
-          <ul className="flex flex-col gap-2">
-            {['GitHub', 'Changelog', 'Privacy', 'Terms'].map(link => (
-              <li key={link}>
-                <a href="#" className="text-sm text-gray-400 hover:text-green-400 transition-colors">{link}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* Bottom */}
-      <div className="flex justify-between items-center pt-6 border-t border-zinc-800">
-        <span className="text-xs font-mono text-gray-600">// © 2026 StackMind — all rights reserved</span>
-        <div className="flex gap-3">
-          {/* Add your social links here */}
-        </div>
-      </div>
-    </footer>
+      </footer>
 
     </main>
   )

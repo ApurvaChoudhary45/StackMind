@@ -30,7 +30,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
   const accountItems = [
     { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
     { href: '/dashboard/account', label: 'Profile', icon: 'ti-user-circle' },
-    { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' },
+    // { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' }, 
   ]
 
   return (
@@ -141,11 +141,14 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
           <span className={`whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
             Dark mode
           </span>
-          {!collapsed && (
+          <span className="text-xs bg-zinc-800 text-green-400 border border-zinc-700 rounded-full px-2 py-0.5 font-mono ml-2">
+  coming soon
+</span>
+          {/* {!collapsed && (
             <div className="ml-auto">
               <ThemeToggle />
             </div>
-          )}
+          )} */}
         </div>
         <div className={`px-2 py-2 rounded-lg text-sm text-zinc-500 hover:text-red-400 hover:bg-red-950/30 transition-colors ${collapsed ? 'justify-center' : ''}`}>
           <LogOut collapsed = {collapsed}/> 
