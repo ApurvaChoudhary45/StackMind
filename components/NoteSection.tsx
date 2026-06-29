@@ -13,6 +13,7 @@ type Note = {
     title: string
     content: string
     created_at: string
+    tags : string[] | null
 }
 
 type Project = {
@@ -42,7 +43,7 @@ const NoteSection = ({ project, notes, userId }: {
 
     const [askSI, setaskSI] = useState<boolean | null>(false)
 
-    const [expandedNoteId, setexpandedNoteId] =  useState<string | null>(null)
+    const [expandedNoteId, setexpandedNoteId] = useState<string | null>(null)
 
     const handleSave = async () => {
         if (!title.trim()) return
@@ -59,7 +60,7 @@ const NoteSection = ({ project, notes, userId }: {
             })
         })
 
-        
+
 
         if (res.ok) {
             setTitle('')
@@ -94,11 +95,11 @@ const NoteSection = ({ project, notes, userId }: {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                noteId : note.id
+                noteId: note.id
             })
         })
 
-        
+
         setuserNotes(prev => prev.filter(i => i.id !== note.id))
 
     }
@@ -111,16 +112,16 @@ const NoteSection = ({ project, notes, userId }: {
                     <h1 className="md:text-2xl font-bold text-green-400 text-sm">{project.name}</h1>
                 </div>
                 <div className='flex items-center gap-10'>
-                <button
-                    onClick={() => setIsCreating(true)}
-                    className="md:px-4 md:py-2 bg-green-400 px-2 py-1 text-black font-semibold rounded hover:bg-green-300"
-                >
-                    + New Note
-                </button>
-                <button className='md:bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600 hover:from-teal-600 hover:to-green-400 transition-all duration-300 rounded-2xl p-2 flex items-center' onClick={() => setaskSI(true)}>
-                    <Image src={`/Ailogo.png`} alt='No Logo' height={50} width={50} className='md:h-7 md:w-7' />
-                    <span className='md:text-xl hidden md:block'>Ask AI</span>
-                </button>
+                    <button
+                        onClick={() => setIsCreating(true)}
+                        className="md:px-4 md:py-2 bg-green-400 px-2 py-1 text-black font-semibold rounded hover:bg-green-300"
+                    >
+                        + New Note
+                    </button>
+                    <button className='md:bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600 hover:from-teal-600 hover:to-green-400 transition-all duration-300 rounded-2xl p-2 flex items-center' onClick={() => setaskSI(true)}>
+                        <Image src={`/Ailogo.png`} alt='No Logo' height={50} width={50} className='md:h-7 md:w-7' />
+                        <span className='md:text-xl hidden md:block'>Ask AI</span>
+                    </button>
                 </div>
             </div>
 
@@ -200,6 +201,18 @@ const NoteSection = ({ project, notes, userId }: {
                                 {expandedNoteId === note.id ? "Show less" : "View more"}
                             </button>
                         </div>
+                        {note.tags && note.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {note.tags.map((tag: string, index: number) => (
+                                    <span
+                                        key={index}
+                                        className="text-xs px-2 py-1 bg-zinc-800 dark:bg-zinc-800 text-green-400 rounded-full border border-zinc-700"
+                                    >
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                         <div className='flex justify-end gap-3'>
                             <button className='text-blue-500 hover:text-blue-600' onClick={() => canWeEdit(note)}>Edit</button>
                             <button className='text-red-500 hover:text-red-600' onClick={() => deleteNote(note)}>Delete</button>
@@ -208,7 +221,7 @@ const NoteSection = ({ project, notes, userId }: {
                 ))}
             </div>
             {askSI && <div className='fixed inset-0 flex justify-center items-center bg-black/80'>
-                <RagSearch userId={userId} askSI = {askSI} setaskSI = {setaskSI}/>
+                <RagSearch userId={userId} askSI={askSI} setaskSI={setaskSI} />
 
 
             </div>}

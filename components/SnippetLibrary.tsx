@@ -119,9 +119,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                 <button className="py-2 px-2 rounded-lg font-semibold bg-green-400 text-black text-sm" onClick={() => setIsCreating(true)}>
                     + New Snippet
                 </button>
-                <GithubImport
-                    projectId={projectId}
-                    userId={userId}/>
+                
                 </div>
                 
             </div>

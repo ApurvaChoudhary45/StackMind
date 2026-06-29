@@ -7,7 +7,15 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (data.session?.provider_token) {
+      await supabase.from('github_tokens').upsert({
+        user_id: data.session.user.id,
+        token: data.session.provider_token,
+        updated_at: new Date().toISOString()
+      })
+    }
   }
 
   return NextResponse.redirect(`${origin}/dashboard`)

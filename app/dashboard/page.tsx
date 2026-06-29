@@ -15,34 +15,25 @@ export default async function DashboardPage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    
+    const { count } = await supabase.from('projects').select('*', { count: 'exact', head: true })
+
 
     if (!user) redirect('/Login')
 
-    const [{ data: projects }, { data: recentActivity }] = await Promise.all([supabase.from('projects').select('*').order('created_at', { ascending: false }), supabase.from('notes').select('title, created_at, projects(name)').order('created_at', { ascending: false }).limit(5)])
+    const [{ data: projects }, { data: recentActivity }] = await Promise.all([supabase.from('projects').select('*').order('created_at', { ascending: false }), supabase.from('notes').select('title, created_at, projects(name)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5)])
 
-    
+
 
     return (
-        <div className='bg-black/80 '>
-            <div className="p-5 bg-black/90 ">
-                <nav className='flex justify-between items-center'>
-                    <h1 className="md:text-2xl font-bold text-green-400">Welcome to StackMind</h1>
-                    <div className='flex justify-center items-center md:gap-6'>
-                       
-                       
-                        <p className="text-gray-400 text-sm">Logged in as: {user.email}</p>
-                        
-                        <LogOut />
-                    </div>
-                </nav>
-            </div>
-            <div className='bg-black/80 h-screen'>
+        <div className='bg-black/80 flex '>
+            <div className='bg-black/80 h-screen flex-1 pt-2'>
                 <div className='flex justify-between items-center px-5'>
-                    <h1 className='py-3 text-xl font-extrabold text-green-200 font-mono text-md rounded-2xl px-5 '>Your Projects</h1>
+                    <p className="font-mono text-sm text-zinc-600 mt-6 px-2">
+                    // <span className="text-green-400">dashboard</span>
+                </p>
                     <CreateProject />
                 </div>
-                <ProjectCard/>
+                <ProjectCard />
 
 
                 {/* Recent Activity */}

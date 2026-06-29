@@ -2,6 +2,60 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { storeVectors, setupCollection } from '@/lib/qdrant'
+import Anthropic from '@anthropic-ai/sdk'
+
+const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY
+})
+
+// ─── Tag Generation ───────────────────────────────────────────
+// We ask Claude to read the note and return relevant tags
+// The prompt is very specific — we tell it to return ONLY a JSON array
+// No extra text, no explanation, just ["tag1", "tag2"]
+// This makes parsing reliable
+
+async function generateTags(title: string, content: string): Promise<string[]> {
+    try {
+        const message = await anthropic.messages.create({
+            model: 'claude-haiku-4-5',
+            max_tokens: 100, // Tags are short — no need for more tokens
+            messages: [{
+                role: 'user',
+                content: `You are a tagging system for a developer notes app.
+
+Analyze this note and return 3-5 relevant technical tags.
+
+Title: ${title}
+Content: ${content}
+
+Rules:
+- Return ONLY a JSON array of strings
+- No explanation, no extra text, just the array
+- Tags should be short (1-2 words max)
+- Focus on technologies, concepts, and topics
+- Example: ["React", "useEffect", "hooks", "performance"]
+
+Return the JSON array now:`
+            }]
+        })
+
+        // Extract the text response from Claude
+        const text = message.content[0].type === 'text'
+            ? message.content[0].text.trim()
+            : '[]'
+
+        // Parse the JSON array Claude returned
+        // If parsing fails for any reason, return empty array
+        const tags = JSON.parse(text)
+        return Array.isArray(tags) ? tags : []
+
+    } catch (error) {
+        // Tag generation failing should NEVER break note saving
+        // So we catch the error and return empty array silently
+        console.error('Tag generation failed:', error)
+        return []
+    }
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,24 +63,31 @@ export async function POST(req: NextRequest) {
 
         const supabase = await createClient()
 
-        // Step 1 — Save to Supabase first
-        const { data: note, error } = await supabase.from('notes')
+        // Step 1 — Generate tags using Claude (runs in parallel with nothing yet)
+        // We do this BEFORE saving so we can store tags in the same insert
+        const tags = await generateTags(title, content)
+        console.log('Generated tags:', tags)
+
+        // Step 2 — Save to Supabase WITH tags included
+        const { data: note, error } = await supabase
+            .from('notes')
             .insert({
                 title,
                 content,
                 project_id: projectId,
-                user_id: userId
+                user_id: userId,
+                tags  // ← tags saved in the same insert, no extra DB call needed
             })
             .select()
             .single()
 
         if (error) throw new Error(error.message)
 
-        // Step 2 — Embed the note
+        // Step 3 — Embed the note for RAG search
         const textToEmbed = `${title} ${content}`
         const vector = await embedText(textToEmbed)
 
-        // Step 3 — Store in Qdrant
+        // Step 4 — Store in Qdrant
         await setupCollection()
         await storeVectors([{
             id: note.id,
@@ -35,8 +96,8 @@ export async function POST(req: NextRequest) {
                 noteId: note.id,
                 title: note.title,
                 content: note.content,
-                projectId: projectId,
-                userId: userId
+                projectId,
+                userId
             }
         }])
 

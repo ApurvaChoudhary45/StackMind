@@ -131,20 +131,56 @@ const LandingPage = () => {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-green-400/10 bg-[#0f1510] px-10 py-8">
-        <div className="max-w-5xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <div>
-            <div className="font-mono text-green-400">Stack<span className="text-gray-600">//</span>Mind</div>
-            <div className="text-gray-600 text-xs mt-1">Second brain for developers.</div>
+      <footer className="px-8 pt-12 pb-8 border-t border-zinc-800">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        {/* Brand */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-green-400" />
+            <span className="text-green-400 font-mono text-lg font-medium">StackMind</span>
           </div>
-          <div className="flex gap-6">
-            <a href="#features" className="text-gray-500 hover:text-green-400 text-sm transition-colors">Features</a>
-            <a href="#how" className="text-gray-500 hover:text-green-400 text-sm transition-colors">How it works</a>
-            <a href="#" className="text-gray-500 hover:text-green-400 text-sm transition-colors">GitHub</a>
+          <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+            A second brain for developers. Notes, bugs, and snippets — organized and searchable with AI.
+          </p>
+          <div className="mt-3 inline-flex items-center gap-2 text-xs font-mono text-gray-500 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+            Built with Next.js · Claude · Qdrant
           </div>
-          <div className="font-mono text-xs text-gray-600">// built with Next.js + Supabase</div>
         </div>
-      </footer>
+
+        {/* Product */}
+        <div>
+          <p className="text-xs font-medium tracking-widest uppercase text-gray-600 mb-4">Product</p>
+          <ul className="flex flex-col gap-2">
+            {['Notes', 'Bug Tracker', 'Snippets', 'AI Search'].map(link => (
+              <li key={link}>
+                <a href="#" className="text-sm text-gray-400 hover:text-green-400 transition-colors">{link}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Developer */}
+        <div>
+          <p className="text-xs font-medium tracking-widest uppercase text-gray-600 mb-4">Developer</p>
+          <ul className="flex flex-col gap-2">
+            {['GitHub', 'Changelog', 'Privacy', 'Terms'].map(link => (
+              <li key={link}>
+                <a href="#" className="text-sm text-gray-400 hover:text-green-400 transition-colors">{link}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Bottom */}
+      <div className="flex justify-between items-center pt-6 border-t border-zinc-800">
+        <span className="text-xs font-mono text-gray-600">// © 2026 StackMind — all rights reserved</span>
+        <div className="flex gap-3">
+          {/* Add your social links here */}
+        </div>
+      </div>
+    </footer>
 
     </main>
   )
