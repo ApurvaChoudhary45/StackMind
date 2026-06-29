@@ -148,7 +148,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
           )}
         </div>
         <div className={`px-2 py-2 rounded-lg text-sm text-zinc-500 hover:text-red-400 hover:bg-red-950/30 transition-colors ${collapsed ? 'justify-center' : ''}`}>
-          <LogOut collapsed = {collapsed}/>
+          <LogOut collapsed = {collapsed}/> 
         </div>
       </div>
     </aside>

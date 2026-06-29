@@ -19,7 +19,7 @@ const Navbar = async () => {
                 <div className='flex justify-center items-center gap-6'>
                     <p className="text-gray-40">Logged in as: {user.email}</p>
                     <p className="text-gray-40">Logged in as: {user.email}</p>
-                    <LogOut />
+                    
                 </div>
             </nav>
         </div>
