@@ -25,11 +25,11 @@ export default async function DashboardPage() {
 
 
     return (
-        <div className='bg-black/80 flex '>
-            <div className='bg-black/80 h-screen flex-1 pt-2'>
+        <div className='bg-background flex '>
+            <div className='bg-background h-screen flex-1 pt-2'>
                 <div className='flex justify-between items-center px-5'>
-                    <p className="font-mono text-sm text-zinc-600 mt-6 px-2">
-                    // <span className="text-green-400">dashboard</span>
+                    <p className="font-mono text-sm text-text-muted mt-6 px-2">
+                    // <span className="text-muted">dashboard</span>
                 </p>
                     <CreateProject />
                 </div>
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
                         {recentActivity?.map((note: any) => (
                             <div key={note.title + note.created_at} className='flex justify-between items-center border border-zinc-800 rounded p-3'>
                                 <div>
-                                    <span className='text-white text-sm'>{note.title}</span>
+                                    <span className='dark:text-white text-sm'>{note.title}</span>
                                     <span className='text-gray-500 text-xs ml-2'>in {note.projects?.name}</span>
                                 </div>
                                 <span className='text-gray-500 text-xs'>

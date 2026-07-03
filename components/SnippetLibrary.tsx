@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { s } from "framer-motion/client"
@@ -36,7 +36,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     const [filterLang, setFilterLang] = useState('all')
     const [title, setTitle] = useState('')
     const [code, setCode] = useState('')
-    const [language, setLanguage] = useState('javascript')
+    const [language, setLanguage] = useState('')
     const [description, setDescription] = useState('')
     const [copied, setCopied] = useState<string | null>(null)
     const supabase = createClient()
@@ -47,28 +47,39 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     const [newCode, setnewCode] = useState('')
     const [newId, setnewId] = useState('')
     const router = useRouter()
+    const [autoSave, setAutoSave] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
+    const [textResize, setTextResize] = useState('')
+    const [newNoteId, setNewNoteId] = useState('')
+
 
     async function handleCreate() {
         if (!title.trim() || !code.trim()) return
 
-        const { data } = await supabase.from('snippets').insert({
-            title,
-            code,
-            language,
-            description,
-            project_id: projectId,
-            user_id: userId
-        })
-
-        if (data) {
-            setAllSnippets(prev => [...prev, data])
-            setTitle('')
-            setCode('')
-            setDescription('')
-            setLanguage('javascript')
-
-
+        if (newNoteId) {
+            // Auto-save already created it — just update title and other fields
+            await supabase.from('snippets').update({
+                title,
+                code,
+                language,
+                description
+            }).eq('id', newNoteId)
+        } else {
+            // Never auto-saved — create fresh
+            await supabase.from('snippets').insert({
+                title,
+                code,
+                language,
+                description,
+                project_id: projectId,
+                user_id: userId
+            })
         }
+
+        setTitle('')
+        setCode('')
+        setDescription('')
+        setNewNoteId('')
         setIsCreating(false)
         router.refresh()
     }
@@ -96,9 +107,33 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         setnewCode(snippet.code)
     }
 
+    async function createNewNote() {
+        setIsCreating(true)
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            console.error("No user found:", userError);
+            return;
+        }
+
+        // Insert a new note tied to this user
+        const { data, error } = await supabase
+            .from("snippets")
+            .insert({ title: "", language: "", description: "", code: "", user_id: user.id, project_id: projectId })
+            .select();
+
+        if (error) {
+            console.error("Error creating note:", error);
+        } else {
+            console.log(data[0])
+            setNewNoteId(data[0]?.id); // store the new noteId in state
+
+        }
+    }
+
 
 
     const saveEditedNote = async () => {
+
         await supabase.from('snippets').update({
             title: newTitle,
             description: newDescription,
@@ -109,19 +144,80 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
         setAllSnippets(prev => prev.map(bug => bug.id === newId ? { ...bug, title: newTitle, description: newDescription, language: newLanguage, code: newCode } : bug))
         setisEditing(false)
+        router.refresh()
     }
 
+
+    useEffect(() => {
+        const saveAuto = localStorage.getItem('autoSaveEnabled')
+        if (saveAuto) setAutoSave(saveAuto === 'true')
+
+        const textSize = localStorage.getItem('fontSize')
+        if (textSize === 'small') {
+            setTextResize('13')
+        }
+        else if (textSize === 'medium') {
+            setTextResize('15')
+        }
+        else if (textSize === 'large') {
+            setTextResize('17')
+        }
+
+        const newLang = localStorage.getItem('defaultLanguage')?.toLowerCase()
+        if (newLang) {
+            // setnewLanguage(newLang)
+            setLanguage(newLang)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!autoSave || !newNoteId) return;
+
+        const timer = setTimeout(async () => {
+            setIsSaving(true)
+            const { error } = await supabase
+                .from("snippets")
+                .update({ code: code })
+                .eq("id", newNoteId);
+
+            if (error) console.error("Save failed:", error);
+            else console.log("Note saved successfully");
+            setIsSaving(false)
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [code, autoSave, newNoteId]);
+
+    useEffect(() => {
+        if (!autoSave || !newId) return;
+
+        const timer = setTimeout(async () => {
+            setIsSaving(true)
+            const { error } = await supabase
+                .from("snippets")
+                .update({ code: newCode })
+                .eq("id", newId);
+
+            if (error) console.error("Save failed:", error);
+            else console.log("Note saved successfully");
+            setIsSaving(false)
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [newCode, autoSave, newId]);
+
+
     return (
-        <div className="p-8 min-h-screen bg-black/90 text-white">
+        <div className="p-8 min-h-screen bg-background dark:text-white">
             <div className="flex justify-between items-center">
                 <h1 className="text-green-400 md:text-2xl text-lg">Snippet Library</h1>
                 <div className="flex justify-between items-center gap-5">
-                <button className="py-2 px-2 rounded-lg font-semibold bg-green-400 text-black text-sm" onClick={() => setIsCreating(true)}>
-                    + New Snippet
-                </button>
-                
+                    <button className="py-2 px-2 rounded-lg font-semibold bg-green-400 text-black text-sm" onClick={createNewNote}>
+                        + New Snippet
+                    </button>
+
                 </div>
-                
+
             </div>
             <div className="flex gap-3 mb-6 mt-8">
                 <input
@@ -129,39 +225,39 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     placeholder="Search snippets..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded p-2 focus:outline-none focus:border-green-400"
+                    className="flex-1 bg-card border border-border text-input-text rounded p-2 focus:outline-none focus:border-green-400"
                 />
                 <select
                     value={filterLang}
                     onChange={(e) => setFilterLang(e.target.value)}
-                    className="bg-zinc-900 text-white border border-zinc-700 rounded p-2 focus:outline-none focus:border-green-400"
+                    className="bg-card dark:text-white text-black border border-border rounded p-2 focus:outline-none focus:border-green-400"
                 >
-                    <option value="all">All Languages</option>
+                    <option value="all">{newLanguage}</option>
                     {languages.map(l => (
                         <option key={l} value={l}>{l}</option>
                     ))}
                 </select>
             </div>
 
-            {isCreating && <div className="mb-8 border border-zinc-700 rounded-lg p-6">
+            {isCreating && <div className="mb-8 border border-border rounded-lg p-6">
                 <input
                     type="text"
                     placeholder="Snippet title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-transparent border-b border-zinc-700 text-white text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
+                    className="w-full bg-card border-b border-border text-input-text text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
                 />
                 <input
                     type="text"
                     placeholder="Description (optional)"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-black/50 border border-zinc-700 text-white rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                    className="w-full bg-card border border-border text-input-text rounded p-2 mb-3 focus:outline-none focus:border-green-400"
                 />
                 <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="bg-zinc-800 text-white border border-zinc-700 rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                    className="bg-background text-input-text border border-border rounded p-2 mb-3 focus:outline-none focus:border-green-400"
                 >
                     {languages.map(l => (
                         <option key={l} value={l}>{l}</option>
@@ -171,10 +267,18 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     placeholder="Paste your code here..."
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-700 text-green-400 font-mono rounded p-3 mb-4 focus:outline-none focus:border-green-400 resize-none h-40"
+                    className={`w-full bg-background border border-border dark:text-green-400 text-green-700 font-mono rounded p-3 mb-4 focus:outline-none focus:border-green-400 resize-none h-40 text-[${textResize}px]`}
                 />
+                {autoSave && (
+                    <div className="flex gap-2 items-center mb-3">
+                        <i className={`ti ti-loader text-green-400 ${isSaving ? 'animate-spin' : 'opacity-80'}`} />
+                        <p className="text-xs font-mono text-zinc-500">
+                            {isSaving ? ('Saving...') : autoSave ? ('Auto Save on') : ('Auto Save off')}
+                        </p>
+                    </div>
+                )}
                 <div className="flex gap-3 justify-end">
-                    <button onClick={() => setIsCreating(false)} className="px-4 py-2 text-gray-400 hover:text-white">
+                    <button onClick={() => setIsCreating(false)} className="px-4 py-2 dark:text-gray-400 dark:hover:text-white hover:text-gray-700">
                         Cancel
                     </button>
                     <button
@@ -186,25 +290,25 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                 </div>
             </div>}
 
-            {isEditing && <div className="mb-8 border border-zinc-700 rounded-lg p-6">
+            {isEditing && <div className="mb-8 border border-border rounded-lg p-6">
                 <input
                     type="text"
                     placeholder="Snippet title"
                     value={newTitle}
                     onChange={(e) => setnewTitle(e.target.value)}
-                    className="w-full bg-transparent border-b border-zinc-700 text-white text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
+                    className="w-full bg-transparent border-b border-border text-input-text text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
                 />
                 <input
                     type="text"
                     placeholder="Description (optional)"
                     value={newDescription}
                     onChange={(e) => setnewDescription(e.target.value)}
-                    className="w-full bg-black/50 border border-zinc-700 text-white rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                    className="w-full bg-background border border-border dark:text-white rounded p-2 mb-3 focus:outline-none focus:border-green-400"
                 />
                 <select
                     value={newLanguage}
                     onChange={(e) => setnewLanguage(e.target.value)}
-                    className="bg-zinc-800 text-white border border-zinc-700 rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                    className="bg-background dark:text-white border border-border rounded p-2 mb-3 focus:outline-none focus:border-green-400"
                 >
                     {languages.map(l => (
                         <option key={l} value={l}>{l}</option>
@@ -214,10 +318,18 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     placeholder="Paste your code here..."
                     value={newCode}
                     onChange={(e) => setnewCode(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-700 text-green-400 font-mono rounded p-3 mb-4 focus:outline-none focus:border-green-400 resize-none h-40"
+                    className="w-full bg-background border border-border text-green-400 font-mono rounded p-3 mb-4 focus:outline-none focus:border-green-400 resize-none h-40"
                 />
+                {autoSave && (
+                    <div className="flex gap-2 items-center mb-3">
+                        <i className={`ti ti-loader text-green-400 ${isSaving ? 'animate-spin' : 'opacity-80'}`} />
+                        <p className="text-xs font-mono text-zinc-500">
+                            {isSaving ? ('Saving...') : autoSave ? ('Auto Save on') : ('Auto Save off')}
+                        </p>
+                    </div>
+                )}
                 <div className="flex gap-3 justify-end">
-                    <button onClick={() => setisEditing(false)} className="px-4 py-2 text-gray-400 hover:text-white">
+                    <button onClick={() => setisEditing(false)} className="px-4 py-2 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">
                         Cancel
                     </button>
                     <button
@@ -236,12 +348,12 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
             <div className="grid grid-cols-1 gap-4">
                 {filtered.map(snippet => (
 
-                    <div key={snippet.id} className="border border-zinc-700 rounded-lg p-4 hover:border-green-400/50 transition-colors">
+                    <div key={snippet.id} className="border border-border rounded-lg p-4 hover:border-green-400/50 transition-colors">
                         <div className="md:flex md:justify-between md:flex-row items-start mb-2 flex flex-col gap-2">
                             <div>
-                                <h2 className="font-semibold text-white ">{snippet.title}</h2>
+                                <h2 className="font-semibold dark:text-white ">{snippet.title}</h2>
                                 {snippet.description && (
-                                    <p className="text-gray-400 text-sm">{snippet.description}</p>
+                                    <p className="dark:text-gray-400 text-gray-700 text-sm">{snippet.description}</p>
                                 )}
                             </div>
                             <div className="flex items-center gap-2">
@@ -268,8 +380,8 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                                 </button>
                             </div>
                         </div>
-                        <pre className="bg-zinc-900 rounded p-3 overflow-x-auto max-h-100">
-                            <code className="text-green-400 font-mono text-sm whitespace-pre-wrap">{snippet.code}</code>
+                        <pre className="bg-card rounded p-3 overflow-x-auto max-h-100">
+                            <code className="dark:text-green-400 text-green-600 font-mono text-sm whitespace-pre-wrap">{snippet.code}</code>
                         </pre>
                     </div>
                 ))}

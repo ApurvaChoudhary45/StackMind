@@ -89,10 +89,10 @@ export default function BugCard({ bug }: { bug: Bug }) {
                 style={style}
                 {...listeners}
                 {...attributes}
-                className="bg-zinc-800 border border-zinc-700 rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-green-400/50 transition-colors"
+                className="bg-card border border-border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-green-400/50 transition-colors"
             >
-                <h3 className="text-white font-medium text-sm">{bug.title}</h3>
-                <p className="text-gray-400 text-xs mt-1 line-clamp-2">{bug.description}</p>
+                <h3 className="dark:text-white text-zinc-800 font-medium text-sm">{bug.title}</h3>
+                <p className="dark:text-gray-400 text-gray-600 text-xs mt-1 line-clamp-2">{bug.description}</p>
                 <div className='flex justify-between items-center'>
                     <span className={`text-xs font-semibold mt-2 block ${priorityColors[bug.priority]}`}>
                         {bug.priority.toUpperCase()}
@@ -105,7 +105,7 @@ export default function BugCard({ bug }: { bug: Bug }) {
 
             </div>
             {isOpen && <div className='fixed inset-0 flex justify-center items-center bg-black/50 '>
-                <div className='bg-zinc-900 md:h-[83vh] md:w-1/2 h-[60vh] rounded-2xl p-6 flex flex-col gap-4  overflow-y-scroll'>
+                <div className='bg-card md:h-[83vh] md:w-1/2 h-[60vh] rounded-2xl p-6 flex flex-col gap-4  overflow-y-scroll'>
 
                     <div className='flex justify-between items-center'>
                         <h1 className='text-green-400 font-mono'>Screenshot</h1>
@@ -115,17 +115,17 @@ export default function BugCard({ bug }: { bug: Bug }) {
                     </div> : <div><p className='text-green-500 font-mono'>No screenshot added</p></div>}
 
                     <div className='pt-10'>
-                        {loading ? <span className='text-white pt-10 font-mono animate-pulse'>AI Suggested Solution...</span> : <span className='text-white pt-10 font-mono'>AI Suggested Solution...</span>}
-                        {loading ? <div><span className='animate-pulse'>Looking for the best fix....</span></div> : <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col mt-10'>
+                        {loading ? <span className='text-white pt-10 font-mono animate-pulse'>AI Suggested Solution...</span> : <span className='dark:text-white pt-10 font-mono'>AI Suggested Solution...</span>}
+                        {loading ? <div><span className='animate-pulse'>Looking for the best fix....</span></div> : <div className='border-1 dark:border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col mt-10'>
 
-                            <p className='text-green-300 text-sm font-mono'>{analysis}</p>
+                            <p className='dark:text-green-300 text-zinc-700 text-sm font-mono'>{analysis}</p>
                         </div>}
 
                     </div>
 
                 </div></div>}
             {bug.status === 'open' && closeAI && <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col'>
-                <p className='text-green-300 text-xs font-mono'>{analysis}</p>
+                <p className='dark:text-green-300 text-xs font-mono'>{analysis}</p>
                 <div className='flex justify-center items-center gap-3 pt-2'>
                     <span className='text-white font-mono text-sm'>Was it helpful?</span>
                     <button className='border-1 border-gray-600 rounded-lg p-2 hover:bg-white hover:cursor-pointer' onClick={() => bugFixed(bug.id)}>✔️</button>

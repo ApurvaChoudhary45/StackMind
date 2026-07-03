@@ -43,12 +43,12 @@ const AddNote = () => {
             </button>
             {modal && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black/80 backdrop-blur-sm z-50 p-4" onClick={(e) => setModal(false)}>
-                    <div className="w-full max-w-2xl bg-zinc-950 rounded-xl border border-zinc-800 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-full max-w-2xl bg-card rounded-xl border border-zinc-800 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
 
                         {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-900">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                             <div>
-                                <h2 className="text-sm font-medium text-zinc-200 font-mono">Select a Project</h2>
+                                <h2 className="text-sm font-medium text-text-muted font-mono">Select a Project</h2>
                                 <p className="text-xs text-zinc-600 font-mono mt-0.5">Notes belong to a project — pick one to continue</p>
                             </div>
                         </div>
@@ -73,14 +73,14 @@ const AddNote = () => {
                                         <div
                                             key={project.id}
                                             // onClick={() => handleProjectSelect(project)}
-                                            className="group flex flex-col gap-2 bg-zinc-900 border border-zinc-800 hover:border-green-400/30 hover:bg-zinc-900/80 rounded-xl p-4 cursor-pointer transition-all"
+                                            className="group flex flex-col gap-2 bg-card border border-border hover:border-green-400/30 dark:hover:bg-zinc-900/80 rounded-xl p-4 cursor-pointer transition-all"
                                         >
                                             {/* Project Icon + Name */}
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 group">
                                                 <div className="w-7 h-7 rounded-lg bg-green-950/60 border border-green-400/20 flex items-center justify-center flex-shrink-0">
                                                     <i className="ti ti-folder-filled text-green-400 text-sm" />
                                                 </div>
-                                                <span className="text-sm font-medium text-zinc-200 font-mono truncate group-hover:text-white transition-colors">
+                                                <span className="text-sm font-medium text-text-muted font-mono truncate dark:group-hover:text-white transition-colors">
                                     {project.name}
                                 </span>
                                             </div>
@@ -102,13 +102,13 @@ const AddNote = () => {
                         )}
 
                         {/* Footer */}
-                        <div className="px-6 py-4 border-t border-zinc-900 flex items-center justify-between">
+                        <div className="px-6 py-4 border-t border-border flex items-center justify-between">
                             <p className="text-xs font-mono text-zinc-600">
-                    // or <Link href={`/dashboard`}><span className="text-green-400 cursor-pointer hover:underline">create a new project</span></Link>
+                    // or <Link href={`/dashboard`}><span className="text-text-muted cursor-pointer hover:underline">create a new project</span></Link>
                             </p>
                             <button
                                 onClick={() => setModal(false)}
-                                className="text-xs font-mono text-zinc-600 border border-zinc-800 px-3 py-1.5 rounded-lg hover:text-zinc-300 hover:border-zinc-700 transition-colors"
+                                className="text-xs font-mono text-zinc-600 border border-zinc-800 px-3 py-1.5 rounded-lg hover:text-text-muted hover:border-zinc-700 transition-colors"
                             >
                                 Cancel
                             </button>

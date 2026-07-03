@@ -25,7 +25,7 @@ export default async function BugsPage() {
         .order('created_at', { ascending: false })
 
     return (
-        <div className="p-6 bg-black/90 min-h-screen">
+        <div className="p-6 bg-background min-h-screen">
             <div className="flex justify-between items-center mb-6">
                 <p className="font-mono text-sm text-zinc-600">
                     // <span className="text-green-400">all bugs</span> — {bugs?.length ?? 0} total
@@ -38,16 +38,16 @@ export default async function BugsPage() {
                     const colBugs = bugs?.filter(b => b.status === col) ?? []
                     const config = columnConfig[col]
                     return (
-                        <div key={col} className="bg-zinc-950 border border-zinc-900 rounded-xl p-4">
-                            <div className="flex justify-between items-center mb-4 pb-3 border-b border-zinc-900">
+                        <div key={col} className="bg-card border border-border rounded-xl p-4">
+                            <div className="flex justify-between items-center mb-4 pb-3 border-b border-border">
                                 <span className={`font-mono text-xs font-medium ${config.color}`}>{config.label}</span>
-                                <span className="text-xs font-mono text-zinc-600 bg-zinc-900 px-2 py-0.5 rounded-full">{colBugs.length}</span>
+                                <span className="text-xs font-mono text-zinc-600 bg-background px-2 py-0.5 rounded-full">{colBugs.length}</span>
                             </div>
                             <div className="flex flex-col gap-2">
                                 {colBugs.map(bug => (
-                                    <div key={bug.id} className="bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 rounded-lg p-3 cursor-pointer transition-colors">
-                                        <p className="font-mono text-xs text-zinc-700 mb-1">{(bug.projects as any)?.name}</p>
-                                        <p className="text-sm text-zinc-300 font-medium mb-2">{bug.title}</p>
+                                    <div key={bug.id} className="bg-card border border-border hover:border-zinc-700 rounded-lg p-3 cursor-pointer transition-colors">
+                                        <p className="font-mono text-xs text-text-muted mb-1">{(bug.projects as any)?.name}</p>
+                                        <p className="text-sm text-muted font-medium mb-2">{bug.title}</p>
                                         <div className="flex justify-between items-center">
                                             <span className={`text-xs font-mono border px-2 py-0.5 rounded-full ${priorityConfig[bug.priority as keyof typeof priorityConfig] ?? priorityConfig.low}`}>
                                                 {bug.priority}

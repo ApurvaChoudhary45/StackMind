@@ -35,9 +35,9 @@ export default  function  ProjectCard() {
     
   return (
     <div>
-      {projects?.length === 0 ? <div className='flex justify-center items-center min-h-[60vh] flex-col gap-5'><p className='text-sm text-gray-400'>No projects created yet!</p><CreateProject /></div> : (<div className='md:grid grid-cols-2 gap-10 px-8'>{projects?.map(project => {
+      {projects?.length === 0 ? <div className='flex justify-center items-center min-h-[60vh] flex-col gap-5'><p className='text-sm text-muted'>No projects created yet!</p><CreateProject /></div> : (<div className='md:grid grid-cols-2 gap-10 px-8'>{projects?.map(project => {
                     return (
-                        <div key={project?.id} className="border border-green-400/20 rounded-lg p-4 hover:border-green-400  cursor-pointer mt-8 ">
+                        <div key={project?.id} className="border border-green-400/20 rounded-lg p-4 hover:border-green-400  cursor-pointer mt-8 bg-card">
                             
                                 <div className='flex justify-between items-center'>
                                     <div>

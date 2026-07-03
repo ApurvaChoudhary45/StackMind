@@ -145,7 +145,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
   }
 
   return (
-    <div className="p-8 bg-black/90 min-h-screen">
+    <div className="p-8 bg-background min-h-screen">
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-green-400">Bug Tracker</h1>
@@ -158,25 +158,25 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
       </div>
 
       {isCreating && (
-        <div className="mb-8 border border-zinc-700 rounded-lg p-6">
+        <div className="mb-8 border border-border rounded-lg p-6">
           <input
             type="text"
             placeholder="Bug title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-transparent border-b border-zinc-700 text-white text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
+            className="w-full bg-transparent border-b border-border text-white text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
           />
           <textarea
             placeholder="Description (optional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-black/50 border border-zinc-700 text-white rounded p-2 mb-4 focus:outline-none focus:border-green-400 resize-none h-20"
+            className="w-full bg-black/50 border border-border text-white rounded p-2 mb-4 focus:outline-none focus:border-green-400 resize-none h-20"
           />
           <div className='flex justify-between items-center'>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-              className="bg-zinc-800 text-white border border-zinc-700 rounded md:p-2 md:mb-4 py-2 focus:outline-none focus:border-green-400"
+              className="bg-zinc-800 text-white border border-border rounded md:p-2 md:mb-4 py-2 focus:outline-none focus:border-green-400"
             >
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
@@ -197,7 +197,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
                 </div>
 
                 {/* Upload Area */}
-                <div className='border-2 border-dashed border-zinc-700 hover:border-green-400/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors group'>
+                <div className='border-2 border-dashed border-border hover:border-green-400/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors group'>
                   <div className='w-10 h-10 rounded-full bg-zinc-800 group-hover:bg-green-400/10 flex items-center justify-center transition-colors'>
                     <span className='text-xl'>📎</span>
                   </div>
@@ -212,7 +212,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
                 </div>
 
                 {/* Preview Area */}
-                <div className='flex-1 border border-zinc-700 rounded-xl overflow-hidden relative bg-zinc-800/50'>
+                <div className='flex-1 border border-border rounded-xl overflow-hidden relative bg-zinc-800/50'>
                   {preview ? <div>
                     <img src={preview} alt="no Img" className='w-full' />
                   </div> : <div className='absolute inset-0 flex flex-col items-center justify-center gap-2'>

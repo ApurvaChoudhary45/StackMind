@@ -170,7 +170,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-black text-green-400">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background text-text-muted">
       {repos.length === 0 ? (
         loading ? (
           <>
@@ -199,13 +199,13 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
           </>
         )
       ) : (
-        <div className="p-6 bg-black/90 min-h-screen">
+        <div className="p-6 bg-background min-h-screen">
           <div className="flex justify-between items-center mb-6">
             <p className="font-mono text-sm text-zinc-600">
-              // <span className="text-green-400">your repos</span> —{" "}
+              // <span className="text-text-muted">your repos</span> —{" "}
               {repos.length} total
             </p>
-            <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2">
               <i className="ti ti-search text-zinc-600 text-sm" />
               <input
                 type="text"
@@ -222,7 +222,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="bg-zinc-950 border border-zinc-900 rounded-xl h-44"
+                  className="bg-card border border-border rounded-xl h-44"
                 />
               ))}
             </div>
@@ -234,20 +234,20 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
                 .map((repo: repo) => (
                   <div
                     key={repo.id}
-                    className="bg-zinc-950 border border-zinc-900 hover:border-green-400/20 rounded-xl p-5 flex flex-col gap-3 transition-colors"
+                    className="bg-card border border-border hover:border-green-400/20 rounded-xl p-5 flex flex-col gap-3 transition-colors"
                   >
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <i className="ti ti-brand-github text-green-400 text-base" />
-                        <span className="text-sm font-medium text-zinc-200 font-mono">
+                        <i className="ti ti-brand-github text-text-muted text-base" />
+                        <span className="text-sm font-medium text-text-muted font-mono">
                           {repo.name}
                         </span>
                       </div>
                       <span
                         className={`text-xs font-mono px-2 py-0.5 rounded-full border ${repo.private
-                          ? "text-zinc-500 bg-zinc-900 border-zinc-800"
-                          : "text-green-400 bg-green-950/50 border-green-400/20"
+                          ? "text-muted bg-card border-zinc-800"
+                          : "text-text-muted bg-background border-green-400/20"
                           }`}
                       >
                         {repo.private ? "private" : "public"}
@@ -284,7 +284,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex justify-between items-center pt-2 border-t border-zinc-900">
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
                       <span className="text-xs font-mono text-zinc-700">
                         Updated {new Date(repo.updated_at).toLocaleDateString()}
                       </span>
@@ -300,14 +300,14 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
         </div>
       )}
       {openRepo && <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-        <div className="bg-black border border-green-400/30 rounded-xl shadow-lg w-full max-w-2xl p-6 text-green-400 font-mono">
+        <div className="bg-background border border-green-400/30 rounded-xl shadow-lg w-full max-w-2xl p-6 text-text-muted font-mono">
 
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
-              <i className="ti ti-brand-github text-green-400 text-lg" />
+              <i className="ti ti-brand-github text-text-muted text-lg" />
               {/* <h2 className="text-base font-bold">Repo: <span className="text-white">{ }</span></h2> */}
-              <span className="text-xs font-mono text-green-400 bg-green-950/50 border border-green-400/20 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-mono text-text-muted bg-card border border-green-400/20 px-2 py-0.5 rounded-full">
                 {contents.length} files
               </span>
             </div>
@@ -320,14 +320,14 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
           </div>
 
           {/* Search */}
-          <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 mb-4">
+          <div className="flex items-center gap-2 bg-card border border-zinc-800 rounded-lg px-3 py-2 mb-4">
             <i className="ti ti-search text-zinc-600 text-sm" />
             <input
               type="text"
               placeholder="Search files..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="bg-transparent border-none outline-none text-xs font-mono text-zinc-300 placeholder:text-zinc-700 w-full"
+              className="bg-transparent border-none outline-none text-xs font-mono text-text-muted placeholder:text-zinc-700 w-full"
             />
           </div>
 
@@ -337,19 +337,19 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
               .map((file) => (
                 <div
                   key={file.path}
-                  className="flex justify-between items-center bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 hover:border-green-400/30 transition-colors group"
+                  className="flex justify-between items-center bg-card border border-zinc-800 rounded-lg px-3 py-2.5 hover:border-green-400/30 transition-colors group"
                 >
                   {/* Left — icon + name */}
                   <div className="flex items-center gap-2">
-                    <i className={`ti ${file.type === 'dir' ? 'ti-folder-filled text-amber-400' : 'ti-file text-zinc-500 group-hover:text-green-400'} text-sm transition-colors`} />
-                    <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">
+                    <i className={`ti ${file.type === 'dir' ? 'ti-folder-filled text-amber-400' : 'ti-file text-zinc-500 group-hover:text-text-muted'} text-sm transition-colors`} />
+                    <span className="text-sm text-zinc-600 group-hover:text-black dark:text-zinc-300 dark:group-hover:text-white transition-colors">
                       {file.name}
                     </span>
                   </div>
 
                   {/* Right — type badge + import button */}
                   <div className="flex items-center gap-2">
-                    <span className="text-xs px-2 py-0.5 rounded-full border border-green-400/20 bg-green-950/30 text-green-400">
+                    <span className="text-xs px-2 py-0.5 rounded-full border border-green-400/20 bg-card text-text-muted">
                       {file.type === 'dir' ? 'folder' : file.name.split('.').pop()}
                     </span>
                     {file.type === 'file' && (
@@ -363,7 +363,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
                     {file.type === 'dir' && (
                       <button
                         // onClick={() => onFolderClick(file.path)}
-                        className="text-xs font-mono text-zinc-500 border border-zinc-800 px-3 py-1 rounded-lg hover:text-zinc-300 hover:border-zinc-600 transition-colors opacity-0 group-hover:opacity-100"
+                        className="text-xs font-mono text-text-muted border border-zinc-800 px-3 py-1 rounded-lg dark:hover:text-zinc-300 hover:border-zinc-600 transition-colors opacity-0 group-hover:opacity-100"
                       >
                         Open
                       </button>
@@ -374,9 +374,9 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
           </div>
 
           {/* Footer */}
-          <div className="mt-4 flex justify-between items-center pt-4 border-t border-zinc-900">
+          <div className="mt-4 flex justify-between items-center pt-4 border-t border-border">
             <p className="text-xs text-zinc-600">
-        // hover a file to <span className="text-green-400">import</span>
+        // hover a file to <span className="text-text-muted">import</span>
             </p>
             <button
               onClick={closeRepo}

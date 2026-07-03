@@ -44,10 +44,10 @@ const CreateProject = () => {
     }
     return (
         <div className='pt-8'>
-            <button onClick={openModal} className='p-2 text-sm bg-green-400/90 text-black rounded-2xl hover:bg-green-600'>+ New Project</button>
+            <button onClick={openModal} className='p-2 text-sm bg-button text-muted rounded-2xl hover:bg-button-hover'>+ New Project</button>
 
             {modal && <div className='fixed inset-0 flex justify-center items-center bg-black/70' onClick={closeModal}>
-                <div className='h-50 w-100 bg-black/70 rounded-2xl' onClick={(e)=>e.stopPropagation()}>
+                <div className='h-80 w-100 bg-background rounded-2xl p-6' onClick={(e)=>e.stopPropagation()}>
                     <h2 className="text-xl font-bold text-green-400 mb-4">New Project</h2>
 
                     <input
@@ -56,7 +56,7 @@ const CreateProject = () => {
                         value={projectDetails.projectName}
                         name='projectName'
                         onChange={handleChange}
-                        className="w-full bg-black/50 border border-zinc-700 text-white rounded p-2 mb-3 focus:outline-none focus:border-green-400"
+                        className="w-full bg-input border border-border text-input-text rounded p-2 mb-3 focus:outline-none focus:border-green-400"
                     />
 
                     <textarea
@@ -64,14 +64,14 @@ const CreateProject = () => {
                         value={projectDetails.projectDescription}
                         name='projectDescription'
                         onChange={handleChange}
-                        className="w-full bg-black/50 border border-zinc-700 text-white rounded p-2 mb-4 focus:outline-none focus:border-green-400 resize-none h-24"
+                        className="w-full bg-input border border-border text-input-text rounded p-2 mb-4 focus:outline-none focus:border-green-400 resize-none h-24"
                     />
 
                     <div className="flex gap-3 justify-end">
                         <button
                             onClick={closeModal}
 
-                            className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                            className="px-4 py-2 text-muted hover:text-black dark:hover:text-white transition-colors"
                         >
                             Cancel
                         </button>

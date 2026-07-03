@@ -24,30 +24,30 @@ export default function NoteEditor({ content, onChange }: {
   })
 
   return (
-    <div className="border border-zinc-700 rounded-lg p-4 min-h-64 text-white">
+    <div className="border border-zinc-700 rounded-lg p-4 min-h-64 dark:text-white text-black">
       {/* Toolbar */}
       <div className="flex gap-2 mb-3 border-b border-zinc-700 pb-3"> 
         <button
           onClick={() => editor?.chain().focus().toggleBold().run()}
-          className={`px-2 py-1 rounded text-sm ${editor?.isActive('bold') ? 'bg-green-400 text-black' : 'text-gray-400 hover:text-white'}`}
+          className={`px-2 py-1 rounded text-sm ${editor?.isActive('bold') ? 'bg-green-400 dark:text-black' : 'text-black hover:text-zinc-600 dark:text-gray-400 dark:hover:text-white'}`}
         >
           B
         </button>
         <button
           onClick={() => editor?.chain().focus().toggleItalic().run()}
-          className={`px-2 py-1 rounded text-sm ${editor?.isActive('italic') ? 'bg-green-400 text-black' : 'text-gray-400 hover:text-white'}`}
+          className={`px-2 py-1 rounded text-sm ${editor?.isActive('italic') ? 'bg-green-400 dark:text-black' : 'text-black hover:text-zinc-600 dark:text-gray-400 dark:hover:text-white'}`}
         >
           I
         </button>
         <button
           onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
-          className={`px-2 py-1 rounded text-sm ${editor?.isActive('codeBlock') ? 'bg-green-400 text-black' : 'text-gray-400 hover:text-white'}`}
+          className={`px-2 py-1 rounded text-sm ${editor?.isActive('codeBlock') ? 'bg-green-400 dark:text-black' : 'text-black hover:text-zinc-600 dark:text-gray-400 dark:hover:text-white'}`}
         >
           {'</>'}
         </button>
         <button
           onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`px-2 py-1 rounded text-sm ${editor?.isActive('heading') ? 'bg-green-400 text-black' : 'text-gray-400 hover:text-white'}`}
+          className={`px-2 py-1 rounded text-sm ${editor?.isActive('heading') ? 'bg-green-400 dark:text-black' : 'text-black hover:text-zinc-600 dark:text-gray-400 dark:hover:text-white'}`}
         >
           H2
         </button>

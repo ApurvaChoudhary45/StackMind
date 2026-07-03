@@ -30,14 +30,14 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
   const accountItems = [
     { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
     { href: '/dashboard/account', label: 'Profile', icon: 'ti-user-circle' },
-    // { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' }, 
+    // { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' },    
   ]
 
   return (
     <aside className={`
     ${collapsed ? '-translate-x-full md:translate-x-0 md:w-14' : 'w-64'}
     transition-all duration-300
-    bg-zinc-950 border-r border-zinc-900
+    bg-card border-r border-border
     flex flex-col overflow-hidden flex-shrink-0
     h-screen
     fixed top-0 left-0 md:sticky
@@ -45,7 +45,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
 `}>
 
       {/* Logo + Toggle */}
-      <div className="px-3 py-3 border-b border-zinc-900 flex items-center justify-between min-h-[52px]">
+      <div className="px-3 py-3 border-b border-border flex items-center justify-between min-h-[52px]">
         <div className="flex items-center gap-2 overflow-hidden">
           {collapsed ? <div className="w-2 h-2 rounded-full bg-green-00 flex-shrink-0" /> : <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
           <span className={`font-mono text-green-400 font-medium text-sm whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
@@ -54,7 +54,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
         </div>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-6 h-6 rounded-md border border-zinc-800 bg-zinc-900 flex items-center justify-center text-zinc-600 hover:text-green-400 hover:border-green-400/30 transition-colors flex-shrink-0"
+          className="w-6 h-6 rounded-md border border-border bg-card flex items-center justify-center text-text-muted hover:text-green-400 hover:border-green-400/30 transition-colors flex-shrink-0"
           aria-label="Toggle sidebar"
         >
           <i className={`ti ${collapsed ? 'ti-layout-sidebar-left-expand' : 'ti-layout-sidebar-left-collapse'} text-sm`} />
@@ -62,13 +62,13 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
       </div>
 
       {/* User */}
-      <div className="px-3 py-3 border-b border-zinc-900 flex items-center gap-2 overflow-hidden">
-        <div className="w-8 h-8 rounded-full bg-green-950 border border-green-400/20 flex items-center justify-center text-green-400 font-mono text-xs font-medium flex-shrink-0">
+      <div className="px-3 py-3 border-b border-border flex items-center gap-2 overflow-hidden">
+        <div className="w-8 h-8 rounded-full bg-card border border-green-400/20 flex items-center justify-center dark: text-green-400 light:text-black font-mono text-xs font-medium flex-shrink-0">
           {initials}
         </div>
         <div className={`overflow-hidden transition-all duration-200 ${collapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-          <p className="text-xs font-medium text-zinc-200 truncate whitespace-nowrap">{userName}</p>
-          <p className="text-xs text-zinc-600 font-mono truncate whitespace-nowrap">{userEmail}</p>
+          <p className="text-xs font-medium text-muted truncate whitespace-nowrap">{userName}</p>
+          <p className="text-xs text-text-muted font-mono truncate whitespace-nowrap">{userEmail}</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
               className={`flex items-center gap-3 px-2 py-2 rounded-lg text-sm mb-0.5 transition-colors ${
                 pathname === item.href
                   ? 'bg-green-950/60 text-green-400'
-                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'
+                  : 'bg-muted hover:text-zinc-300 hover:bg-zinc-900'
               }`}
             >
               <i className={`ti ${item.icon} text-base flex-shrink-0`} />
@@ -107,7 +107,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
         ))}
       </div>
 
-      <div className="h-px bg-zinc-900 mx-3 my-1" />
+      <div className="h-px bg-border mx-3 my-1" />
 
       {/* Account Nav */}
       <div className="px-2 py-1">
@@ -118,7 +118,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
           <div key={item.href} className="relative group">
             <Link
               href={item.href}
-              className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900 transition-colors mb-0.5"
+              className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm bg-muted hover:text-zinc-300 hover:bg-zinc-900 transition-colors mb-0.5"
             >
               <i className={`ti ${item.icon} text-base flex-shrink-0`} />
               <span className={`whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
@@ -126,7 +126,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
               </span>
             </Link>
             {collapsed && (
-              <div className="absolute left-12 top-1/2 -translate-y-1/2 bg-zinc-800 text-zinc-200 text-xs px-2 py-1 rounded-md border border-zinc-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+              <div className="absolute left-12 top-1/2 -translate-y-1/2 bg-zinc-800 text-zinc-200 text-xs px-2 py-1 rounded-md border border-border whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                 {item.label}
               </div>
             )}
@@ -135,22 +135,22 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
       </div>
 
       {/* Bottom */}
-      <div className="mt-auto border-t border-zinc-900 p-2">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-zinc-500">
+      <div className="mt-auto border-t border-border p-2">
+        <div className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-muted">
           <i className="ti ti-moon text-base flex-shrink-0" />
           <span className={`whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
             Dark mode
           </span>
-          <span className="text-xs bg-zinc-800 text-green-400 border border-zinc-700 rounded-full px-2 py-0.5 font-mono ml-2">
+          {/* <span className="text-xs bg-zinc-800 text-green-400 border border-zinc-700 rounded-full px-2 py-0.5 font-mono ml-2">
   coming soon
-</span>
-          {/* {!collapsed && (
+</span> */}
+          {!collapsed && (
             <div className="ml-auto">
-              <ThemeToggle />
+              <ThemeToggle />   
             </div>
-          )} */}
+          )}
         </div>
-        <div className={`px-2 py-2 rounded-lg text-sm text-zinc-500 hover:text-red-400 hover:bg-red-950/30 transition-colors ${collapsed ? 'justify-center' : ''}`}>
+        <div className={`px-2 py-2 rounded-lg text-sm bg-muted hover:text-red-400 hover:bg-red-950/30 transition-colors ${collapsed ? 'justify-center' : ''}`}>
           <LogOut collapsed = {collapsed}/> 
         </div>
       </div>

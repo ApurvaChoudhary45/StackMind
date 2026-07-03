@@ -41,7 +41,7 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
     }
 
     return (
-        <div className="md:p-7  border border-zinc-700 rounded-xl bg-black/40 backdrop-blur-md shadow-lg transition hover:shadow-green-400/20 w-3/4 p-2" >
+        <div className="md:p-7 border border-zinc-700 rounded-xl bg-black/40 backdrop-blur-md shadow-lg transition hover:shadow-green-400/20 md:w-2/4  p-4" >
             <div className="flex items-center justify-between space-x-3">
                 <div className="flex items-center gap-2">
                     <Image

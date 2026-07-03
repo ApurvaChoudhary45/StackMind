@@ -15,7 +15,7 @@ export async function DELETE(req: NextRequest) {
 
         if (error) throw new Error(error.message)
 
-        await deleteDocumentVectors(noteId)
+        // await deleteDocumentVectors(noteId)
 
         return NextResponse.json({ success: true })
 
