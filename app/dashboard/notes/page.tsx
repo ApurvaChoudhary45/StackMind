@@ -1,10 +1,13 @@
 // app/dashboard/notes/page.tsx
 import AddNote from '@/components/AddNote'
 import { createClient } from '@/lib/supabase/server'
-
+import { redirect } from "next/navigation";
 export default async function NotesPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+
+    if(!user) redirect('/Login')
+
 
     const { data: notes } = await supabase
         .from('notes')
@@ -36,7 +39,7 @@ export default async function NotesPage() {
                         <div className="flex justify-between items-center">
                             <div className="flex gap-1 flex-wrap">
                                 {note.tags?.map((tag: string, i: number) => (
-                                    <span key={i} className="text-xs font-mono text-green-400 bg-green-950/50 border border-green-400/10 px-2 py-0.5 rounded-full">
+                                    <span key={i} className="text-xs font-mono dark:text-green-400 text-green-700 bg-background border border-green-400/10 px-2 py-0.5 rounded-full">
                                         #{tag}
                                     </span>
                                 ))}

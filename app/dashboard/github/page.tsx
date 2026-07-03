@@ -1,6 +1,7 @@
 import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import ConnectGit from "@/components/ConnectGit";
+import { redirect } from "next/navigation";
 const Github = async () => {
 
     const supabase = await createClient()
@@ -8,6 +9,8 @@ const Github = async () => {
     const { data, error } = await supabase.auth.getSession()
 
     const { data: { user } } = await supabase.auth.getUser()
+
+    if(!user) redirect('/Login')
 
     const project = await supabase.from('projects').select('*').order('created_at', { ascending: false })
     const { data: snippets } = await supabase.from('snippets').select('project_id').order('created_at', { ascending: false })

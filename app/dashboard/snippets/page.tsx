@@ -1,10 +1,12 @@
 // app/dashboard/snippets/page.tsx
 import AddSnippet from '@/components/AddSnippet'
 import { createClient } from '@/lib/supabase/server'
-
+import { redirect } from "next/navigation";
 export default async function SnippetsPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+
+    if(!user) redirect('/Login')
 
     const { data: snippets } = await supabase
         .from('snippets')

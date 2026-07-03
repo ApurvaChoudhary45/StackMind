@@ -40,14 +40,29 @@ Return the JSON array now:`
         })
 
         // Extract the text response from Claude
-        const text = message.content[0].type === 'text'
+        let text = message.content[0].type === 'text'
             ? message.content[0].text.trim()
             : '[]'
 
+        text = text.replace(/```json|```/g, "").trim(); // Even if you say “return ONLY a JSON array,” Claude wrapped the response in Markdown fences (```json … ```). That broke JSON.parse. (text = text.replace(/```json|```/g, "").trim())
+
+        // Make sure to first replace the markdown fences to a valid json and then parse it
+
+        // Seeing the raw Claude response (Claude raw:) immediately revealed the mismatch. Without logging, you’d just see [] and wonder why tags weren’t saving. check the below console log 
+
+        // console.log("Claude raw:", message.content)
+
         // Parse the JSON array Claude returned
         // If parsing fails for any reason, return empty array
-        const tags = JSON.parse(text)
-        return Array.isArray(tags) ? tags : []
+        let tags: string[] = [];
+        try {   
+            tags = JSON.parse(text); // Parse json only if it is a valid json
+        } catch (err) {
+            console.error("Failed to parse tags:", text, err);
+            tags = [];
+        }
+
+        return Array.isArray(tags) ? tags : [];
 
     } catch (error) {
         // Tag generation failing should NEVER break note saving

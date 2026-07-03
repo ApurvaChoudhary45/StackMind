@@ -5,6 +5,10 @@ import { useState, useEffect } from 'react'
 
 import { useTheme } from 'next-themes'
 
+import { redirect } from "next/navigation";
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+
 export default function SettingsPage() {
     // const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('dark')
     const { theme, setTheme } = useTheme();
@@ -20,6 +24,19 @@ export default function SettingsPage() {
 
     const [mounted, setMounted] = useState(false);
 
+    const router = useRouter()
+
+    const supabase = createClient()
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                router.push('/login') // redirect if not logged in
+            }
+        }
+        checkSession()
+    }, [supabase, router])
 
 
     useEffect(() => {
@@ -167,13 +184,13 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Auto tagging */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-border">
+                {/* <div className="flex justify-between items-center px-5 py-4 border-b border-border">
                     <div>
                         <p className="text-sm text-muted">AI auto-tagging</p>
                         <p className="text-xs font-mono text-zinc-600 mt-0.5">Automatically generate tags when saving notes</p>
                     </div>
                     <Toggle value={autoTagging} onChange={() => setAutoTagging(!autoTagging)} />
-                </div>
+                </div> */}
 
                 {/* Confirm delete */}
                 <div className="flex justify-between items-center px-5 py-4">

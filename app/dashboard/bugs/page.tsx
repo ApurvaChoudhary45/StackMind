@@ -1,7 +1,7 @@
 // app/dashboard/bugs/page.tsx
 import AddBugs from '@/components/AddBugs'
 import { createClient } from '@/lib/supabase/server'
-
+import { redirect } from "next/navigation";
 const columns = ['todo', 'in_progress', 'done'] as const
 const columnConfig = {
     todo: { label: 'To do', color: 'text-zinc-500' },
@@ -17,6 +17,8 @@ const priorityConfig = {
 export default async function BugsPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+
+    if(!user) redirect('/Login')
 
     const { data: bugs } = await supabase
         .from('bugs')

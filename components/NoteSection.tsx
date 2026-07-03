@@ -49,6 +49,8 @@ const NoteSection = ({ project, notes, userId }: {
 
     const [noteToDelete, setNoteToDelete] = useState<Note | null>(null)
 
+    const [showTags, setShowTags] = useState(false)
+
 
     const handleSave = async () => {
         if (!title.trim()) return
@@ -123,6 +125,11 @@ const NoteSection = ({ project, notes, userId }: {
             await deleteNote()
         }
     }
+
+    useEffect(() => {
+        const tagAuto = localStorage.getItem('enableTag')
+        if (tagAuto) setShowTags(tagAuto === 'true')
+    }, [])
 
 
     return (
@@ -215,6 +222,18 @@ const NoteSection = ({ project, notes, userId }: {
                     <div key={note.id} className="border border-border rounded-lg p-4 hover:border-green-400/50 transition-colors grid grid-cols-2">
                         <div className='flex flex-col'>
                             <h2 className="font-semibold text-green-400 text-lg">{note.title}</h2>
+                            {showTags && note.tags && note.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {note.tags.map((tag: string, index: number) => (
+                                    <span
+                                        key={index}
+                                        className="text-xs px-2 py-1 bg-background text-text-muted rounded-full border border-zinc-700"
+                                    >
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                             <div
                                 className={`dark:text-gray-400 text-black text-sm mt-1 prose prose-invert max-w-none line-clamp-3 ${expandedNoteId === note.id ? '' : 'line-clamp-3'}`}
                                 dangerouslySetInnerHTML={{ __html: note.content }}
@@ -226,18 +245,7 @@ const NoteSection = ({ project, notes, userId }: {
                                 {expandedNoteId === note.id ? "Show less" : "View more"}
                             </button>
                         </div>
-                        {note.tags && note.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                {note.tags.map((tag: string, index: number) => (
-                                    <span
-                                        key={index}
-                                        className="text-xs px-2 py-1 bg-zinc-800 dark:bg-zinc-800 text-green-400 rounded-full border border-zinc-700"
-                                    >
-                                        #{tag}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
+                        
                         <div className='flex justify-end gap-3'>
                             <button className='text-blue-500 hover:text-blue-600' onClick={() => canWeEdit(note)}>Edit</button>
                             <button className='text-red-500 hover:text-red-600' onClick={() => isDeleteOn(note)}>Delete</button>
