@@ -23,7 +23,7 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
     const handleSearch = async () => {
         if (!query.trim()) return
         setLoading(true)
-        setAnswer('')
+        setAnswer('')       
         setSources([])
 
         console.log(userId)
@@ -41,11 +41,11 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
     }
 
     return (
-        <div className="md:p-7 border border-zinc-700 rounded-xl bg-black/40 backdrop-blur-md shadow-lg transition hover:shadow-green-400/20 md:w-2/4  p-4" >
+        <div className="md:p-7 border border-zinc-700 rounded-xl bg-background backdrop-blur-md shadow-lg transition hover:shadow-green-400/20 md:w-2/4  p-4" >
             <div className="flex items-center justify-between space-x-3">
                 <div className="flex items-center gap-2">
                     <Image
-                        src="/Ailogo.png"
+                        src="/Ailogo.png"   
                         alt="AI Logo"
                         height={40}
                         width={40}
@@ -56,11 +56,11 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
                     </h2>
                 </div>
                 <span
-                    className="text-md hover:text-green-400 cursor-pointer"
+                    className="text-md text-black hover:text-green-700 dark:text-white dark:hover:text-green-400 cursor-pointer"
                     onClick={(e) => {
                         setaskSI(false);
                         e.stopPropagation();
-                    }}
+                    }}  
                 >
                     X
                 </span>
@@ -75,7 +75,7 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Ask anything about your notes..."
-                    className="flex-1 bg-black/60 border border-zinc-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400/70 focus:border-green-400 transition"
+                    className="flex-1 dark:bg-black/60 bg-gray-200 border border-border text-input-text rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400/70 focus:border-green-400 transition"
                 />
                 <button
                     onClick={handleSearch}
@@ -88,8 +88,8 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
 
             {/* Answer */}
             {answer && (
-                <div className="mb-5 md:p-5 p-1 bg-zinc-900/70 border border-zinc-700 rounded-xl shadow-inner md:h-40 h-80 overflow-y-auto">
-                    <p className="text-gray-300 text-sm leading-relaxed">{answer}</p>
+                <div className="mb-5 md:p-5 p-1 bg-gray-200/60 dark:bg-zinc-900/70 border border-border rounded-xl shadow-inner md:h-40 h-80 overflow-y-auto">
+                    <p className="dark:text-gray-300 text-green-700 text-sm leading-relaxed">{answer}</p>
                 </div>
             )}
 

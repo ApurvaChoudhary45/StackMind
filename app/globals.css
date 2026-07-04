@@ -2,6 +2,31 @@
 
 @variant dark (&:where(.dark, .dark *));  /* ← ADD THIS */
 
+/* System theme detection */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #18181b;
+    --foreground: #ededed;
+    --card-bg: #0a0a0a;
+    --border-color: #27272a;
+
+    --text-muted: #22c55e;
+    --text-text-muted: #71717a;
+    --text-hover: #4ade80;
+
+    --button-bg: #166534;
+    --button-text: #f9fafb;
+    --button-hover: #22c55e;
+
+    --input-bg: #27272a;
+    --input-border: #3f3f46;
+    --input-text: #ededed;
+
+    --modal-bg: #0a0a0a;
+    --modal-border: #27272a;
+  }
+} 
+
 /* Light theme defaults */
 :root {
   --background: #ffffff;       /* page background */

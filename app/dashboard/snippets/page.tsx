@@ -39,7 +39,7 @@ export default async function SnippetsPage() {
                         <pre className="px-4 py-3 bg-card font-mono text-xs text-text-muted leading-relaxed overflow-hidden max-h-40 overflow-y-auto">
                             {snippet.code}
                         </pre>
-                        <div className="flex justify-between items-center px-4 py-2 border-t border-border bottom-0 relative">
+                        {/* <div className="flex justify-between items-center px-4 py-2 border-t border-border bottom-0 relative">
                             <span className="text-xs font-mono text-zinc-700">{(snippet.projects as any)?.name}</span>
                             <div className="flex gap-3">
                                 <button className="text-zinc-600 hover:text-green-400 transition-colors text-sm">
@@ -49,7 +49,7 @@ export default async function SnippetsPage() {
                                     Delete
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 ))}
             </div>}

@@ -49,10 +49,10 @@ export default  function  ProjectCard() {
 
                             
                             <div className='flex justify-between items-center mt-10'>
-                                <Link href={`/dashboard/projects/${project?.id}/notes`}><div className='text-green-400 cursor-pointer hover:text-green-300'><i className="ti ti-notebook px-1"></i>Notes</div></Link>
-                                <Link href={`/dashboard/projects/${project?.id}/bugs`}><div className='text-green-400 cursor-pointer hover:text-green-300'><i className="ti ti-bug px-1"></i>Bugs</div></Link>
+                                <Link href={`/dashboard/projects/${project?.id}/notes`}><div className='text-green-400 cursor-pointer dark:hover:text-green-300 hover:text-green-700'><i className="ti ti-notebook px-1"></i>Notes</div></Link>
+                                <Link href={`/dashboard/projects/${project?.id}/bugs`}><div className='text-green-400 cursor-pointer dark:hover:text-green-300 hover:text-green-700'><i className="ti ti-bug px-1"></i>Bugs</div></Link>
                                 
-                                <Link href={`/dashboard/projects/${project?.id}/snippets`}> <button className='text-green-400 text-md rounded-xl hover:text-green-300 cursor-pointer'><i className="ti ti-code px-1"></i>Snippets</button></Link>
+                                <Link href={`/dashboard/projects/${project?.id}/snippets`}> <button className='text-green-400 text-md rounded-xl dark:hover:text-green-300 hover:text-green-700 cursor-pointer'><i className="ti ti-code px-1"></i>Snippets</button></Link>
                             </div>
                         </div>
 
