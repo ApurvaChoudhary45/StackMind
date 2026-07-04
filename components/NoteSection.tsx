@@ -98,25 +98,25 @@ const NoteSection = ({ project, notes, userId }: {
     }
 
     const deleteNote = async () => {
-    if (!noteToDelete) return
-    try {
-        setLoading(true)
-        await fetch('/api/deletenote', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ noteId: noteToDelete.id })
-        })
-        setuserNotes(prev => prev.filter(i => i.id !== noteToDelete.id))
-    } finally {
-        setLoading(false)
-        setshowCofirm(false)
-        setNoteToDelete(null)
+        if (!noteToDelete) return
+        try {
+            setLoading(true)
+            await fetch('/api/deletenote', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ noteId: noteToDelete.id })
+            })
+            setuserNotes(prev => prev.filter(i => i.id !== noteToDelete.id))
+        } finally {
+            setLoading(false)
+            setshowCofirm(false)
+            setNoteToDelete(null)
+        }
     }
-}
 
     const isDeleteOn = async (note: Note) => {
         if (localStorage.getItem('confirmDelete') === 'true') {
-            console.log(localStorage.getItem('confirmDelete'))   
+            console.log(localStorage.getItem('confirmDelete'))
             setNoteToDelete(note)
             setshowCofirm(true)
         }
@@ -146,9 +146,12 @@ const NoteSection = ({ project, notes, userId }: {
                     >
                         + New Note
                     </button>
-                    <button className='md:bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600 hover:from-teal-600 hover:to-green-400 transition-all duration-300 rounded-2xl p-2 flex items-center' onClick={() => setaskSI(true)}>
-                        <Image src={`/Ailogo.png`} alt='No Logo' height={50} width={50} className='md:h-7 md:w-7' />
-                        <span className='md:text-xl hidden md:block'>Ask AI</span>
+                    <button
+                        onClick={() => setaskSI(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-green-400/40 text-green-400 font-mono text-sm font-medium hover:border-green-400 hover:shadow-lg hover:shadow-green-400/15 hover:bg-green-400/5 transition-all duration-200"
+                    >
+                        <i className="ti ti-sparkles text-sm" />
+                        <span className="hidden md:block">Ask A|</span>
                     </button>
                 </div>
             </div>
@@ -164,7 +167,7 @@ const NoteSection = ({ project, notes, userId }: {
                     />
                     <NoteEditor content={content} onChange={setContent} />
                     <div className="flex gap-3 justify-end mt-4">
-                        <button onClick={()=>setIsCreating(false)} className='text-black dark:text-white hover:text-zinc-500 dark:hover:text-zinc-200'>Cancel</button>
+                        <button onClick={() => setIsCreating(false)} className='text-black dark:text-white hover:text-zinc-500 dark:hover:text-zinc-200'>Cancel</button>
                         <button
                             onClick={handleSave}
                             disabled={loading}
@@ -223,17 +226,17 @@ const NoteSection = ({ project, notes, userId }: {
                         <div className='flex flex-col'>
                             <h2 className="font-semibold text-green-400 text-lg">{note.title}</h2>
                             {showTags && note.tags && note.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                {note.tags.map((tag: string, index: number) => (
-                                    <span
-                                        key={index}
-                                        className="text-xs px-2 py-1 bg-background text-text-muted rounded-full border border-zinc-700"
-                                    >
-                                        #{tag}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {note.tags.map((tag: string, index: number) => (
+                                        <span
+                                            key={index}
+                                            className="text-xs px-2 py-1 bg-background text-text-muted rounded-full border border-zinc-700"
+                                        >
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                             <div
                                 className={`dark:text-gray-400 text-black text-sm mt-1 prose prose-invert max-w-none line-clamp-3 ${expandedNoteId === note.id ? '' : 'line-clamp-3'}`}
                                 dangerouslySetInnerHTML={{ __html: note.content }}
@@ -245,55 +248,55 @@ const NoteSection = ({ project, notes, userId }: {
                                 {expandedNoteId === note.id ? "Show less" : "View more"}
                             </button>
                         </div>
-                        
+
                         <div className='flex justify-end gap-3'>
                             <button className='text-blue-500 hover:text-blue-600' onClick={() => canWeEdit(note)}>Edit</button>
                             <button className='text-red-500 hover:text-red-600' onClick={() => isDeleteOn(note)}>Delete</button>
-                            
+
                         </div>
                     </div>
                 ))}
             </div>
             {showCofirm && (
-                                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-                                    <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-sm p-6">
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-sm p-6">
 
-                                        <div className="w-11 h-11 rounded-xl dark:bg-red-950/40 border border-red-400/20 flex items-center justify-center mb-4">
-                                            <i className="ti ti-trash text-red-400 text-xl" />
-                                        </div>
+                        <div className="w-11 h-11 rounded-xl dark:bg-red-950/40 border border-red-400/20 flex items-center justify-center mb-4">
+                            <i className="ti ti-trash text-red-400 text-xl" />
+                        </div>
 
-                                        <p className="text-sm font-medium text-black dark:text-zinc-200 mb-1.5">Delete this note?</p>
-                                        <p className="text-xs font-mono text-zinc-600 leading-relaxed mb-6">
-                                            This will permanently delete <span className="dark:text-zinc-300 text-black">"{noteToDelete?.title}"</span> and remove it from search. This action cannot be undone.
-                                        </p>
+                        <p className="text-sm font-medium text-black dark:text-zinc-200 mb-1.5">Delete this note?</p>
+                        <p className="text-xs font-mono text-zinc-600 leading-relaxed mb-6">
+                            This will permanently delete <span className="dark:text-zinc-300 text-black">"{noteToDelete?.title}"</span> and remove it from search. This action cannot be undone.
+                        </p>
 
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => setshowCofirm(false)}
-                                                className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium border border-zinc-800 text-zinc-500 hover:text-gray-800 dark:hover:text-zinc-300 hover:border-zinc-700 transition-colors"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                onClick={deleteNote}
-                                                disabled={loading}
-                                                className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"     
-                                            >
-                                                {loading ? (
-                                                    <>
-                                                        <i className="ti ti-loader animate-spin text-base" />
-                                                        Deleting
-                                                    </>
-                                                ) : (
-                                                    'Confirm Delete'
-                                                )}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setshowCofirm(false)}
+                                className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium border border-zinc-800 text-zinc-500 hover:text-gray-800 dark:hover:text-zinc-300 hover:border-zinc-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={deleteNote}
+                                disabled={loading}
+                                className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+                            >
+                                {loading ? (
+                                    <>
+                                        <i className="ti ti-loader animate-spin text-base" />
+                                        Deleting
+                                    </>
+                                ) : (
+                                    'Confirm Delete'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {askSI && <div className='fixed inset-0 flex justify-center items-center bg-black/80'>
-                <RagSearch userId={userId} askSI={askSI} setaskSI={setaskSI} />
+                <RagSearch userId={userId} askSI={askSI} setaskSI={setaskSI} mode='notes'/>
 
 
             </div>}

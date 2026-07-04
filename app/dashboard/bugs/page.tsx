@@ -2,11 +2,11 @@
 import AddBugs from '@/components/AddBugs'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from "next/navigation";
-const columns = ['todo', 'in_progress', 'done'] as const
+const columns = ['open', 'in-progress', 'fixed'] as const
 const columnConfig = {
-    todo: { label: 'To do', color: 'text-zinc-500' },
-    in_progress: { label: 'In progress', color: 'text-amber-400' },
-    done: { label: 'Done', color: 'text-green-400' },
+    open: { label: 'To do', color: 'text-zinc-500' },
+    'in-progress': { label: 'In progress', color: 'text-amber-400' }, // IMP note: Object keys in TypeScript/JavaScript can be any string — including ones with hyphens, spaces, or special characters — as long as you wrap them in quotes. The restriction on hyphens only applies to variable names, not object keys.
+    fixed: { label: 'Done', color: 'text-green-400' },
 }
 const priorityConfig = {
     high: 'text-red-400 bg-red-950/50 border-red-400/20',
@@ -26,6 +26,8 @@ export default async function BugsPage() {
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false })
 
+    console.log(bugs)
+
     return (
         <div className="p-6 bg-background min-h-screen">
             <div className="flex justify-between items-center mb-6">
@@ -37,6 +39,7 @@ export default async function BugsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {columns.map(col => {
+                    console.log(col)
                     const colBugs = bugs?.filter(b => b.status === col) ?? []
                     const config = columnConfig[col]
                     return (
@@ -51,7 +54,7 @@ export default async function BugsPage() {
                                         <p className="font-mono text-xs text-text-muted mb-1">{(bug.projects as any)?.name}</p>
                                         <p className="text-sm text-muted font-medium mb-2">{bug.title}</p>
                                         <div className="flex justify-between items-center">
-                                            <span className={`text-xs font-mono border px-2 py-0.5 rounded-full ${priorityConfig[bug.priority as keyof typeof priorityConfig] ?? priorityConfig.low}`}>
+                                            <span className={`text-xs font-mono border px-2 py-0.5 rounded-full bg-white dark:bg-gray-200/20 ${priorityConfig[bug.priority as keyof typeof priorityConfig] ?? priorityConfig.low}`}>
                                                 {bug.priority}
                                             </span>
                                             <span className="text-xs font-mono text-zinc-700">

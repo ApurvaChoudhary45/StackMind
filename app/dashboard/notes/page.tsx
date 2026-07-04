@@ -33,7 +33,7 @@ export default async function NotesPage() {
                     <div key={note.id} className="bg-card border border-border hover:border-green-400/20 rounded-xl p-4 transition-colors cursor-pointer">
                         <p className="font-mono text-xs dark:text-white  mb-1">{(note.projects as any)?.name}</p>
                         <h3 className="text-sm font-medium text-text-muted mb-1">{note.title}</h3>
-                        <p className="text-xs text-zinc-400 line-clamp-2 mb-3 leading-relaxed"
+                        <p className="text-xs dark:text-zinc-400 line-clamp-2 mb-3 leading-relaxed"
                             dangerouslySetInnerHTML={{ __html: note.content }}
                         />
                         <div className="flex justify-between items-center">

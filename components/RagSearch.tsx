@@ -12,32 +12,42 @@ type RagSearchProps = {
     userId: string
     askSI: boolean
     setaskSI: React.Dispatch<React.SetStateAction<boolean | null>>
+    mode?: 'notes' | 'bugs'
 }
 
-const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
+const RagSearch = ({ userId, askSI, setaskSI, mode }: RagSearchProps) => {
     const [query, setQuery] = useState('')
     const [answer, setAnswer] = useState('')
     const [sources, setSources] = useState<Source[]>([])
     const [loading, setLoading] = useState(false)
 
+    const endpoint = mode === 'notes' ? '/api/rag' : '/api/rag-bugs'
+
+    const placeholder = mode === 'bugs' 
+    ? 'Ask anything about your bugs...' 
+    : 'Ask anything about your notes...'
+
     const handleSearch = async () => {
         if (!query.trim()) return
         setLoading(true)
-        setAnswer('')       
+        setAnswer('')
         setSources([])
 
-        console.log(userId)
-
-        const res = await fetch('/api/rag', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query, userId })
-        })
-
-        const data = await res.json()
-        setAnswer(data.answer)
-        setSources(data.sources)
-        setLoading(false)
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, userId })
+            })
+            const data = await res.json()
+            setAnswer(data.answer ?? '')
+            setSources(data.sources ?? [])
+        } catch (error) {
+            setAnswer('Something went wrong. Please try again.')
+            setSources([])
+        } finally {
+            setLoading(false)  // ← always runs
+        }
     }
 
     return (
@@ -45,25 +55,22 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
             <div className="flex items-center justify-between space-x-3">
                 <div className="flex items-center gap-2">
                     <Image
-                        src="/Ailogo.png"   
+                        src="/Ailogo.png"
                         alt="AI Logo"
                         height={40}
                         width={40}
                         className="object-contain"
                     />
                     <h2 className="text-green-400 font-semibold text-lg tracking-wide">
-                        Ask your notes
+                        Ask your {mode === 'notes' ? 'Notes' : 'Bugs'}
                     </h2>
                 </div>
-                <span
-                    className="text-md text-black hover:text-green-700 dark:text-white dark:hover:text-green-400 cursor-pointer"
-                    onClick={(e) => {
-                        setaskSI(false);
-                        e.stopPropagation();
-                    }}  
+                <button
+                    onClick={(e) => { setaskSI(false); e.stopPropagation() }}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-red-400 hover:border-red-400/30 transition-colors"
                 >
-                    X
-                </span>
+                    <i className="ti ti-x text-sm" />
+                </button>
             </div>
 
 
@@ -74,7 +81,7 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    placeholder="Ask anything about your notes..."
+                    placeholder={placeholder}
                     className="flex-1 dark:bg-black/60 bg-gray-200 border border-border text-input-text rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400/70 focus:border-green-400 transition"
                 />
                 <button
@@ -89,19 +96,19 @@ const RagSearch = ({ userId, askSI, setaskSI }: RagSearchProps) => {
             {/* Answer */}
             {answer && (
                 <div className="mb-5 md:p-5 p-1 bg-gray-200/60 dark:bg-zinc-900/70 border border-border rounded-xl shadow-inner md:h-40 h-80 overflow-y-auto">
-                    <p className="dark:text-gray-300 text-green-700 text-sm leading-relaxed">{answer}</p>
+                    <p className="dark:text-gray-300 text-green-800 text-sm leading-relaxed">{answer}</p>
                 </div>
             )}
 
             {/* Sources */}
             {sources.length > 0 && (
                 <div>
-                    <p className="text-gray-500 text-xs mb-2">Sources used:</p>
+                    <p className="dark:text-gray-500 text-xs mb-2">Sources used:</p>
                     <div className="flex flex-wrap gap-2">
                         {sources.map((source, index) => (
                             <span
                                 key={index}
-                                className="text-xs px-3 py-1 bg-zinc-800/70 text-green-400 rounded-full border border-zinc-700 shadow-sm hover:bg-zinc-700/70 transition"
+                                className="text-xs px-3 py-1 dark:bg-zinc-800/70 bg-gray-200/60 dark:text-green-400 text-green-600  rounded-full border border-border shadow-sm dark:hover:bg-zinc-700/70 transition"
                             >
                                 {source.title} ({Math.round(source.score * 100)}% match)
                             </span>

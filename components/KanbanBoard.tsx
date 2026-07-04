@@ -8,6 +8,7 @@ import { useEdgeStore } from '@/lib/edgestore'
 import { DndContext, DragEndEvent } from '@dnd-kit/core'
 import { useMemo } from 'react'
 import KanbanColumn from './KanbanColumn'
+import RagSearch from './RagSearch'
 
 type Bug = {
   id: string
@@ -45,6 +46,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
   const [isErrorScreen, setisErrorScreen] = useState(false)
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
+  const [askSI, setaskSI] = useState<boolean | null>(false)
 
   useEffect(() => {
     const channel = supabase
@@ -149,12 +151,21 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-green-400">Bug Tracker</h1>
+        <div className='flex gap-10'>
         <button
           onClick={() => setisCreating(true)}
           className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
         >
           + New Bug
         </button>
+        <button
+    onClick={() => setaskSI(true)}
+    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-green-400/40 text-green-400 font-mono text-sm font-medium hover:border-green-400 hover:shadow-lg hover:shadow-green-400/15 hover:bg-green-400/5 transition-all duration-200"
+>
+    <i className="ti ti-sparkles text-sm" />
+    <span className="hidden md:block">Ask A|</span>
+</button> 
+</div>
       </div>
 
       {isCreating && (
@@ -164,19 +175,19 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
             placeholder="Bug title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-transparent border-b border-border text-white text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
+            className="w-full dark:bg-transparent border-b border-border text-input-text text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
           />
           <textarea
             placeholder="Description (optional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-black/50 border border-border text-white rounded p-2 mb-4 focus:outline-none focus:border-green-400 resize-none h-20"
+            className="w-full dark:bg-black/50 bg-card border border-border dark:text-white text-black rounded p-2 mb-4 focus:outline-none focus:border-green-400 resize-none h-20"
           />
           <div className='flex justify-between items-center'>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-              className="bg-zinc-800 text-white border border-border rounded md:p-2 md:mb-4 py-2 focus:outline-none focus:border-green-400"
+              className="bg-card dark:text-white text-black border border-border rounded md:p-2 md:mb-4 py-2 focus:outline-none focus:border-green-400"
             >
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
@@ -188,42 +199,42 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
           </div>
           {isErrorScreen && (
             <div className='fixed inset-0 flex justify-center items-center bg-black/50'>
-              <div className='bg-zinc-900 h-[80vh] w-1/2 rounded-2xl p-6 flex flex-col gap-4'>
+              <div className='bg-background h-[80vh] w-1/2 rounded-2xl p-6 flex flex-col gap-4'>
 
                 {/* Header */}
                 <div className='flex justify-between items-center'>
                   <h1 className='text-green-400 font-bold text-lg'>Bug Report</h1>
-                  <button className='text-gray-500 hover:text-white transition-colors text-sm' onClick={()=>setisErrorScreen(false)}>✕ Close</button>
+                  <button className='dark:text-gray-500 dark:hover:text-white hover:text-gray-500 transition-colors text-sm' onClick={()=>setisErrorScreen(false)}>✕ Close</button>
                 </div>
 
                 {/* Upload Area */}
-                <div className='border-2 border-dashed border-border hover:border-green-400/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors group'>
-                  <div className='w-10 h-10 rounded-full bg-zinc-800 group-hover:bg-green-400/10 flex items-center justify-center transition-colors'>
+                <div className='border-2 border-dashed border-border hover:border-green-400/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors group bg-card'>
+                  <div className='w-10 h-10 rounded-full dark:bg-zinc-800 bg-bg-green-400/10 group-hover:bg-green-400/10 flex items-center justify-center transition-colors'>
                     <span className='text-xl'>📎</span>
                   </div>
                   <div className='text-center'>
-                    <p className='text-white text-sm font-medium'>Add screenshot here</p>
-                    <p className='text-gray-500 text-xs mt-1'>PNG, JPG up to 5MB</p>
+                    <p className='dark:text-white text-black text-sm font-medium'>Add screenshot here</p>
+                    <p className='dark:text-gray-500 text-black text-xs mt-1'>PNG, JPG up to 5MB</p>
                   </div>
-                  <button className='relative bg-black/20 rounded-xl p-2 text-sm text-white overflow-hidden border-green-500 border-2 hover:text-green-400 '>
+                  <button className='relative dark:bg-black/20 rounded-xl p-2 text-sm dark:text-white overflow-hidden border-green-500 border-2 hover:text-green-400 '>
                     <input type="file"  onChange={handlepreview} className='absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer'/>
                     Browse files
                   </button>
                 </div>
 
                 {/* Preview Area */}
-                <div className='flex-1 border border-border rounded-xl overflow-hidden relative bg-zinc-800/50'>
+                <div className='flex-1 border border-border rounded-xl overflow-hidden relative bg-card'>
                   {preview ? <div>
                     <img src={preview} alt="no Img" className='w-full' />
                   </div> : <div className='absolute inset-0 flex flex-col items-center justify-center gap-2'>
                     <span className='text-3xl'>🖼️</span>
-                    <p className='text-gray-600 text-xs'>Screenshot preview will appear here</p>
+                    <p className='dark:text-gray-600 text-black text-xs'>Screenshot preview will appear here</p>
                   </div>}
                 </div>
 
                 {/* Actions */}
                 <div className='flex justify-end gap-3'>
-                  <button className='px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors' onClick={()=>setisErrorScreen(false)}>
+                  <button className='px-4 py-2 dark:text-gray-400 dark:hover:text-white text-black hover:text-gray-600 text-sm transition-colors' onClick={()=>setisErrorScreen(false)}>
                     Cancel
                   </button>
                   <button className='px-4 py-2 bg-green-400 text-black font-semibold text-sm rounded-lg hover:bg-green-300 transition-colors' onClick={handleUpload}>
@@ -236,7 +247,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
           )}
 
           <div className="flex gap-3 justify-end mt-5">
-            <button onClick={() => setisCreating(false)} className="px-4 py-2 text-gray-400 hover:text-white">
+            <button onClick={() => setisCreating(false)} className="px-4 py-2 dark:text-gray-400 dark:hover:text-white text-black hover:text-gray-500">
               Cancel
             </button>
             <button
@@ -248,6 +259,11 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
           </div>
         </div>
       )}
+      {askSI && <div className='fixed inset-0 flex justify-center items-center bg-black/80'>
+                <RagSearch userId={userId} askSI={askSI} setaskSI={setaskSI} mode='bugs' />
+
+
+            </div>}
 
       <DndContext onDragEnd={handleDragEvent}>
         <div className="md:flex md:gap-4 grid grid-cols-1 gap-4">
