@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes'
 import { redirect } from "next/navigation";
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import CopyTokenButton from '@/components/CopyTokenButton';
 
 export default function SettingsPage() {
     // const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('dark')
@@ -199,6 +200,25 @@ export default function SettingsPage() {
                         <p className="text-xs font-mono text-zinc-600 mt-0.5">Show confirmation dialog before deleting</p>
                     </div>
                     <Toggle value={confirmDelete} onChange={() => setConfirmDelete(!confirmDelete)} />
+                </div>
+            </div>
+
+            {/* VS Code Integration */}
+            <div className="bg-zinc-950 border border-zinc-900 rounded-xl mb-3 overflow-hidden">
+                <div className="px-5 py-4 border-b border-zinc-900">
+                    <p className="text-sm font-medium text-zinc-200">VS Code Integration</p>
+                    <p className="text-xs font-mono text-zinc-600 mt-0.5">
+                        Connect your VS Code to save snippets and ask AI without leaving your editor
+                    </p>
+                </div>
+                <div className="p-5">
+                    <p className="text-xs font-mono text-zinc-600 mb-4 leading-relaxed">
+                        1. Copy your API token below<br />
+                        2. Open VS Code → <span className="text-green-400">Ctrl+Shift+P</span><br />
+                        3. Type <span className="text-green-400">StackMind: Connect Account</span><br />
+                        4. Paste your token
+                    </p>
+                    <CopyTokenButton/>
                 </div>
             </div>
 
