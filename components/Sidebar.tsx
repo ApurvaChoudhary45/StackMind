@@ -137,9 +137,9 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
       {/* Bottom */}
       <div className="mt-auto border-t border-border p-2">
         <div className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-muted">
-          <i className="ti ti-moon text-base flex-shrink-0" />
+          <i className="ti ti-sun text-base flex-shrink-0" />
           <span className={`whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
-            Dark mode
+            Theme
           </span>
           {!collapsed && (
             <div className="ml-auto">

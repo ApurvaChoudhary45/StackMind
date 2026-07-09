@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import NoteEditor from './NoteEditor'
 import RagSearch from './RagSearch'
 import Image from 'next/image'
+import AskAIDrawer from './AskAI'
 
 type Note = {
     id: string
@@ -50,6 +51,9 @@ const NoteSection = ({ project, notes, userId }: {
     const [noteToDelete, setNoteToDelete] = useState<Note | null>(null)
 
     const [showTags, setShowTags] = useState(false)
+
+    const [drawerOpen, setDrawerOpen] = useState(false)
+    
 
 
     const handleSave = async () => {
@@ -146,13 +150,7 @@ const NoteSection = ({ project, notes, userId }: {
                     >
                         + New Note
                     </button>
-                    <button
-                        onClick={() => setaskSI(true)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-green-400/40 text-green-400 font-mono text-sm font-medium hover:border-green-400 hover:shadow-lg hover:shadow-green-400/15 hover:bg-green-400/5 transition-all duration-200"
-                    >
-                        <i className="ti ti-sparkles text-sm" />
-                        <span className="hidden md:block">Ask A|</span>
-                    </button>
+                    <AskAIDrawer userId={userId} mode='notes'/>
                 </div>
             </div>
 
@@ -295,11 +293,7 @@ const NoteSection = ({ project, notes, userId }: {
                     </div>
                 </div>
             )}
-            {askSI && <div className='fixed inset-0 flex justify-center items-center bg-black/80'>
-                <RagSearch userId={userId} askSI={askSI} setaskSI={setaskSI} mode='notes'/>
-
-
-            </div>}
+            
 
         </div>
     )

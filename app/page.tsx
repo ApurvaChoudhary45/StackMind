@@ -9,7 +9,7 @@ export default function LoginPage() {
 
   async function signInWithGitHub() {
     await supabase.auth.signInWithOAuth({
-      provider: 'github',
+      provider: 'github', 
       options: {
         redirectTo: `${window.location.origin}/auth/callback`
       }

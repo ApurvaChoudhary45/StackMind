@@ -204,18 +204,18 @@ export default function SettingsPage() {
             </div>
 
             {/* VS Code Integration */}
-            <div className="bg-zinc-950 border border-zinc-900 rounded-xl mb-3 overflow-hidden">
-                <div className="px-5 py-4 border-b border-zinc-900">
-                    <p className="text-sm font-medium text-zinc-200">VS Code Integration</p>
+            <div className="bg-card border border-border rounded-xl mb-3 overflow-hidden">
+                <div className="px-5 py-4 border-b border-border">
+                    <p className="text-sm font-medium dark:text-zinc-200">VS Code Integration</p>
                     <p className="text-xs font-mono text-zinc-600 mt-0.5">
                         Connect your VS Code to save snippets and ask AI without leaving your editor
                     </p>
                 </div>
                 <div className="p-5">
-                    <p className="text-xs font-mono text-zinc-600 mb-4 leading-relaxed">
+                    <p className="text-xs font-mono text-black dark:text-zinc-600 mb-4 leading-relaxed">
                         1. Copy your API token below<br />
-                        2. Open VS Code → <span className="text-green-400">Ctrl+Shift+P</span><br />
-                        3. Type <span className="text-green-400">StackMind: Connect Account</span><br />
+                        2. Open VS Code → <span className="text-blue-500 dark:text-green-400">Ctrl+Shift+P</span><br />
+                        3. Type <span className="text-blue-500 dark:text-green-400">StackMind: Connect Account</span><br />
                         4. Paste your token
                     </p>
                     <CopyTokenButton/>

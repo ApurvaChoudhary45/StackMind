@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
                 .order('created_at', { ascending: false })
         ])
 
-        // Step 2 — Search Qdrant for related notes + fetch bugs from Supabase
+        // Step 2 — Search Qdrant for related notes
         const noteResults = await searchVectors(queryVector, 5, userId)
 
 
@@ -99,7 +99,7 @@ Important:
                 title: r.title,
                 score: r.score
             })),
-            bugsAnalyzed: bugs?.length ?? 0
+            bugsAnalyzed: bugs?.length ?? 0 
         })
 
     } catch (error) {

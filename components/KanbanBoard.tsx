@@ -9,6 +9,7 @@ import { DndContext, DragEndEvent } from '@dnd-kit/core'
 import { useMemo } from 'react'
 import KanbanColumn from './KanbanColumn'
 import RagSearch from './RagSearch'
+import AskAIDrawer from './AskAI'
 
 type Bug = {
   id: string
@@ -105,7 +106,6 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
         file
       })
       uploadURL = upload?.url
-      console.log(uploadURL)
       setUrl(uploadURL)
       setLoading(false)
       setisErrorScreen(false)
@@ -158,13 +158,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
         >
           + New Bug
         </button>
-        <button
-    onClick={() => setaskSI(true)}
-    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-green-400/40 text-green-400 font-mono text-sm font-medium hover:border-green-400 hover:shadow-lg hover:shadow-green-400/15 hover:bg-green-400/5 transition-all duration-200"
->
-    <i className="ti ti-sparkles text-sm" />
-    <span className="hidden md:block">Ask A|</span>
-</button> 
+        <AskAIDrawer userId={userId} mode='bugs'/>
 </div>
       </div>
 
@@ -264,6 +258,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
 
 
             </div>}
+      
 
       <DndContext onDragEnd={handleDragEvent}>
         <div className="md:flex md:gap-4 grid grid-cols-1 gap-4">
