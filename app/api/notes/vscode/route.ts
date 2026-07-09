@@ -8,6 +8,7 @@ const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
 })
 
+
 // ─── Tag Generation ───────────────────────────────────────────
 // We ask Claude to read the note and return relevant tags
 // The prompt is very specific — we tell it to return ONLY a JSON array
@@ -75,6 +76,7 @@ Return the JSON array now:`
 }
 
 export async function POST(req: NextRequest) {
+    
     try {
         const token = req.headers.get('Authorization')?.replace('Bearer ', '')
         if (!token) return NextResponse.json({ error: 'No token' }, { status: 401 })
@@ -86,10 +88,22 @@ export async function POST(req: NextRequest) {
             { global: { headers: { Authorization: `Bearer ${token}` } } }
         )
 
-        const { data: { user }} = await supabase.auth.getUser()
-        if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+        
 
-        const { title, content, projectId, userId } = await req.json()
+        const { data: { user }} = await supabase.auth.getUser()
+
+         
+        if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+        
+        const { data: project } = await supabase
+            .from('projects')
+            .select('id')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+
+        const { title, content} = await req.json()
 
 
         // Step 1 — Generate tags using Claude (runs in parallel with nothing yet)
@@ -103,8 +117,8 @@ export async function POST(req: NextRequest) {
             .insert({
                 title,
                 content,
-                project_id: projectId,
-                user_id: userId,
+                project_id: project?.id,
+                user_id: user.id,
                 tags  // ← tags saved in the same insert, no extra DB call needed
             })
             .select()
