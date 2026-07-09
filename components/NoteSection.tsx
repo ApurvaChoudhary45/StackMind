@@ -53,7 +53,7 @@ const NoteSection = ({ project, notes, userId }: {
     const [showTags, setShowTags] = useState(false)
 
     const [drawerOpen, setDrawerOpen] = useState(false)
-    
+
 
 
     const handleSave = async () => {
@@ -150,7 +150,7 @@ const NoteSection = ({ project, notes, userId }: {
                     >
                         + New Note
                     </button>
-                    <AskAIDrawer userId={userId} mode='notes'/>
+                    <AskAIDrawer userId={userId} mode='notes' />
                 </div>
             </div>
 
@@ -220,9 +220,13 @@ const NoteSection = ({ project, notes, userId }: {
 
             <div className="grid grid-cols-1 gap-4 bg-card">
                 {userNotes.map((note) => (
-                    <div key={note.id} className="border border-border rounded-lg p-4 hover:border-green-400/50 transition-colors grid grid-cols-2">
+                    <div key={note.id} className="border border-border rounded-lg p-4 hover:border-green-400/50 transition-colors flex flex-col gap-3">
+
+                        {/* Note content */}
                         <div className='flex flex-col'>
                             <h2 className="font-semibold text-green-400 text-lg">{note.title}</h2>
+
+                            {/* Tags */}
                             {showTags && note.tags && note.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     {note.tags.map((tag: string, index: number) => (
@@ -235,22 +239,36 @@ const NoteSection = ({ project, notes, userId }: {
                                     ))}
                                 </div>
                             )}
+
+                            {/* Content */}
                             <div
-                                className={`dark:text-gray-400 text-black text-sm mt-1 prose prose-invert max-w-none line-clamp-3 ${expandedNoteId === note.id ? '' : 'line-clamp-3'}`}
+                                className={`dark:text-gray-400 text-black text-sm mt-1 prose prose-invert max-w-none overflow-hidden ${expandedNoteId === note.id ? '' : 'line-clamp-3'}`}
                                 dangerouslySetInnerHTML={{ __html: note.content }}
                             />
                             <button
                                 className="text-green-400 text-xs mt-2 hover:text-green-500 self-start"
                                 onClick={() => setexpandedNoteId(expandedNoteId === note.id ? null : note.id)}
                             >
-                                {expandedNoteId === note.id ? "Show less" : "View more"}
+                                {expandedNoteId === note.id ? "Show less ↑" : "View more ↓"}
                             </button>
                         </div>
 
-                        <div className='flex justify-end gap-3'>
-                            <button className='text-blue-500 hover:text-blue-600' onClick={() => canWeEdit(note)}>Edit</button>
-                            <button className='text-red-500 hover:text-red-600' onClick={() => isDeleteOn(note)}>Delete</button>
-
+                        {/* Actions — bottom right on all screen sizes */}
+                        <div className='flex justify-end gap-3 pt-2 border-t border-border'>
+                            <button
+                                className='text-xs font-mono text-blue-500 hover:text-blue-400 border border-blue-500/20 hover:border-blue-400/40 px-3 py-1.5 rounded-lg transition-colors'
+                                onClick={() => canWeEdit(note)}
+                            >
+                                <i className="ti ti-pencil mr-1" />
+                                Edit
+                            </button>
+                            <button
+                                className='text-xs font-mono text-red-500 hover:text-red-400 border border-red-500/20 hover:border-red-400/40 px-3 py-1.5 rounded-lg transition-colors'
+                                onClick={() => isDeleteOn(note)}
+                            >
+                                <i className="ti ti-trash mr-1" />
+                                Delete
+                            </button>
                         </div>
                     </div>
                 ))}
@@ -293,7 +311,7 @@ const NoteSection = ({ project, notes, userId }: {
                     </div>
                 </div>
             )}
-            
+
 
         </div>
     )

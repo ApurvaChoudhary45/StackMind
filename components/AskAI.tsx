@@ -123,8 +123,8 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
                     {/* Answer */}
                     {answer && (
                         <div className="bg-background border border-border rounded-lg p-3">
-                            <p className="text-xs dark:text-zinc-600 font-mono uppercase tracking-widest mb-2">Answer</p>
-                            <p className="text-xs dark:text-zinc-400 leading-relaxed">{answer}</p>
+                            <p className="text-xs text-black dark:text-zinc-600 font-mono uppercase tracking-widest mb-2">Answer</p>
+                            <p className="text-xs text-black dark:text-zinc-400 leading-relaxed">{answer}</p>
                         </div>
                     )}
 
@@ -134,7 +134,7 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
                             <p className="text-xs dark:text-zinc-600 font-mono uppercase tracking-widest mb-2">Sources</p>
                             <div className="flex flex-wrap gap-1.5">
                                 {sources.map((source, i) => (
-                                    <span key={i} className="text-xs font-mono text-green-400 bg-zinc-100 dark:bg-green-950/50 border border-green-400/10 px-2 py-0.5 rounded-2xl">
+                                    <span key={i} className="text-xs font-mono text-green-700 dark:text-green-400 bg-card dark:bg-green-950/50 border border-green-400/10 px-2 py-0.5 rounded-2xl">
                                         {source.title} ({Math.round(source.score * 100)}% match)
                                     </span>
                                 ))}
