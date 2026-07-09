@@ -15,8 +15,8 @@ export interface VectorPoint {
     noteId: string
     title: string
     content: string     // original text (so we can return it)
-    projectId: number
-    userId: number
+    projectId: string
+    userId: string
   }
 }
 

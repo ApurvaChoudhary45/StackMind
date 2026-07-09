@@ -139,8 +139,8 @@ export async function POST(req: NextRequest) {
                 noteId: note.id,
                 title: note.title,
                 content: note.content,
-                projectId,
-                userId
+                projectId: project?.id,
+                userId : user.id
             }
         }])
 
