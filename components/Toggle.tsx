@@ -34,19 +34,19 @@ const ThemeToggle = () => {
             onClick={() => { setTheme('light'); setOpen(false); }}
             className="block w-full text-left px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
           >
-            Light ☀️
+            Light <i className="ti ti-sun"/>
           </button>
           <button
             onClick={() => { setTheme('dark'); setOpen(false); }}
             className="block w-full text-left px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
           >
-            Dark 🌙
+            Dark <i className="ti ti-moon"/>
           </button>
           <button
             onClick={() => { setTheme('system'); setOpen(false); }}
             className="block w-full text-left px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
           >
-            System 💻
+            System <i className="ti ti-device-desktop"/>
           </button>
         </div>
       )}
