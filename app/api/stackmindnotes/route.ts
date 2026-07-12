@@ -20,12 +20,12 @@ export async function GET(req: NextRequest) {
         // Get all the notes from the database
         const { data: notes } = await supabase
             .from('notes')
-            .select('id')
+            .select('id, title, created_at')
             .eq('user_id', user.id)
 
         if (!notes) return NextResponse.json({ error: 'No notes found. Create a new note in StackMind first.' }, { status: 400 })
 
-
+        console.log(notes)
         return NextResponse.json({ success: true, notes})
 
     } catch (error) {
