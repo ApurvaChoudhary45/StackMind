@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { s } from "framer-motion/client"
 import GlobalSearch from "./GlobalSearch"
 import GithubImport from '@/components/GithubImport'
+import AnalyzeSnippet from "./AnalyzeSnippet"
 
 type Snippet = {
     id: string,
@@ -51,36 +52,31 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     const [isSaving, setIsSaving] = useState(false)
     const [textResize, setTextResize] = useState('')
     const [newNoteId, setNewNoteId] = useState('')
-
+    const [analyze, setAnalyze] = useState(false)
+    const [loading, setloading] = useState(false)
 
     async function handleCreate() {
-        if (!title.trim() || !code.trim()) return
-
-        if (newNoteId) {
-            // Auto-save already created it — just update title and other fields
-            await supabase.from('snippets').update({
-                title,
-                code,
-                language,
-                description
-            }).eq('id', newNoteId)
-        } else {
-            // Never auto-saved — create fresh
-            await supabase.from('snippets').insert({
-                title,
-                code,
-                language,
-                description,
-                project_id: projectId,
-                user_id: userId
+        setloading(true)
+        try {
+            const data = await fetch('/api/add-snippet', {
+                method: 'PUT',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({ title, code, language, description, project_id: projectId, user_id: userId, newNoteId })
             })
+        } catch (error) {
+            console.log(error)
         }
-
+        finally {
+            setloading(false)
+        }
         setTitle('')
         setCode('')
         setDescription('')
         setNewNoteId('')
         setIsCreating(false)
+
         router.refresh()
     }
 
@@ -95,6 +91,12 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         setTimeout(() => {
             setCopied(null)
         }, 2000);
+    }
+
+    async function cancelNewSnippet() {
+        await supabase.from('snippets').delete().eq('id', newNoteId)
+        setIsCreating(false)
+        
     }
 
     const filtered = allSnippets.filter(s => filterLang || s.language === filterLang).filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
@@ -129,8 +131,6 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
         }
     }
-
-
 
     const saveEditedNote = async () => {
 
@@ -212,9 +212,11 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
             <div className="flex justify-between items-center">
                 <h1 className="text-green-400 md:text-2xl text-lg">Snippet Library</h1>
                 <div className="flex justify-between items-center gap-5">
+                    <AnalyzeSnippet analyze={analyze} setAnalyze={setAnalyze} userId={userId} />
                     <button className="py-2 px-2 rounded-lg font-semibold bg-green-400 text-black text-sm" onClick={createNewNote}>
                         + New Snippet
                     </button>
+
 
                 </div>
 
@@ -245,7 +247,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     placeholder="Snippet title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-card border-b border-border text-input-text text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
+                    className="w-full bg-card border-b border-border text-input-text text-md p-2 font-semibold mb-4 focus:outline-none focus:border-green-400"
                 />
                 <input
                     type="text"
@@ -278,14 +280,22 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     </div>
                 )}
                 <div className="flex gap-3 justify-end">
-                    <button onClick={() => setIsCreating(false)} className="px-4 py-2 dark:text-gray-400 dark:hover:text-white hover:text-gray-700">
+                    <button onClick={cancelNewSnippet} className="px-4 py-2 dark:text-gray-400 dark:hover:text-white hover:text-gray-700">
                         Cancel
                     </button>
                     <button
                         onClick={handleCreate}
+                        disabled={loading}
                         className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
                     >
-                        Save Snippet
+                        {loading ? (
+                            <>
+                                <i className="ti ti-loader animate-spin text-base" />
+                                Saving...
+                            </>
+                        ) : (
+                            'Save Snippet'
+                        )}
                     </button>
                 </div>
             </div>}
@@ -334,9 +344,17 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     </button>
                     <button
                         onClick={saveEditedNote}
+                        disabled={loading}
                         className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
                     >
-                        Edit Snippet
+                        {loading ? (
+                            <>
+                                <i className="ti ti-loader animate-spin text-base" />
+                                Saving...
+                            </>
+                        ) : (
+                            'Edit Note'
+                        )}
                     </button>
                 </div>
             </div>}
