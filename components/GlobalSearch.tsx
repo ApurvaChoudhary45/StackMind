@@ -47,6 +47,13 @@ const GlobalSearch = () => {
     const [results, setResults] = useState<Result[]>([])
     const [loading, setLoading] = useState(false)
 
+    useEffect(() => {
+  if (isOpen) {
+    document.body.classList.add('overflow-hidden')
+  } else {
+    document.body.classList.remove('overflow-hidden')
+  }
+}, [isOpen])
     // Ctrl+K toggle
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -84,11 +91,11 @@ const GlobalSearch = () => {
 
     return (
         <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 pt-24 px-4"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 pt-24 px-4 overflow-hidden"
             onClick={handleClose}
         >   
             <div
-                className="bg-zinc-950 border border-zinc-800 rounded-xl w-full max-w-xl shadow-2xl overflow-hidden"
+                className="bg-zinc-950 border border-zinc-800 rounded-xl w-full max-w-xl shadow-2xl overflow-hidden overflow-y-auto overscroll-contain"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Search Input */}

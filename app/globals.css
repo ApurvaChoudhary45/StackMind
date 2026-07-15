@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none; 
+}
+
+body {
+  overscroll-behavior: none;   /* disables pull-down bounce */
+  min-height: 100vh;           /* ensures body fills viewport */
+}
+
 @keyframes gradient-x {
   0%, 100% {
     background-position: 0% 50%;
@@ -7,6 +19,13 @@
   50% {
     background-position: 100% 50%;
   }
+}
+
+
+
+#__next {
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
 .animate-gradient-x {

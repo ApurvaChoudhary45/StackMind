@@ -55,6 +55,13 @@ const NoteSection = ({ project, notes, userId }: {
     const [drawerOpen, setDrawerOpen] = useState(false)
 
 
+    useEffect(() => {
+        if (showCofirm) {
+            document.body.classList.add('overflow-hidden')
+        } else {
+            document.body.classList.remove('overflow-hidden')
+        }
+    }, [showCofirm])
 
     const handleSave = async () => {
         if (!title.trim()) return
@@ -274,8 +281,8 @@ const NoteSection = ({ project, notes, userId }: {
                 ))}
             </div>
             {showCofirm && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-                    <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-sm p-6">
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-hidden">
+                    <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-sm p-6 overflow-y-auto overscroll-contain">
 
                         <div className="w-11 h-11 rounded-xl dark:bg-red-950/40 border border-red-400/20 flex items-center justify-center mb-4">
                             <i className="ti ti-trash text-red-400 text-xl" />

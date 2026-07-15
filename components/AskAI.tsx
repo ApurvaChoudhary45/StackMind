@@ -59,6 +59,14 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
         }
     }
 
+    useEffect(() => {
+  if (drawerOpen) {
+    document.body.classList.add('overflow-hidden')
+  } else {
+    document.body.classList.remove('overflow-hidden')
+  }
+}, [drawerOpen])
+
     return (
         <>
             {/* Floating Ask AI Button */}
@@ -81,7 +89,7 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
             )}
 
             {/* Drawer */}
-            <aside className={`fixed top-0 right-0 h-full w-80 bg-background border-l border-border z-50 flex flex-col transition-transform duration-300 ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <aside className={`fixed top-0 right-0 h-full w-80 bg-background border-l border-border z-50 flex flex-col transition-transform duration-300 overflow-y-auto overscroll-contain ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border">

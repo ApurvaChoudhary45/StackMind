@@ -106,6 +106,13 @@ export default function AnalyzeSnippet({ userId, analyze, setAnalyze }: analyzeS
     }
 
     useEffect(() => {
+  if (analyze) {
+    document.body.classList.add('overflow-hidden')
+  } else {
+    document.body.classList.remove('overflow-hidden')
+  }
+}, [analyze])
+    useEffect(() => {
         const aiAnalyzerHandler = (e: KeyboardEvent) => {
             e.preventDefault()
             if ((e.metaKey || e.altKey) && e.key === 'j') {
@@ -133,7 +140,7 @@ animate-gradient-x
                 Analyze Snippet
             </button>
             {analyze && <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4" onClick={() => setAnalyze(false)}>
-                <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-4xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-4xl overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}>
 
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-border">
