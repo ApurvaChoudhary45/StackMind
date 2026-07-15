@@ -31,6 +31,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
     { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
     { href: '/dashboard/account', label: 'Profile', icon: 'ti-user-circle' },
     { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' }, 
+    { href: '/dashboard/journal', label: 'Journal', icon: 'ti-note' }, 
   ]
 
   return (

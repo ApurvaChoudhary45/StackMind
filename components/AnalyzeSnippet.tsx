@@ -1,7 +1,7 @@
 // components/CodeReview.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type ReviewItem = {
     type: 'error' | 'warning' | 'suggestion'
@@ -105,6 +105,17 @@ export default function AnalyzeSnippet({ userId, analyze, setAnalyze }: analyzeS
         setAnalyze(false)
     }
 
+    useEffect(() => {
+        const aiAnalyzerHandler = (e: KeyboardEvent) => {
+            e.preventDefault()
+            if ((e.metaKey || e.altKey) && e.key === 'j') {
+                setAnalyze(prev => !prev)
+            }
+        }
+        document.addEventListener('keydown', aiAnalyzerHandler)
+        return () => document.removeEventListener('keydown', aiAnalyzerHandler)
+    }, [])
+
     return (
         <>
             <button
@@ -161,8 +172,8 @@ animate-gradient-x
                                 key={option.id}
                                 onClick={() => toggleOption(option.id)}
                                 className={`flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-full border transition-colors ${activeOptions.includes(option.id)
-                                        ? 'bg-zinc-400 dark:bg-green-950/60 dark:text-green-400 border-green-400/20'
-                                        : 'dark:text-zinc-600 border-zinc-800 hover:text-zinc-700'
+                                    ? 'bg-zinc-400 dark:bg-green-950/60 dark:text-green-400 border-green-400/20'
+                                    : 'dark:text-zinc-600 border-zinc-800 hover:text-zinc-700'
                                     }`}
                             >
                                 <i className={`ti ${option.icon} text-xs`} />
