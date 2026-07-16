@@ -52,6 +52,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
   const [repos, setRepos] = useState<repo[]>([]);
   const [contents, setContents] = useState<content[]>([])
   const [search, setSearch] = useState("");
+  const [repoSearch, setRepoSearch] = useState("");
 
   const [openRepo, setopenRepo] = useState(false)
 
@@ -325,15 +326,15 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
             <input
               type="text"
               placeholder="Search files..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+              value={repoSearch}
+              onChange={e => setRepoSearch(e.target.value)}
               className="bg-transparent border-none outline-none text-xs font-mono text-text-muted placeholder:text-zinc-700 w-full"
             />
           </div>
 
           {/* File List */}
           <div className="max-h-[60vh] overflow-y-auto space-y-1.5 pr-1">
-            {contents
+            {contents.filter(i=>i.name.toLocaleLowerCase().includes(repoSearch.toLocaleLowerCase()))
               .map((file) => (
                 <div
                   key={file.path}

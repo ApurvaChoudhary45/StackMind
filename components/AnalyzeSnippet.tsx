@@ -114,14 +114,15 @@ export default function AnalyzeSnippet({ userId, analyze, setAnalyze }: analyzeS
 }, [analyze])
     useEffect(() => {
         const aiAnalyzerHandler = (e: KeyboardEvent) => {
-            e.preventDefault()
-            if ((e.metaKey || e.altKey) && e.key === 'j') {
+            
+            if ((e.metaKey || e.altKey) && e.key.toLocaleLowerCase() === 'j') {
+                e.preventDefault()
                 setAnalyze(prev => !prev)
             }
         }
         document.addEventListener('keydown', aiAnalyzerHandler)
         return () => document.removeEventListener('keydown', aiAnalyzerHandler)
-    }, [])
+    }, [analyze])
 
     return (
         <>
@@ -140,7 +141,7 @@ animate-gradient-x
                 Analyze Snippet
             </button>
             {analyze && <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4" onClick={() => setAnalyze(false)}>
-                <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-4xl overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-4xl " >
 
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -162,7 +163,7 @@ animate-gradient-x
                     </div>
 
                     {/* Code Input */}
-                    <div className="px-6 py-4 border-b border-zinc-900">
+                    <div className="px-6 py-4 border-b border-zinc-900" onClick={(e)=>e.stopPropagation()}>
                         <p className="text-xs font-mono text-zinc-600 uppercase tracking-widest mb-2">Paste your code</p>
                         <textarea
                             value={code}
