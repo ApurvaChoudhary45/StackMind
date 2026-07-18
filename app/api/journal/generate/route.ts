@@ -182,8 +182,14 @@ export async function POST(req: NextRequest) {
 
 // ─── GET handler for Vercel Cron ──────────────────────────────
 // Vercel cron jobs use GET requests not POST
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
+
+        const secret = req.headers.get('x-cron-secret')
+        if (secret !== process.env.CRON_SECRET) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         // Fetch all user IDs
         const { data: users } = await adminSupabase
             .auth.admin.listUsers()

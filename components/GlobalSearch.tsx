@@ -46,6 +46,8 @@ const GlobalSearch = () => {
     const [query, setQuery] = useState('')
     const [results, setResults] = useState<Result[]>([])
     const [loading, setLoading] = useState(false)
+    const [detail, setDetail] = useState(false)
+    const [backPage, setbackPage] = useState(false)
 
     useEffect(() => {
   if (isOpen) {
@@ -195,7 +197,15 @@ const GlobalSearch = () => {
                     <div className="ml-auto text-xs font-mono text-zinc-700">
                         {results.length > 0 && `${results.length} results`}
                     </div>
+                    <button onClick={()=>setDetail(true)}>Hey</button>
                 </div>
+                {detail && <div className="fixed inset-0 flex justify-center items-center bg-black/90">
+                    <div className="bg-zinc-800/90 h-[70vh] w-[80vw] rounded-2xl" onClick={(e)=>e.stopPropagation()}>
+
+                    <span className="text-black" onClick={()=>setDetail(false)}>back</span>
+                    </div>
+                    
+                    </div>}
             </div>
         </div>
     )
