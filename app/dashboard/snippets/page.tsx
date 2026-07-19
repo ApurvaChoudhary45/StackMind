@@ -15,7 +15,7 @@ export default async function SnippetsPage() {
         .order('created_at', { ascending: false })
 
     return (
-        <div className="p-6 bg-background min-h-screen overflow-y-auto">
+        <div className="p-6 bg-background h-screen overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
                 <p className="font-mono text-sm text-text-muted">
                     // <span className="text-green-400">all snippets</span> — {snippets?.length ?? 0} total

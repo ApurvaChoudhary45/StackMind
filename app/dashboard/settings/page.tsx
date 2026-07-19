@@ -89,7 +89,7 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="p-8 bg-background text-foreground min-h-screen overflow-y-auto">
+        <div className="p-8 bg-background text-foreground h-screen overflow-y-auto">
             <p className="font-mono text-sm text-text-muted mb-8">
                 // <span className="text-green-400">settings</span>
             </p>

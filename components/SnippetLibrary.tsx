@@ -208,7 +208,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
 
     return (
-        <div className="p-8 min-h-screen bg-background dark:text-white overflow-y-auto">
+        <div className="p-8 h-screen bg-background dark:text-white overflow-y-auto">
             <div className="flex justify-between items-center">
                 <h1 className="text-green-400 md:text-2xl text-lg">Snippet Library</h1>
                 <div className="flex justify-between items-center gap-5">
