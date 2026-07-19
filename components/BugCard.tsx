@@ -115,7 +115,7 @@ export default function BugCard({ bug }: { bug: Bug }) {
                     </div> : <div><p className='text-green-500 font-mono'>No screenshot added</p></div>}
 
                     <div className='pt-10'>
-                        {loading ? <span className='text-white pt-10 font-mono animate-pulse'>AI Suggested Solution...</span> : <span className='dark:text-white pt-10 font-mono'>AI Suggested Solution...</span>}
+                        {loading ? <span className='dark:text-white text-black pt-10 font-mono animate-pulse'>AI Suggested Fix...</span> : <span className='dark:text-white pt-10 font-mono'>AI Suggested Fix...</span>}
                         {loading ? <div><span className='animate-pulse'>Looking for the best fix....</span></div> : <div className='border-1 dark:border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col mt-10'>
 
                             <p className='dark:text-green-300 text-zinc-700 text-sm font-mono'>{analysis}</p>
@@ -128,9 +128,8 @@ export default function BugCard({ bug }: { bug: Bug }) {
                 <p className='dark:text-green-300 text-xs font-mono'>{analysis}</p>
                 <div className='flex justify-center items-center gap-3 pt-2'>
                     <span className='text-white font-mono text-sm'>Was it helpful?</span>
-                    <button className='border-1 border-gray-600 rounded-lg p-2 hover:bg-white hover:cursor-pointer' onClick={() => bugFixed(bug.id)}>✔️</button>
-                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2 hover:bg-white hover:cursor-pointer'>❌</button>
-                    <span className='p-1 bg-green-200 rounded-2xl text-xs font-mono font-bold'>🤖 AI Suggestion</span>
+                    <button className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-white hover:bg-green-100 hover:cursor-pointer' onClick={() => bugFixed(bug.id)}><i className="ti ti-check"/></button>
+                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-white hover:bg-green-100 hover:cursor-pointer'><i className="ti ti-x"/></button>
                 </div>
 
             </div>}

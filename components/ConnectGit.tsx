@@ -200,7 +200,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
           </>
         )
       ) : (
-        <div className="p-6 bg-background min-h-screen">
+        <div className="p-6 bg-background h-screen overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <p className="font-mono text-sm text-zinc-600">
               // <span className="text-text-muted">your repos</span> —{" "}
@@ -228,6 +228,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
               ))}
             </div>
           ) : (
+            <div className="">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {repos?.filter((i: repo) =>
                 i.name.toLowerCase().includes(search.toLowerCase())
@@ -296,6 +297,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
                     </div>
                   </div>
                 ))}
+            </div>
             </div>
           )}
         </div>

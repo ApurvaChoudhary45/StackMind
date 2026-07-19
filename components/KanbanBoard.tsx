@@ -147,7 +147,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
   }
 
   return (
-    <div className="p-8 bg-background min-h-screen">
+    <div className="p-8 bg-background h-screen overflow-y-auto">
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-green-400">Bug Tracker</h1>
@@ -188,7 +188,7 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
               <option value="high">High Priority</option>
             </select>
 
-            <button className='md:px-4 md:py-2 px-2 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300' onClick={() => setisErrorScreen(true)}>+ Add a screenshot</button>
+            {/* <button className='md:px-4 md:py-2 px-2 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300' onClick={() => setisErrorScreen(true)}>+ Add a screenshot</button> */}
 
           </div>
           {isErrorScreen && (

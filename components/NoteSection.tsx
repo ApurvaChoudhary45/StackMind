@@ -144,7 +144,7 @@ const NoteSection = ({ project, notes, userId }: {
 
 
     return (
-        <div className="p-8 bg-background min-h-screen text-white">
+        <div className="p-8 bg-background min-h-screen text-white overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <p className="text-text-muted text-sm">Project</p>

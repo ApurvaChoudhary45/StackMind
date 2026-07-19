@@ -25,7 +25,7 @@ export default async function DashboardPage() {
 
 
     return (
-        <div className='bg-background flex '>
+        <div className='bg-background flex overflow-y-auto'>
             <div className='bg-background h-screen flex-1 pt-2'>
                 <div className='flex justify-between items-center px-5'>
                     <p className="font-mono text-sm text-text-muted mt-6 px-2">

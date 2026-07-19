@@ -44,18 +44,18 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className='p-4 bg-black/90'>
+      <div className='p-4 dark:bg-black/90 bg-card'>
         <Link href='/'><span className="font-mono text-green-400 text-lg px-5">Stack<span className="text-gray-500">//</span>Mind</span></Link>
       </div>
-      <div className="md:min-h-screen bg-black flex items-center justify-center p-6 h-[80vh]">
-        <div className="max-w-4xl w-full flex flex-col md:grid md:grid-cols-2 md:gap-6 gap-6 bg-zinc-900 rounded-2xl overflow-hidden border border-green-400/20">
+      <div className="md:min-h-screen dark:bg-black bg-background flex items-center justify-center p-6 h-[80vh]">
+        <div className="max-w-4xl w-full flex flex-col md:grid md:grid-cols-2 md:gap-6 gap-6 dark:bg-zinc-900 bg-background rounded-2xl overflow-hidden border border-green-400/20">
 
           {/* Left: Welcome / Branding */}
-          <aside className=" md:flex flex-col justify-center items-start p-8 bg-black border-r border-green-400/20">
+          <aside className=" md:flex flex-col justify-center items-start p-8 dark:bg-black bg-card border-r border-green-400/20">
             <span className="font-mono text-green-400 text-lg mb-6">
               Stack<span className="text-gray-500">//</span>Mind
             </span>
-            <h1 className="text-2xl font-extrabold mb-2 font-mono text-white">
+            <h1 className="text-2xl font-extrabold mb-2 font-mono dark:text-white">
               Your second brain for dev projects.
             </h1>
             <p className="text-sm text-gray-500 mb-6">
@@ -66,15 +66,15 @@ export default function LoginPage() {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-3">
                   <span className="inline-block w-2 h-2 bg-green-400 rounded-full mt-1 flex-shrink-0" />
-                  <span className="text-gray-400">Write notes with syntax-highlighted code blocks</span>
+                  <span className="dark:text-gray-400 text-gray-500">Write notes with syntax-highlighted code blocks</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="inline-block w-2 h-2 bg-green-400 rounded-full mt-1 flex-shrink-0" />
-                  <span className="text-gray-400">Track bugs on a real-time Kanban board</span>
+                  <span className="dark:text-gray-400 text-gray-500">Track bugs on a real-time Kanban board</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="inline-block w-2 h-2 bg-green-400 rounded-full mt-1 flex-shrink-0" />
-                  <span className="text-gray-400">Save and search reusable code snippets instantly</span>
+                  <span className="dark:text-gray-400 text-gray-500">Save and search reusable code snippets instantly</span>
                 </li>
               </ul>
             </div>
@@ -87,7 +87,7 @@ export default function LoginPage() {
             {loading ? <button className='cursor-not-allowed bg-black/40 px-6 py-3 rounded-lg w-full'><span className='animate-pulse font-bold text font-mono text-white'>Loading...</span></button> : <div className='flex justify-between items-center gap-5 w-full'>
             <button
               onClick={signInWithGitHub}
-              className="bg-black/60 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 cursor-pointer flex justify-center items-center gap-5 font-mono w-full"
+              className="dark:bg-black/60 bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 cursor-pointer flex justify-center items-center gap-5 font-mono w-full"
             >
              <img src="/github.png" alt="" className='w-7.7 h-7' /> 
               Continue with GitHub

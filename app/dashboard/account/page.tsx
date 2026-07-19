@@ -27,7 +27,7 @@ export default async function AccountPage() {
     const canDisconnect = (user?.identities?.length ?? 0) > 1
 
     return (
-        <div className="p-8 bg-background min-h-screen ">
+        <div className="p-8 bg-background min-h-screen overflow-y-auto">
             <p className="font-mono text-sm text-green-400 mb-8">
                 // <span className="text-green-400">account</span> settings
             </p>
