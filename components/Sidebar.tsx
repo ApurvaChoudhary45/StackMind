@@ -39,10 +39,12 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
     ${collapsed ? '-translate-x-full md:translate-x-0 md:w-14' : 'w-64'}
     transition-all duration-300
     bg-card border-r border-border
-    flex flex-col overflow-hidden flex-shrink-0
-    h-screen overflow-y-auto
-    fixed top-0 left-0 md:sticky
+    flex flex-col flex-shrink-0
+    fixed top-0 left-0 md:sticky md:top-0
+    h-screen
+    overflow-y-auto overflow-x-hidden
     z-40
+
 `}>
 
       {/* Logo + Toggle */}
