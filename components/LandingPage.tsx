@@ -13,14 +13,14 @@ const LandingPage = () => {
       <nav className="flex justify-between items-center md:px-10 py-5 px-4 border-b border-green-400/10 sticky top-0 dark:bg-[#080c0a]/90 backdrop-blur-md z-50 bg-card">
         <span className="font-mono text-green-400 md:text-lg">Stack<span className="text-gray-500">//</span>Mind</span>
         <div className="flex items-center md:gap-8 gap-5">
-          <DarkMode/>
-          <a href="#features" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">Features</a>
+          
+          <a href="#features" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs px-3">Features</a>
           <a href="#how" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">How it works</a>
 
           <Link href="/Login" className="bg-green-400 text-black font-mono font-bold md:text-sm md:px-5 md:py-2 rounded hover:opacity-80 transition-opacity text-sm py-2 px-1 md:block ">
             Start
           </Link>
-
+<DarkMode/>
         </div>
       </nav>
 
