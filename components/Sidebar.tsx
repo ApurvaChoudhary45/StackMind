@@ -40,7 +40,7 @@ export default function Sidebar({ userName, userEmail, projectCount, collapsed, 
     transition-all duration-300
     bg-card border-r border-border
     flex flex-col overflow-hidden flex-shrink-0
-    h-screen
+    h-screen overflow-y-auto
     fixed top-0 left-0 md:sticky
     z-40
 `}>

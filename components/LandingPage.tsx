@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import TerminalAnimation from './TerminalAnimation'
+import ThemeToggle from './Toggle'
 
 const LandingPage = () => {
   return (
@@ -11,8 +12,10 @@ const LandingPage = () => {
       <nav className="flex justify-between items-center md:px-10 py-5 px-4 border-b border-green-400/10 sticky top-0 bg-[#080c0a]/90 backdrop-blur-md z-50 ">
         <span className="font-mono text-green-400 md:text-lg">Stack<span className="text-gray-500">//</span>Mind</span>
         <div className="flex items-center md:gap-8 gap-5">
+          {/* <ThemeToggle /> */}
           <a href="#features" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">Features</a>
           <a href="#how" className="text-gray-500 hover:text-green-400 md:text-sm uppercase tracking-widest transition-colors text-xs">How it works</a>
+
           <Link href="/Login" className="bg-green-400 text-black font-mono font-bold md:text-sm md:px-5 md:py-2 rounded hover:opacity-80 transition-opacity text-sm py-2 px-1 md:block ">
             Start
           </Link>
@@ -64,6 +67,9 @@ const LandingPage = () => {
               { icon: "🐛", title: "Kanban bug tracker", desc: "Drag bugs across Open → In Progress → Fixed with real-time sync." },
               { icon: "📌", title: "Snippet library", desc: "Save, tag, and search reusable code. Never rewrite the same utility twice." },
               { icon: "🗂️", title: "Project workspaces", desc: "Each project has its own notes, bugs, and snippets — fully isolated." },
+              { icon: "⚡", title: "VS Code extension", desc: "Dark mode toggle, GitHub API integration, and productivity shortcuts right inside your editor." },
+              { icon: "💻", title: "CLI tool", desc: "Terminal-first workflow with repo integrations, task automation, and lightweight scaffolding." },
+              { icon: "📓", title: "Daily journal", desc: "Log milestones, experiments, and bug fixes. Share progress publicly or keep it private." }
             ].map((f) => (
               <div key={f.title} className="bg-[#0f1510] p-8 hover:bg-[#161d17] transition-colors">
                 <div className="text-2xl mb-4">{f.icon}</div>

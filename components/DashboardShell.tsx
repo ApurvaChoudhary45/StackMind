@@ -14,7 +14,7 @@ export default function DashboardShell({ userName, userEmail, projectCount, chil
     const [collapsed, setCollapsed] = useState(false)
 
     return (
-        <div className="flex min-h-screen bg-black">
+        <div className="flex h-screen bg-black overflow-hidden">
     {/* Mobile backdrop */}
     {!collapsed && (
         <div
