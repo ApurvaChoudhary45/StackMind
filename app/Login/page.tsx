@@ -47,8 +47,8 @@ export default function LoginPage() {
       <div className='p-4 dark:bg-black/90 bg-card'>
         <Link href='/'><span className="font-mono text-green-400 text-lg px-5">Stack<span className="text-gray-500">//</span>Mind</span></Link>
       </div>
-      <div className="md:min-h-screen dark:bg-black bg-background flex items-center justify-center p-6 h-[80vh]">
-        <div className="max-w-4xl w-full flex flex-col md:grid md:grid-cols-2 md:gap-6 gap-6 dark:bg-zinc-900 bg-background rounded-2xl overflow-hidden border border-green-400/20">
+      <div className="h-[90vh] dark:bg-black bg-background flex items-center justify-center p-6">
+        <div className="max-w-4xl w-full flex flex-col md:grid md:grid-cols-2 gap-6 dark:bg-zinc-900 bg-background rounded-2xl overflow-hidden border border-green-400/20">
 
           {/* Left: Welcome / Branding */}
           <aside className=" md:flex flex-col justify-center items-start p-8 dark:bg-black bg-card border-r border-green-400/20">

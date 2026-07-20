@@ -35,7 +35,7 @@ const LandingPage = () => {
             <h1 className="md:text-6xl text-3xl font-extrabold leading-[1.05] tracking-tight mb-5 dark:text-white text-black">
               Your second <span className="text-green-400">brain</span><br />for dev projects
             </h1>
-            <p className="text-gray-500 text-lg leading-relaxed mb-8 max-w-md">
+            <p className="text-gray-500 md:text-lg leading-relaxed mb-8 max-w-md ">
               Notes with syntax highlighting, bug tracking, and a searchable code snippet library — all in one place.
             </p>
             <div className="flex gap-4 items-center">
@@ -50,7 +50,10 @@ const LandingPage = () => {
           </div>
 
           {/* TERMINAL */}
-          <TerminalAnimation />
+          <div className='mt-7 md:mt-0'>
+            <TerminalAnimation />
+          </div>
+          
         </div>
       </section>
 
