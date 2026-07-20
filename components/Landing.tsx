@@ -45,7 +45,7 @@ const Landing = () => {
   return (
     <div className='bg-black/90'>
     <motion.div variants={container(1)} initial='initial' animate='animate' style={{position : 'fixed', zIndex : '50'}} className='py-1'>
-      <span className="font-mono text-green-400 md:text-lg px-5 text-sm">Stack<span className="text-gray-500">//</span>Mind</span>
+      <span className="font-mono text-green-400 md:text-lg md:px-5 py-4 text-md">Stack<span className="text-gray-500">//</span>Mind</span>
     </motion.div>
     <motion.div initial={{opacity : 0}} animate={{opacity : loading ? 1 : 0}} transition={{duration : 1, delay : 1}} style={{zIndex : '50'}}>
         <LandingPage/>
