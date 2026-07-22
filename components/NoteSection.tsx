@@ -63,6 +63,10 @@ const NoteSection = ({ project, notes, userId }: {
         }
     }, [showCofirm])
 
+    useEffect(() => {
+        setuserNotes(notes)
+    }, [notes])
+
     const handleSave = async () => {
         if (!title.trim()) return
         setLoading(true)

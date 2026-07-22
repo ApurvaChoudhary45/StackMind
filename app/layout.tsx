@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 import { EdgeStoreProvider } from "@/lib/edgestore";
@@ -15,6 +16,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 
 export const metadata: Metadata = {
   title: 'StackMind — Second Brain for Developers',
@@ -60,6 +62,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
         <link rel="manifest" href="/site.webmanifest" />
+        
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -68,6 +71,10 @@ export default function RootLayout({
           <GlobalSearch/>
           <EdgeStoreProvider>
             {children}
+            <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="afterInteractive"
+        />
           </EdgeStoreProvider>
         </ThemeProvider>
       </body>

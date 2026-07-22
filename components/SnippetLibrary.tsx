@@ -55,6 +55,10 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     const [analyze, setAnalyze] = useState(false)
     const [loading, setloading] = useState(false)
 
+    useEffect(() => {
+    setAllSnippets(snippets)
+}, [snippets])
+
     async function handleCreate() {
         setloading(true)
         try {
@@ -71,15 +75,17 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         finally {
             setloading(false)
         }
+
         setTitle('')
         setCode('')
         setDescription('')
         setNewNoteId('')
         setIsCreating(false)
 
-        router.refresh()
     }
 
+
+    // setAllSnippets(prev => [snippets, ...prev])
     async function deletNote(snippet: Snippet) {
         await supabase.from('snippets').delete().eq('id', snippet.id)
         setAllSnippets(prev => prev.filter(i => i.id !== snippet.id))
@@ -144,8 +150,37 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
         setAllSnippets(prev => prev.map(bug => bug.id === newId ? { ...bug, title: newTitle, description: newDescription, language: newLanguage, code: newCode } : bug))
         setisEditing(false)
-        router.refresh()
     }
+
+    useEffect(() => {
+    const channel = supabase
+        .channel(`snippets-${projectId}`)
+        .on(
+            'postgres_changes',
+            {
+                event: '*',
+                schema: 'public',
+                table: 'snippets',
+                filter: `project_id=eq.${projectId}`,
+            },
+            async () => {
+                const { data } = await supabase
+                    .from('snippets')
+                    .select('*')
+                    .eq('project_id', projectId)
+                    .order('created_at', {
+                        ascending: false,
+                    })
+
+                setAllSnippets(data ?? [])
+            }
+        )
+        .subscribe()
+
+    return () => {
+        supabase.removeChannel(channel)
+    }
+}, [projectId])
 
 
     useEffect(() => {

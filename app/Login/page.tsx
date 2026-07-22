@@ -28,6 +28,7 @@ export default function LoginPage() {
     }
   }
   async function signInWithGoogle() {
+    console.log(window.location.origin)
     try {
       setGoogleLoad(true)
       await supabase.auth.signInWithOAuth({

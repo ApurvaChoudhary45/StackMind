@@ -3,6 +3,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { json } from 'zod'
 
 const CreateProject = () => {
     const supabase = createClient()
@@ -28,26 +29,54 @@ const CreateProject = () => {
     }
 
     const handleCreate = async () => {
-        setloading(true)
-        const { data: { user } } = await supabase.auth.getUser()
+        try {
+            setloading(true)
+            let details = {
+                name: projectDetails?.projectName,
+                description: projectDetails?.projectDescription
+            }
 
-        await supabase.from('projects').insert({
-            name: projectDetails?.projectName,
-            description: projectDetails?.projectDescription,
-            user_id: user?.id
-        })
+            const res = await fetch('/api/new-project', {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(details)
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                alert(data.error)
+                return
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+        finally {
+            setloading(false)
+        }
+
+
+        // await supabase.from('projects').insert({
+        //     name: projectDetails?.projectName,
+        //     description: projectDetails?.projectDescription,
+        //     user_id: user?.id
+        // })
         setprojectDetails({ projectName: '', projectDescription: '' })
         setloading(false)
         setmodal(false)
-        router.refresh()    
+        router.refresh()
 
     }
     return (
         <div className='pt-8'>
             <button onClick={openModal} className='p-2 text-sm bg-button text-muted rounded-2xl hover:bg-button-hover'>+ New Project</button>
 
-            {modal && <div className='fixed inset-0 flex justify-center items-center bg-black/70' onClick={closeModal}>
-                <div className='h-80 w-100 bg-background rounded-2xl p-6' onClick={(e)=>e.stopPropagation()}>
+            {modal && <div className='fixed inset-0 flex justify-center items-center bg-black/70 z-50 ' onClick={closeModal}>
+                <div className='h-80 w-100 bg-background rounded-2xl p-6' onClick={(e) => e.stopPropagation()}>
                     <h2 className="text-xl font-bold text-green-400 mb-4">New Project</h2>
 
                     <input
@@ -78,9 +107,16 @@ const CreateProject = () => {
                         <button
                             onClick={handleCreate}
                             disabled={loading}
-                            className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300 disabled:opacity-50 transition-colors"
+                            className="px-4 py-2 bg-green-400 text-black font-semibold rounded disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                            {loading ? 'Creating...' : 'Create Project'}
+                            {loading ? (
+                                <>
+                                    <i className="ti ti-loader animate-spin text-base" />
+                                    Creating...
+                                </>
+                            ) : (
+                                'Create'
+                            )}
                         </button>
                     </div>
 

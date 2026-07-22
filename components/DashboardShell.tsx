@@ -7,10 +7,11 @@ type Props = {
     userName: string
     userEmail: string
     projectCount: number
+    plan : string
     children: React.ReactNode
 }
 
-export default function DashboardShell({ userName, userEmail, projectCount, children }: Props) {
+export default function DashboardShell({ userName, userEmail, projectCount, plan, children }: Props) {
     const [collapsed, setCollapsed] = useState(false)
 
      useEffect(() => {
@@ -33,6 +34,7 @@ export default function DashboardShell({ userName, userEmail, projectCount, chil
         userName={userName}
         userEmail={userEmail}
         projectCount={projectCount}
+        plan={plan}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
     />

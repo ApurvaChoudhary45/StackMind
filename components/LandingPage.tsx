@@ -5,6 +5,7 @@ import TerminalAnimation from './TerminalAnimation'
 import ThemeToggle from './Toggle'
 import DarkMode from './DarkMode'
 import { useState } from 'react'
+import PricingPage from './PricingPage'
 
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -20,7 +21,7 @@ const LandingPage = () => {
         <div className="hidden md:flex items-center gap-8">
           <a href="#features" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Features</a>
           <a href="#how" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">How it works</a>
-          {/* <a href="#pricing" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Pricing</a> */}
+          <a href="#pricing" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Pricing</a>
           <DarkMode />
           <Link href="/Login" className="bg-green-400 text-black font-mono font-bold text-sm px-5 py-2 rounded hover:opacity-80 transition-opacity">
             Start
@@ -159,15 +160,9 @@ const LandingPage = () => {
     </div>
       </section >
 
-  {/* CTA */ }
-  <section className = "text-center px-10 py-24 dark:bg-[#0f1510] bg-card border-t border-green-400/10" >
-        <p className="font-mono text-xs text-green-400 tracking-widest uppercase mb-4">// Get started</p>
-        <h2 className="text-4xl font-extrabold tracking-tight mb-4 text-black dark:text-white">Your dev brain deserves better</h2>
-        <p className="text-gray-500 mb-8">Free forever. Sign in with GitHub and start in 30 seconds.</p>
-        <Link href="/Login" className="bg-green-400 text-black font-mono font-bold px-8 py-3 rounded hover:opacity-85 transition-opacity text-sm">
-          Start for free →
-        </Link>
-      </section >
+    {/* <section id='pricing' className='px-10'>
+        <PricingPage/>
+    </section> */}
 
   {/* FOOTER */ }
   <footer className = "px-8 pt-12 pb-8 border-t border-border" >

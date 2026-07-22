@@ -13,8 +13,8 @@ const ThemeToggle = () => {
 
   // Decide which icon to show
   const getIcon = () => {
-    if (theme === 'system') return '💻'   // show system icon if selected
-    return resolvedTheme === 'dark' ? '🌙' : '☀️'
+    if (theme === 'system') return <i className="ti ti-device-desktop"/>  // show system icon if selected
+    return resolvedTheme === 'dark' ? <i className="ti ti-moon"/> : <i className="ti ti-sun"/>
   }
 
   return (
