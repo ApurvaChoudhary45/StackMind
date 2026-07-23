@@ -73,6 +73,7 @@ const CreateProject = () => {
     }
     return (
         <div className='pt-8'>
+            
             <button onClick={openModal} className='p-2 text-sm bg-button text-muted rounded-2xl hover:bg-button-hover'>+ New Project</button>
 
             {modal && <div className='fixed inset-0 flex justify-center items-center bg-black/70 z-50 ' onClick={closeModal}>

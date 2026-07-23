@@ -38,7 +38,7 @@ export default  function  ProjectCard() {
   return (
   <div className="px-4 md:px-8">
     {projects?.length === 0 ? (
-      <div className="flex min-h-[65vh] flex-col items-center justify-center gap-6 rounded-3xl border border-dashed border-green-400/20 bg-card mt-5">
+      <div className="flex min-h-[65vh] flex-col items-center justify-center gap-6 rounded-3xl border border-dashed border-green-400/20 bg-card">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
           <i className="ti ti-folder-plus text-4xl text-green-400" />
         </div>
@@ -54,7 +54,7 @@ export default  function  ProjectCard() {
         <CreateProject />
       </div>
     ) : (
-      <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 mt-5">
         {projects?.map((project) => {
           return (
             <div

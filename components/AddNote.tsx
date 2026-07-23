@@ -90,7 +90,7 @@ const AddNote = () => {
                                                 <span className="text-xs font-mono text-zinc-600">
                                                     {new Date(project.created_at).toLocaleDateString()}
                                                 </span>
-                                                <Link href={`/dashboard/projects/${project?.id}/notes`}><span className="text-xs font-mono text-green-400 bg-green-950/50 border border-green-400/10 px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Link href={`/dashboard/projects/${project?.id}/notes`}><span className="text-xs font-mono text-green-400 bg-green-950/50 border border-green-400/10 px-2 py-0.5 rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                     Select →
                                                 </span></Link>
                                             </div>
