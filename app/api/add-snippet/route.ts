@@ -4,6 +4,7 @@ import { embedText } from '@/lib/embedding'
 import { storeVectors, searchVectors } from '@/lib/qdrant'
 
 import { setupCollection } from '@/lib/qdrant'
+import { canCreateSnippet } from '@/lib/limit'
 export async function PUT(req: NextRequest) {
     const supabase = await createClient()
 
@@ -11,6 +12,20 @@ export async function PUT(req: NextRequest) {
 
     if (!user) {
         return NextResponse.json({ message: 'Invalid User' }, { status: 401 });
+    }
+
+    const limit = await canCreateSnippet(user.id)
+
+    if (!limit.allowed) {
+        return NextResponse.json(
+            {
+                error: limit.reason,
+                upgrade: true,
+            },
+            {
+                status: 403,
+            }
+        )
     }
 
     try {
@@ -48,7 +63,7 @@ export async function PUT(req: NextRequest) {
                 noteId: newNoteId,
                 title: title,
                 content: code,
-                projectId : project_id,
+                projectId: project_id,
                 userId: user_id
             }
         }])

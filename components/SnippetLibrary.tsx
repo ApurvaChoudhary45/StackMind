@@ -87,8 +87,18 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
     // setAllSnippets(prev => [snippets, ...prev])
     async function deletNote(snippet: Snippet) {
-        await supabase.from('snippets').delete().eq('id', snippet.id)
-        setAllSnippets(prev => prev.filter(i => i.id !== snippet.id))
+        try {
+            setloading(true)
+            await supabase.from('snippets').delete().eq('id', snippet.id)
+             setAllSnippets(prev => prev.filter(i => i.id !== snippet.id))
+        } catch (error) {
+            console.log(error)
+        }
+        finally{
+            setloading(false)
+        }
+        
+       
     }
 
     async function handleCopy(snippet: Snippet) {
@@ -117,26 +127,26 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
     async function createNewNote() {
         setIsCreating(true)
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-            console.error("No user found:", userError);
-            return;
-        }
+    const res = await fetch('/api/create-newsnippet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            project_id: projectId,
+        }),
+    })
 
-        // Insert a new note tied to this user
-        const { data, error } = await supabase
-            .from("snippets")
-            .insert({ title: "", language: "", description: "", code: "", user_id: user.id, project_id: projectId })
-            .select();
+    const data = await res.json()
 
-        if (error) {
-            console.error("Error creating note:", error);
-        } else {
-            console.log(data[0])
-            setNewNoteId(data[0]?.id); // store the new noteId in state
-
-        }
+    if (!res.ok) {
+        alert(data.error)
+        return
     }
+
+    
+    setNewNoteId(data.id)
+}
 
     const saveEditedNote = async () => {
 
@@ -319,19 +329,19 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                         Cancel
                     </button>
                     <button
-                        onClick={handleCreate}
-                        disabled={loading}
-                        className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
-                    >
-                        {loading ? (
-                            <>
-                                <i className="ti ti-loader animate-spin text-base" />
-                                Saving...
-                            </>
-                        ) : (
-                            'Save Snippet'
-                        )}
-                    </button>
+                            onClick={handleCreate}
+                            disabled={loading}
+                            className="px-4 py-2 bg-green-400 text-black font-semibold rounded disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                            {loading ? (
+                                <>
+                                    <i className="ti ti-loader animate-spin text-base" />
+                                    Saving...
+                                </>
+                            ) : (
+                                'Save Snippet'
+                            )}
+                        </button>
                 </div>
             </div>}
 
@@ -404,7 +414,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     <div key={snippet.id} className="border border-border rounded-lg p-4 hover:border-green-400/50 transition-colors">
                         <div className="md:flex md:justify-between md:flex-row items-start mb-2 flex flex-col gap-2">
                             <div>
-                                <h2 className="font-semibold dark:text-white ">{snippet.title}</h2>
+                                <h2 className="font-semibold dark:text-white  text-black">{snippet.title}</h2>
                                 {snippet.description && (
                                     <p className="dark:text-gray-400 text-gray-700 text-sm">{snippet.description}</p>
                                 )}
@@ -426,11 +436,20 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                                     Edit
                                 </button>
                                 <button
-                                    onClick={() => deletNote(snippet)}
-                                    className="text-xs px-3 py-1 border border-red-800 rounded hover:border-red-700 text-red-600 hover:text-red-400 transition-colors"
-                                >
-                                    Delete
-                                </button>
+                            onClick={()=>deletNote(snippet)}
+                            disabled={loading}
+                            className="text-xs px-4 py-1 border border-red-800 rounded hover:border-red-700 text-red-600 hover:text-red-400 transition-colors"
+                        >
+                            {loading ? (
+                                <>
+                                    <i className="ti ti-loader animate-spin text-xs" />
+                                    
+                                    Deleting
+                                </>
+                            ) : (
+                                'Delete'
+                            )}
+                        </button>
                             </div>
                         </div>
                         <pre className="bg-card rounded p-3 overflow-x-auto max-h-100">

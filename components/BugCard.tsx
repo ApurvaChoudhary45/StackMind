@@ -104,26 +104,66 @@ export default function BugCard({ bug }: { bug: Bug }) {
 
 
             </div>
-            {isOpen && <div className='fixed inset-0 flex justify-center items-center bg-black/50 '>
-                <div className='bg-card md:h-[83vh] md:w-1/2 h-[60vh] rounded-2xl p-6 flex flex-col gap-4  overflow-y-scroll'>
+            {isOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div className="bg-card border border-green-400/20 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
 
-                    <div className='flex justify-between items-center'>
-                        <h1 className='text-green-400 font-mono'>Screenshot</h1>
-                        <p className='text-green-400 hover:text cursor-pointer' onClick={() => setIsOpen(false)}>X</p>
-                    </div>
-                    {bug.img_src ? <div><img src={bug.img_src} alt="no img" className='w-full rounded-lg h-[70vh]' />
-                    </div> : <div><p className='text-green-500 font-mono'>No screenshot added</p></div>}
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+        <div>
+          <h1 className="text-2xl font-bold text-green-400 font-mono flex items-center gap-2">
+            <i className="ti ti-sparkles" />
+            AI Bug Analysis
+          </h1>
+          <p className="text-sm text-muted mt-1">
+            AI-generated analysis and suggested solution for this issue.
+          </p>
+        </div>
 
-                    <div className='pt-10'>
-                        {loading ? <span className='dark:text-white text-black pt-10 font-mono animate-pulse'>AI Suggested Fix...</span> : <span className='dark:text-white pt-10 font-mono'>AI Suggested Fix...</span>}
-                        {loading ? <div><span className='animate-pulse'>Looking for the best fix....</span></div> : <div className='border-1 dark:border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col mt-10'>
+        <button
+          onClick={() => setIsOpen(false)}
+          className="w-9 h-9 rounded-lg border border-border hover:border-red-400 hover:text-red-400 transition-colors flex items-center justify-center"
+        >
+          ✕
+        </button>
+      </div>
 
-                            <p className='dark:text-green-300 text-zinc-700 text-sm font-mono'>{analysis}</p>
-                        </div>}
+      {/* Body */}
+      <div className="p-6 overflow-y-auto max-h-[70vh]">
 
-                    </div>
+        {loading ? (
+          <div className="border border-green-400/20 rounded-2xl bg-green-400/5 p-8 flex flex-col items-center justify-center gap-4">
+            <i className="ti ti-loader animate-spin text-4xl text-green-400" />
 
-                </div></div>}
+            <div className="text-center">
+              <h2 className="font-semibold text-green-400 font-mono">
+                Analyzing Bug...
+              </h2>
+
+              <p className="text-sm text-muted mt-2 animate-pulse">
+                Looking for the best possible solution.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="border border-green-400/20 bg-green-400/5 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="uppercase tracking-widest text-xs text-green-400 font-semibold">
+                Suggested Fix
+              </span>
+            </div>
+
+            <p className="whitespace-pre-wrap leading-8 text-[15px] font-mono dark:text-green-200 text-zinc-700">
+              {analysis}
+            </p>
+          </div>
+        )}
+
+      </div>
+    </div>
+  </div>
+)}
             {bug.status === 'open' && closeAI && <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col'>
                 <p className='dark:text-green-300 text-xs font-mono'>{analysis}</p>
                 <div className='flex justify-center items-center gap-3 pt-2'>

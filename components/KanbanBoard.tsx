@@ -113,29 +113,39 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
   }
 
   async function handleCreateBug() {
-    if (!title.trim()) return
+    try {
+      if (!title.trim()) return
 
-    const { data } = await supabase.from('bugs').insert({
-      title,
-      description,
-      priority,
-      status: 'open',
-      project_id: projectId,
-      user_id: userId,
-      img_src: url
+    const res = await fetch('/api/add-bug', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            title,
+            description,
+            priority,
+            project_id: projectId,
+        }),
+    })
 
-    }).select().single()
+    const data = await res.json()
 
-
-    if (data) {
-      setallBugs(prev => [...prev, data])
-      setTitle('')
-      setDescription('')
-      setPriority('medium')
-      setisCreating(false)
+    if (!res.ok) {
+        alert(data.error)
+        return
     }
-  }
-
+    } catch (error) {
+      console.log(error)
+    }
+    finally{
+      setLoading(false)
+    }
+    setTitle('')
+    setDescription('')
+    setPriority('medium')
+    setisCreating(false)
+}
   
   const handlepreview = (e: any) => {
     const file = e.target.files[0]
@@ -188,68 +198,26 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
               <option value="high">High Priority</option>
             </select>
 
-            {/* <button className='md:px-4 md:py-2 px-2 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300' onClick={() => setisErrorScreen(true)}>+ Add a screenshot</button> */}
-
           </div>
-          {isErrorScreen && (
-            <div className='fixed inset-0 flex justify-center items-center bg-black/50'>
-              <div className='bg-background h-[80vh] w-1/2 rounded-2xl p-6 flex flex-col gap-4'>
-
-                {/* Header */}
-                <div className='flex justify-between items-center'>
-                  <h1 className='text-green-400 font-bold text-lg'>Bug Report</h1>
-                  <button className='dark:text-gray-500 dark:hover:text-white hover:text-gray-500 transition-colors text-sm' onClick={()=>setisErrorScreen(false)}>✕ Close</button>
-                </div>
-
-                {/* Upload Area */}
-                <div className='border-2 border-dashed border-border hover:border-green-400/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors group bg-card'>
-                  <div className='w-10 h-10 rounded-full dark:bg-zinc-800 bg-bg-green-400/10 group-hover:bg-green-400/10 flex items-center justify-center transition-colors'>
-                    <span className='text-xl'>📎</span>
-                  </div>
-                  <div className='text-center'>
-                    <p className='dark:text-white text-black text-sm font-medium'>Add screenshot here</p>
-                    <p className='dark:text-gray-500 text-black text-xs mt-1'>PNG, JPG up to 5MB</p>
-                  </div>
-                  <button className='relative dark:bg-black/20 rounded-xl p-2 text-sm dark:text-white overflow-hidden border-green-500 border-2 hover:text-green-400 '>
-                    <input type="file"  onChange={handlepreview} className='absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer'/>
-                    Browse files
-                  </button>
-                </div>
-
-                {/* Preview Area */}
-                <div className='flex-1 border border-border rounded-xl overflow-hidden relative bg-card'>
-                  {preview ? <div>
-                    <img src={preview} alt="no Img" className='w-full' />
-                  </div> : <div className='absolute inset-0 flex flex-col items-center justify-center gap-2'>
-                    <span className='text-3xl'>🖼️</span>
-                    <p className='dark:text-gray-600 text-black text-xs'>Screenshot preview will appear here</p>
-                  </div>}
-                </div>
-
-                {/* Actions */}
-                <div className='flex justify-end gap-3'>
-                  <button className='px-4 py-2 dark:text-gray-400 dark:hover:text-white text-black hover:text-gray-600 text-sm transition-colors' onClick={()=>setisErrorScreen(false)}>
-                    Cancel
-                  </button>
-                  <button className='px-4 py-2 bg-green-400 text-black font-semibold text-sm rounded-lg hover:bg-green-300 transition-colors' onClick={handleUpload}>
-                    Attach Screenshot
-                  </button>
-                </div>
-
-              </div>
-            </div>
-          )}
-
+          
           <div className="flex gap-3 justify-end mt-5">
             <button onClick={() => setisCreating(false)} className="px-4 py-2 dark:text-gray-400 dark:hover:text-white text-black hover:text-gray-500">
               Cancel
             </button>
             <button
-              onClick={handleCreateBug}
-              className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
-            >
-              Create Bug
-            </button>
+                            onClick={handleCreateBug}
+                            disabled={loading}
+                            className="px-4 py-2 bg-green-400 text-black font-semibold rounded disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                            {loading ? (
+                                <>
+                                    <i className="ti ti-loader animate-spin text-base" />
+                                    Adding...
+                                </>
+                            ) : (
+                                'Add Bug'
+                            )}
+                        </button>
           </div>
         </div>
       )}

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { storeVectors, setupCollection } from '@/lib/qdrant'
 import Anthropic from '@anthropic-ai/sdk'
-import { canCreateProject } from '@/lib/limit'
+import { canCreateNote, canCreateProject } from '@/lib/limit'
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
 })
@@ -87,19 +87,19 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        // const limit = await canCreateProject(user.id)
+        const limit = await canCreateNote(user.id)
 
-        // if (!limit.allowed) {
-        //     return NextResponse.json(
-        //         {
-        //             error: limit.reason,
-        //             upgrade: true,
-        //         },
-        //         {
-        //             status: 403,
-        //         }
-        //     )
-        // }
+        if (!limit.allowed) {
+            return NextResponse.json(
+                {
+                    error: limit.reason,
+                    upgrade: true,
+                },
+                {
+                    status: 403,
+                }
+            )
+        }
 
         // Step 1 — Generate tags using Claude (runs in parallel with nothing yet)
         // We do this BEFORE saving so we can store tags in the same insert

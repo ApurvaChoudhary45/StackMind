@@ -3,6 +3,7 @@ import { embedText } from '@/lib/embedding'
 import { searchVectors } from '@/lib/qdrant'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
+import { checkDailyLimit } from '@/lib/limit'
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
@@ -10,12 +11,39 @@ const anthropic = new Anthropic({
 
 export async function POST(req: NextRequest) {
     try {
+
+    
         const { query, userId } = await req.json()
 
+        const supabase = await createClient()
+        
+                const { data: { user } } = await supabase.auth.getUser()
+        
+                if (!user) {
+                    return NextResponse.json(
+                        { error: 'Unauthorized' },
+                        { status: 401 }
+                    )
+                }
+
+                const limit = await checkDailyLimit(user.id, 'ai_queries')
+
+if (!limit.allowed) {
+    return NextResponse.json(
+        {
+            error: limit.reason,
+            upgrade: true
+        },
+        {
+            status: 403
+        }
+    )
+}
+
         // Step 1 — Run both in parallel (faster)
-        const [queryVector, supabase] = await Promise.all([
+        const [queryVector] = await Promise.all([
             embedText(query),
-            createClient()
+            
         ])
 
         // Step 2 — Search Qdrant for related notes + fetch bugs from Supabase

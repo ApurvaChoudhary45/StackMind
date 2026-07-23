@@ -6,11 +6,11 @@ const adminSupabase = createClient(
 )
 
 export const FREE_LIMITS = {
-    ai_queries: 10,
-    code_reviews: 5,
+    ai_queries: 1,
+    code_reviews: 2,
     notes: 1,
-    snippets: 20,
-    bugs: 20,
+    snippets: 1,
+    bugs: 4,
     projects: 3,
 } as const
 
@@ -94,6 +94,82 @@ export async function canCreateProject(userId: string) {
         return {
             allowed: false,
             reason: 'Free plan allows up to 3 projects. Upgrade to Pro for unlimited projects.',
+        }
+    }
+
+    return { allowed: true }
+}
+
+export async function canCreateNote(userId: string) {
+    const plan = await getUserPlan(userId)
+
+    if (plan === 'pro') {
+        return { allowed: true }
+    }
+
+    const { count } = await adminSupabase
+        .from('notes')
+        .select('*', {
+            count: 'exact',
+            head: true,
+        })
+        .eq('user_id', userId)
+
+    if ((count ?? 0) >= FREE_LIMITS.notes) {
+        return {
+            allowed: false,
+            reason: 'Free plan allows up to 50 notes. Upgrade to Pro for unlimited notes.',
+        }
+    }
+
+    return { allowed: true }
+}
+
+
+export async function canCreateBug(userId: string) {
+    const plan = await getUserPlan(userId)
+
+    if (plan === 'pro') {
+        return { allowed: true }
+    }
+
+    const { count } = await adminSupabase
+        .from('bugs')
+        .select('*', {
+            count: 'exact',
+            head: true,
+        })
+        .eq('user_id', userId)
+
+    if ((count ?? 0) >= FREE_LIMITS.bugs) {
+        return {
+            allowed: false,
+            reason: 'Free plan allows up to 20 bugs. Upgrade to Pro for unlimited bugs.',
+        }
+    }
+
+    return { allowed: true }
+}
+
+export async function canCreateSnippet(userId: string) {
+    const plan = await getUserPlan(userId)
+
+    if (plan === 'pro') {
+        return { allowed: true }
+    }
+
+    const { count } = await adminSupabase
+        .from('snippets')
+        .select('*', {
+            count: 'exact',
+            head: true,
+        })
+        .eq('user_id', userId)
+
+    if ((count ?? 0) >= FREE_LIMITS.snippets) {
+        return {
+            allowed: false,
+            reason: 'Free plan allows up to 20 snippets. Upgrade to Pro for unlimited snippets.',
         }
     }
 

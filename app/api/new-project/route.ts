@@ -22,19 +22,19 @@ export async function POST(req: NextRequest) {
                 { status: 401 }
             )
         }
-        // const limit = await canCreateProject(user.id)
+        const limit = await canCreateProject(user.id)
 
-        // if (!limit.allowed) {
-        //     return NextResponse.json(
-        //         {
-        //             error: limit.reason,
-        //             upgrade: true,
-        //         },
-        //         {
-        //             status: 403,
-        //         }
-        //     )
-        // }
+        if (!limit.allowed) {
+            return NextResponse.json(
+                {
+                    error: limit.reason,
+                    upgrade: true,
+                },
+                {
+                    status: 403,
+                }
+            )
+        }
 
 
         const projects = await supabase.from('projects').insert({
