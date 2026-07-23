@@ -94,16 +94,16 @@ const [upgradeReason, setUpgradeReason] = useState('')
         const data = await res.json()
         console.log(data)
 
-        if (!res.ok) {
-            if (data.upgrade) {
-                setUpgradeReason(data.error)
-                setShowUpgrade(true)
-                return
-            }
+        // if (!res.ok) {
+        //     if (data.upgrade) {
+        //         setUpgradeReason(data.error)
+        //         setShowUpgrade(true)
+        //         return
+        //     }
 
-            alert(data.error)
-            return
-        }
+        //     alert(data.error)
+        //     return
+        // }
 
         setTitle('')
         setContent('')
