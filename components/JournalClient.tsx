@@ -66,7 +66,7 @@ export default function JournalClient({ entries, userId }: Props) {
                     <button
                         onClick={handleGenerate}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py- bg-green-400 text-black text-sm font-mono font-semibold rounded-lg hover:bg-green-300 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-400 text-black text-sm font-mono font-semibold rounded-lg hover:bg-green-300 transition-colors disabled:opacity-50"
                     >
                         {loading ? (
                             <><i className="ti ti-loader animate-spin" /> Generating...</>

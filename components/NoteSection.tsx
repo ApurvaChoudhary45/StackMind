@@ -8,7 +8,7 @@ import NoteEditor from './NoteEditor'
 import RagSearch from './RagSearch'
 import Image from 'next/image'
 import AskAIDrawer from './AskAI'
-import UpgradeModal from './UpgradeModal'
+// import UpgradeModal from './UpgradeModal'
 
 
 
@@ -347,7 +347,7 @@ const [upgradeReason, setUpgradeReason] = useState('')
 
             )}
 
-            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
+            {/* {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>} */}
         </div>
     )
 }
