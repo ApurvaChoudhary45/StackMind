@@ -21,7 +21,7 @@ const LandingPage = () => {
         <div className="hidden md:flex items-center gap-8">
           <a href="#features" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Features</a>
           <a href="#how" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">How it works</a>
-          <a href="#pricing" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Pricing</a>
+          {/* <a href="#pricing" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Pricing</a> */}
           <DarkMode />
           <Link href="/Login" className="bg-green-400 text-black font-mono font-bold text-sm px-5 py-2 rounded hover:opacity-80 transition-opacity">
             Start

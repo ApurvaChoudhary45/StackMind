@@ -62,11 +62,11 @@ export default function JournalClient({ entries, userId }: Props) {
                     </p>
                     <h1 className="text-xl font-bold dark:text-zinc-200">Your Daily Journal</h1>
                 </div>
-                <div className="flex flex-col items-end gap-2">
+                <div className="flex flex-col items-end gap-2 mt-8">
                     <button
                         onClick={handleGenerate}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-400 text-black text-sm font-mono font-semibold rounded-lg hover:bg-green-300 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py- bg-green-400 text-black text-sm font-mono font-semibold rounded-lg hover:bg-green-300 transition-colors disabled:opacity-50"
                     >
                         {loading ? (
                             <><i className="ti ti-loader animate-spin" /> Generating...</>

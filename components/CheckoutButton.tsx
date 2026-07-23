@@ -97,7 +97,7 @@ export default function CheckoutButton() {
         <button
             onClick={handleCheckout}
             disabled={loading}
-            className="mb-10 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-green-400 py-3 font-semibold text-black transition hover:scale-[1.02]"
+            className="mb- w-full rounded-xl bg-gradient-to-r from-emerald-500 to-green-400 py-3 font-semibold text-black transition hover:scale-[1.02] p-3"
         >
             {loading ? 'Preparing Checkout...' : 'Upgrade to Pro'}
         </button>

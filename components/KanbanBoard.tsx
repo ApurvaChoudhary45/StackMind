@@ -131,10 +131,16 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
 
     const data = await res.json()
 
-    if (!res.ok) {
-        alert(data.error)
+if (!res.ok) {
+    if (data.upgrade) {
+        setUpgradeReason(data.error)
+        setShowUpgrade(true)
         return
     }
+
+    alert(data.error)
+    return
+}
     } catch (error) {
       console.log(error)
     }

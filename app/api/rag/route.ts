@@ -13,29 +13,29 @@ export async function POST(req: NextRequest) {
         const { query, userId } = await req.json()
 
         const supabase = await createClient()
-        
-                const { data: { user } } = await supabase.auth.getUser()
-        
-                if (!user) {
-                    return NextResponse.json(
-                        { error: 'Unauthorized' },
-                        { status: 401 }
-                    )
-                }
 
-                const limit = await checkDailyLimit(user.id, 'ai_queries')
+        const { data: { user } } = await supabase.auth.getUser()
 
-if (!limit.allowed) {
-    return NextResponse.json(
-        {
-            error: limit.reason,
-            upgrade: true
-        },
-        {
-            status: 403
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            )
         }
-    )
-}
+
+        const limit = await checkDailyLimit(user.id, 'ai_queries')
+
+        if (!limit.allowed) {
+            return NextResponse.json(
+                {
+                    error: limit.reason,
+                    upgrade: true
+                },
+                {
+                    status: 403
+                }
+            )
+        }
 
         // Step 1 — Embed the user's question
         const queryVector = await embedText(query)

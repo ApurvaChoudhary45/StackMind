@@ -6,11 +6,11 @@ const adminSupabase = createClient(
 )
 
 export const FREE_LIMITS = {
-    ai_queries: 1,
-    code_reviews: 2,
-    notes: 1,
-    snippets: 1,
-    bugs: 4,
+    ai_queries: 10,
+    code_reviews: 5,
+    notes: 50,
+    snippets: 20,
+    bugs: 20,
     projects: 3,
 } as const
 

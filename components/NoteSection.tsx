@@ -8,6 +8,9 @@ import NoteEditor from './NoteEditor'
 import RagSearch from './RagSearch'
 import Image from 'next/image'
 import AskAIDrawer from './AskAI'
+import UpgradeModal from './UpgradeModal'
+
+
 
 type Note = {
     id: string
@@ -34,6 +37,8 @@ const NoteSection = ({ project, notes, userId }: {
     const [content, setContent] = useState('')
     const [isCreating, setIsCreating] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [showUpgrade, setShowUpgrade] = useState<boolean | null>(null)
+const [upgradeReason, setUpgradeReason] = useState('')
 
     const [userNotes, setuserNotes] = useState<Note[]>(notes ?? []);
 
@@ -68,31 +73,48 @@ const NoteSection = ({ project, notes, userId }: {
     }, [notes])
 
     const handleSave = async () => {
-        if (!title.trim()) return
-        setLoading(true)
+    if (!title.trim()) return
 
+    setLoading(true)
+
+    try {
         const res = await fetch('/api/notes', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
                 title,
                 content,
                 projectId: project.id,
-                userId
-            })
+                userId,
+            }),
         })
 
+        const data = await res.json()
+        console.log(data)
 
+        if (!res.ok) {
+            if (data.upgrade) {
+                setUpgradeReason(data.error)
+                setShowUpgrade(true)
+                return
+            }
 
-        if (res.ok) {
-            setTitle('')
-            setContent('')
-            setIsCreating(false)
-            router.refresh()
+            alert(data.error)
+            return
         }
 
+        setTitle('')
+        setContent('')
+        setIsCreating(false)
+        router.refresh()
+    } catch (error) {
+        console.error(error)
+    } finally {
         setLoading(false)
     }
+}
 
     const canWeEdit = async (note: Note) => {
         setEditable(true)
@@ -320,10 +342,12 @@ const NoteSection = ({ project, notes, userId }: {
                             </button>
                         </div>
                     </div>
+                    
                 </div>
+
             )}
 
-
+            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
         </div>
     )
 }

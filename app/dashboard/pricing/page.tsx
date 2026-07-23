@@ -192,7 +192,7 @@ export default function PricingPage() {
 
            <CheckoutButton/>
 
-            <div className="space-y-4">
+            <div className="space-y-4 pt-3">
               {proFeatures.map((feature) => (
                 <div
                   key={feature}
