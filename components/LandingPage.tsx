@@ -21,7 +21,7 @@ const LandingPage = () => {
         <div className="hidden md:flex items-center gap-8">
           <a href="#features" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Features</a>
           <a href="#how" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">How it works</a>
-          {/* <a href="#pricing" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Pricing</a> */}
+          <a href="#pricing" className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors">Pricing</a>
           <DarkMode />
           <Link href="/Login" className="bg-green-400 text-black font-mono font-bold text-sm px-5 py-2 rounded hover:opacity-80 transition-opacity">
             Start
@@ -57,13 +57,13 @@ const LandingPage = () => {
           >
             How it works
           </a>
-          {/* <a
+          <a
             href="#pricing"
             onClick={() => setMenuOpen(false)}
             className="text-gray-500 hover:text-green-400 text-sm uppercase tracking-widest transition-colors py-2 border-b border-border"
           >
             Pricing
-          </a> */}
+          </a>
           <Link
             href="/Login"
             onClick={() => setMenuOpen(false)}
@@ -160,9 +160,9 @@ const LandingPage = () => {
     </div>
       </section >
 
-    {/* <section id='pricing' className='px-10'>
+    <section id='pricing' className='px-10'>
         <PricingPage/>
-    </section> */}
+    </section>
 
   {/* FOOTER */ }
   <footer className = "px-8 pt-12 pb-8 border-t border-border" >
@@ -201,6 +201,9 @@ const LandingPage = () => {
           <li><a href="https://github.com/ApurvaChoudhary45/StackMind" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-green-400 cursor-pointer ">Github</a></li>
           <li className="text-sm text-gray-400 hover:text-green-400 cursor-pointer  "><Link href={`/changelog`}>Changelog</Link></li>
           <li className="text-sm text-gray-400 hover:text-green-400 cursor-pointer  "><Link href={`/privacy`}>Privacy</Link></li>
+          <li className="text-sm text-gray-400 hover:text-green-400 cursor-pointer  "><Link href={`/TermsPage`}>Terms of Service</Link></li>
+          <li className="text-sm text-gray-400 hover:text-green-400 cursor-pointer  "><Link href={`/refund`}>Refund Policy</Link></li>
+          <li className="text-sm text-gray-400 hover:text-green-400 cursor-pointer  "><Link href={`/contact`}>Contact</Link></li>
 
         </ul>
       </div>

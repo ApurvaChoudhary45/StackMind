@@ -46,7 +46,7 @@ export default function WelcomeEmail({ userName }: Props) {
                     {/* CTA */}
                     <div style={{ textAlign: 'center', margin: '32px 0' }}>
                         <a
-                            href="https://stack-mind-ten.vercel.app/dashboard"
+                            href="https://stackmind.co.in/dashboard"
                             style={{
                                 backgroundColor: '#4ade80',
                                 color: '#000',

@@ -8,7 +8,7 @@ import NoteEditor from './NoteEditor'
 import RagSearch from './RagSearch'
 import Image from 'next/image'
 import AskAIDrawer from './AskAI'
-// import UpgradeModal from './UpgradeModal'
+import UpgradeModal from './UpgradeModal'
 
 
 
@@ -94,16 +94,16 @@ const [upgradeReason, setUpgradeReason] = useState('')
         const data = await res.json()
         console.log(data)
 
-        // if (!res.ok) {
-        //     if (data.upgrade) {
-        //         setUpgradeReason(data.error)
-        //         setShowUpgrade(true)
-        //         return
-        //     }
+        if (!res.ok) {
+            if (data.upgrade) {
+                setUpgradeReason(data.error)
+                setShowUpgrade(true)
+                return
+            }
 
-        //     alert(data.error)
-        //     return
-        // }
+            alert(data.error)
+            return
+        }
 
         setTitle('')
         setContent('')
@@ -153,7 +153,6 @@ const [upgradeReason, setUpgradeReason] = useState('')
 
     const isDeleteOn = async (note: Note) => {
         if (localStorage.getItem('confirmDelete') === 'true') {
-            console.log(localStorage.getItem('confirmDelete'))
             setNoteToDelete(note)
             setshowCofirm(true)
         }
@@ -347,7 +346,7 @@ const [upgradeReason, setUpgradeReason] = useState('')
 
             )}
 
-            {/* {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>} */}
+            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
         </div>
     )
 }

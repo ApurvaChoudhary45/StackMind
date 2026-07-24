@@ -13,14 +13,28 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
 
+  // NEW: support email confirmation links that use token_hash instead of code
+  const token_hash = searchParams.get('token_hash')
+  const type = searchParams.get('type') as 'signup' | 'email' | 'recovery' | 'invite' | 'magiclink' | null
 
-
-  if (code) {
+  if (code || token_hash) {
     const supabase = await createClient()
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    console.log(data)
-    if (data.session?.provider_token) {
+    let data, error
+
+    if (code) {
+      // existing OAuth / PKCE flow — untouched
+      const result = await supabase.auth.exchangeCodeForSession(code)
+      data = result.data
+      error = result.error
+    } else if (token_hash && type) {
+      // NEW: email confirmation / magic link / recovery flow
+      const result = await supabase.auth.verifyOtp({ token_hash, type })
+      data = result.data
+      error = result.error
+    }
+    
+    if (data?.session?.provider_token) {
       await supabase.from('github_tokens').upsert({
         user_id: data.session.user.id,
         token: data.session.provider_token,
@@ -31,7 +45,7 @@ export async function GET(request: Request) {
     const user = session?.user
 
     if (!user) {
-      console.error('No user found in session:', session)
+      console.error('No user found in session:', session, error)
       return NextResponse.redirect(`${origin}/login?error=no_user`)
     }
 

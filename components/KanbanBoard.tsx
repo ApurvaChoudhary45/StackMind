@@ -11,13 +11,14 @@ import KanbanColumn from './KanbanColumn'
 import RagSearch from './RagSearch'
 import AskAIDrawer from './AskAI'
 
+import UpgradeModal from './UpgradeModal'
 type Bug = {
   id: string
   title: string
   description: string
   priority: 'low' | 'medium' | 'high'
   status: string,
-  img_src : string 
+  img_src: string
 }
 
 type Props = {
@@ -48,6 +49,8 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
   const [askSI, setaskSI] = useState<boolean | null>(false)
+  const [showUpgrade, setShowUpgrade] = useState<boolean | null>(null)
+const [upgradeReason, setUpgradeReason] = useState('')
 
   useEffect(() => {
     const channel = supabase
@@ -98,10 +101,10 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
 
   }
 
-  const handleUpload = async()=>{
+  const handleUpload = async () => {
     setLoading(true)
     let uploadURL = url
-    if(file){
+    if (file) {
       const upload = await edgestore.publicFiles.upload({
         file
       })
@@ -116,50 +119,43 @@ export default function KanbanBoard({ bugs, projectId, userId }: Props) {
     try {
       if (!title.trim()) return
 
-    const res = await fetch('/api/add-bug', {
+      setLoading(true)
+
+      const res = await fetch('/api/add-bug', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            title,
-            description,
-            priority,
-            project_id: projectId,
+          title,
+          description,
+          priority,
+          project_id: projectId,
         }),
-    })
+      })
 
-    const data = await res.json()
+      const data = await res.json()
 
-if (!res.ok) {
-    if (data.upgrade) {
-        setUpgradeReason(data.error)
-        setShowUpgrade(true)
+      if (!res.ok) {
+        if (data.upgrade) {
+          setUpgradeReason(data.error)
+          setShowUpgrade(true)
+          return
+        }
+
+        alert(data.error)
         return
-    }
-
-    alert(data.error)
-    return
-}
+      }
     } catch (error) {
       console.log(error)
     }
-    finally{
+    finally {
       setLoading(false)
     }
     setTitle('')
     setDescription('')
     setPriority('medium')
     setisCreating(false)
-}
-  
-  const handlepreview = (e: any) => {
-    const file = e.target.files[0]
-    setFile(file)
-    if(file){
-      setPreview(URL.createObjectURL(file))
-    }
-    
   }
 
   return (
@@ -168,14 +164,14 @@ if (!res.ok) {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-green-400">Bug Tracker</h1>
         <div className='flex gap-10'>
-        <button
-          onClick={() => setisCreating(true)}
-          className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
-        >
-          + New Bug
-        </button>
-        <AskAIDrawer userId={userId} mode='bugs'/>
-</div>
+          <button
+            onClick={() => setisCreating(true)}
+            className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"
+          >
+            + New Bug
+          </button>
+          <AskAIDrawer userId={userId} mode='bugs' />
+        </div>
       </div>
 
       {isCreating && (
@@ -205,34 +201,35 @@ if (!res.ok) {
             </select>
 
           </div>
-          
+
           <div className="flex gap-3 justify-end mt-5">
             <button onClick={() => setisCreating(false)} className="px-4 py-2 dark:text-gray-400 dark:hover:text-white text-black hover:text-gray-500">
               Cancel
             </button>
             <button
-                            onClick={handleCreateBug}
-                            disabled={loading}
-                            className="px-4 py-2 bg-green-400 text-black font-semibold rounded disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            {loading ? (
-                                <>
-                                    <i className="ti ti-loader animate-spin text-base" />
-                                    Adding...
-                                </>
-                            ) : (
-                                'Add Bug'
-                            )}
-                        </button>
+              onClick={handleCreateBug}
+              disabled={loading}
+              className="px-4 py-2 bg-green-400 text-black font-semibold rounded disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <i className="ti ti-loader animate-spin text-base" />
+                  Adding...
+                </>
+              ) : (
+                'Add Bug'
+              )}
+            </button>
           </div>
         </div>
       )}
       {askSI && <div className='fixed inset-0 flex justify-center items-center bg-black/80'>
-                <RagSearch userId={userId} askSI={askSI} setaskSI={setaskSI} mode='bugs' />
+        <RagSearch userId={userId} askSI={askSI} setaskSI={setaskSI} mode='bugs' />
 
 
-            </div>}
-      
+      </div>}
+      {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
+
 
       <DndContext onDragEnd={handleDragEvent}>
         <div className="md:flex md:gap-4 grid grid-cols-1 gap-4">

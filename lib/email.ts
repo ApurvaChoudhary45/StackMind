@@ -9,7 +9,7 @@ export async function sendWelcomeEmail(email: string, userName: string) {
         const html = await render(WelcomeEmail({ userName }))
 
         const { data, error } = await resend.emails.send({
-            from: 'StackMind <onboarding@resend.dev>',
+            from: 'StackMind <onboarding@stackmind.co.in>',
             to: email,
             subject: 'Welcome to StackMind 🧠',
             html  // ← pass rendered HTML instead of react component

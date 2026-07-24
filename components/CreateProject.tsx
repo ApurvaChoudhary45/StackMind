@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { json } from 'zod'
+import UpgradeModal from './UpgradeModal'
 
 const CreateProject = () => {
     const supabase = createClient()
@@ -15,6 +16,8 @@ const CreateProject = () => {
         projectDescription: '',
     })
     const [loading, setloading] = useState(false)
+    const [showUpgrade, setShowUpgrade] = useState<boolean | null>(null)
+const [upgradeReason, setUpgradeReason] = useState('')
     const openModal = () => {
         setmodal(true)
     }
@@ -48,9 +51,16 @@ const CreateProject = () => {
             const data = await res.json()
 
             if (!res.ok) {
-                alert(data.error)
+            if (data.upgrade) {
+                setUpgradeReason(data.error)
+                setShowUpgrade(true)
                 return
             }
+
+            alert(data.error)
+            return
+        }
+
 
         } catch (error) {
             console.log(error)
@@ -76,7 +86,7 @@ const CreateProject = () => {
             
             <button onClick={openModal} className='p-2 text-sm bg-button text-muted rounded-2xl hover:bg-button-hover'>+ New Project</button>
 
-            {modal && <div className='fixed inset-0 flex justify-center items-center bg-black/70 z-50 ' onClick={closeModal}>
+            {modal && <div className='fixed inset-0 flex justify-center items-center bg-black/70 z-50' onClick={closeModal}>
                 <div className='h-80 w-100 bg-background rounded-2xl p-6' onClick={(e) => e.stopPropagation()}>
                     <h2 className="text-xl font-bold text-green-400 mb-4">New Project</h2>
 
@@ -125,6 +135,7 @@ const CreateProject = () => {
 
 
             </div>}
+            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
         </div>
 
 

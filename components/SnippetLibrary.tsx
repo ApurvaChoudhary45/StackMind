@@ -7,6 +7,7 @@ import { s } from "framer-motion/client"
 import GlobalSearch from "./GlobalSearch"
 import GithubImport from '@/components/GithubImport'
 import AnalyzeSnippet from "./AnalyzeSnippet"
+import UpgradeModal from './UpgradeModal'
 
 type Snippet = {
     id: string,
@@ -54,21 +55,50 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     const [newNoteId, setNewNoteId] = useState('')
     const [analyze, setAnalyze] = useState(false)
     const [loading, setloading] = useState(false)
+    const [showUpgrade, setShowUpgrade] = useState<boolean | null>(null)
+    const [upgradeReason, setUpgradeReason] = useState('')
+
+    const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
+
+    const [showCofirm, setshowCofirm] = useState(false)
+
 
     useEffect(() => {
-    setAllSnippets(snippets)
-}, [snippets])
+        setAllSnippets(snippets)
+    }, [snippets])
 
     async function handleCreate() {
         setloading(true)
         try {
-            const data = await fetch('/api/add-snippet', {
+            const res = await fetch('/api/add-snippet', {
                 method: 'PUT',
                 headers: {
                     'content-type': 'application/json'
                 },
-                body: JSON.stringify({ title, code, language, description, project_id: projectId, user_id: userId, newNoteId })
+                body: JSON.stringify({
+                    title,
+                    code,
+                    language,
+                    description,
+                    project_id: projectId,
+                    user_id: userId
+                })
+
             })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                if (data.upgrade) {
+                    setUpgradeReason(data.error)
+                    setShowUpgrade(true)
+                    return
+                }
+
+                alert(data.error)
+                return
+            }
+
         } catch (error) {
             console.log(error)
         }
@@ -86,19 +116,32 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
 
     // setAllSnippets(prev => [snippets, ...prev])
-    async function deletNote(snippet: Snippet) {
+    async function deleteSnippet() {
+        if (!snippetToDelete) return
         try {
             setloading(true)
-            await supabase.from('snippets').delete().eq('id', snippet.id)
-             setAllSnippets(prev => prev.filter(i => i.id !== snippet.id))
-        } catch (error) {
-            console.log(error)
-        }
-        finally{
+            await fetch('/api/deletesnippet', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ snippetId: snippetToDelete?.id })
+            })
+            setAllSnippets(prev => prev.filter(i => i.id !== snippetToDelete?.id))
+        } finally {
             setloading(false)
+            setshowCofirm(false)
+            setSnippetToDelete(null)
         }
-        
-       
+    }
+
+    const isDeleteSnippet = async (snippet: Snippet) => {
+        if (localStorage.getItem('confirmDelete') === 'true') {
+            setSnippetToDelete(snippet)
+            setshowCofirm(true)
+        }
+        else {
+            setSnippetToDelete(snippet)
+            await deleteSnippet()
+        }
     }
 
     async function handleCopy(snippet: Snippet) {
@@ -109,11 +152,6 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         }, 2000);
     }
 
-    async function cancelNewSnippet() {
-        await supabase.from('snippets').delete().eq('id', newNoteId)
-        setIsCreating(false)
-        
-    }
 
     const filtered = allSnippets.filter(s => filterLang || s.language === filterLang).filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
 
@@ -126,27 +164,22 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     }
 
     async function createNewNote() {
+        setTitle('')
+        setDescription('')
+        setCode('')
+        setLanguage(localStorage.getItem('defaultLanguage')?.toLowerCase() || 'javascript')
+
+        setNewNoteId('')
         setIsCreating(true)
-    const res = await fetch('/api/create-newsnippet', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            project_id: projectId,
-        }),
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-        alert(data.error)
-        return
     }
 
-    
-    setNewNoteId(data.id)
-}
+    function cancelNewSnippet() {
+        setTitle('')
+        setDescription('')
+        setCode('')
+        setLanguage('')
+        setIsCreating(false)
+    }
 
     const saveEditedNote = async () => {
 
@@ -163,34 +196,34 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     }
 
     useEffect(() => {
-    const channel = supabase
-        .channel(`snippets-${projectId}`)
-        .on(
-            'postgres_changes',
-            {
-                event: '*',
-                schema: 'public',
-                table: 'snippets',
-                filter: `project_id=eq.${projectId}`,
-            },
-            async () => {
-                const { data } = await supabase
-                    .from('snippets')
-                    .select('*')
-                    .eq('project_id', projectId)
-                    .order('created_at', {
-                        ascending: false,
-                    })
+        const channel = supabase
+            .channel(`snippets-${projectId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'snippets',
+                    filter: `project_id=eq.${projectId}`,
+                },
+                async () => {
+                    const { data } = await supabase
+                        .from('snippets')
+                        .select('*')
+                        .eq('project_id', projectId)
+                        .order('created_at', {
+                            ascending: false,
+                        })
 
-                setAllSnippets(data ?? [])
-            }
-        )
-        .subscribe()
+                    setAllSnippets(data ?? [])
+                }
+            )
+            .subscribe()
 
-    return () => {
-        supabase.removeChannel(channel)
-    }
-}, [projectId])
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [projectId])
 
 
     useEffect(() => {
@@ -215,23 +248,6 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         }
     }, [])
 
-    useEffect(() => {
-        if (!autoSave || !newNoteId) return;
-
-        const timer = setTimeout(async () => {
-            setIsSaving(true)
-            const { error } = await supabase
-                .from("snippets")
-                .update({ code: code })
-                .eq("id", newNoteId);
-
-            if (error) console.error("Save failed:", error);
-            else console.log("Note saved successfully");
-            setIsSaving(false)
-        }, 1000);
-
-        return () => clearTimeout(timer);
-    }, [code, autoSave, newNoteId]);
 
     useEffect(() => {
         if (!autoSave || !newId) return;
@@ -316,32 +332,25 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                     onChange={(e) => setCode(e.target.value)}
                     className={`w-full bg-background border border-border dark:text-green-400 text-green-700 font-mono rounded p-3 mb-4 focus:outline-none focus:border-green-400 resize-none h-40 text-[${textResize}px]`}
                 />
-                {autoSave && (
-                    <div className="flex gap-2 items-center mb-3">
-                        <i className={`ti ti-loader text-green-400 ${isSaving ? 'animate-spin' : 'opacity-80'}`} />
-                        <p className="text-xs font-mono text-zinc-500">
-                            {isSaving ? ('Saving...') : autoSave ? ('Auto Save on') : ('Auto Save off')}
-                        </p>
-                    </div>
-                )}
+
                 <div className="flex gap-3 justify-end">
                     <button onClick={cancelNewSnippet} className="px-4 py-2 dark:text-gray-400 dark:hover:text-white hover:text-gray-700">
                         Cancel
                     </button>
                     <button
-                            onClick={handleCreate}
-                            disabled={loading}
-                            className="px-4 py-2 bg-green-400 text-black font-semibold rounded disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            {loading ? (
-                                <>
-                                    <i className="ti ti-loader animate-spin text-base" />
-                                    Saving...
-                                </>
-                            ) : (
-                                'Save Snippet'
-                            )}
-                        </button>
+                        onClick={handleCreate}
+                        disabled={loading}
+                        className="px-4 py-2 bg-green-400 text-black font-semibold rounded disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {loading ? (
+                            <>
+                                <i className="ti ti-loader animate-spin text-base" />
+                                Saving...
+                            </>
+                        ) : (
+                            'Save Snippet'
+                        )}
+                    </button>
                 </div>
             </div>}
 
@@ -436,20 +445,20 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                                     Edit
                                 </button>
                                 <button
-                            onClick={()=>deletNote(snippet)}
-                            disabled={loading}
-                            className="text-xs px-4 py-1 border border-red-800 rounded hover:border-red-700 text-red-600 hover:text-red-400 transition-colors"
-                        >
-                            {loading ? (
-                                <>
-                                    <i className="ti ti-loader animate-spin text-xs" />
-                                    
-                                    Deleting
-                                </>
-                            ) : (
-                                'Delete'
-                            )}
-                        </button>
+                                    onClick={() => isDeleteSnippet(snippet)}
+                                    disabled={loading}
+                                    className="text-xs px-4 py-1 border border-red-800 rounded hover:border-red-700 text-red-600 hover:text-red-400 transition-colors"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <i className="ti ti-loader animate-spin text-xs" />
+
+                                            Deleting
+                                        </>
+                                    ) : (
+                                        'Delete'
+                                    )}
+                                </button>
                             </div>
                         </div>
                         <pre className="bg-card rounded p-3 overflow-x-auto max-h-100">
@@ -459,6 +468,47 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                 ))}
 
             </div>
+            {showCofirm && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-hidden">
+                    <div className="bg-background border border-zinc-800 rounded-2xl w-full max-w-sm p-6 overflow-y-auto overscroll-contain">
+
+                        <div className="w-11 h-11 rounded-xl dark:bg-red-950/40 border border-red-400/20 flex items-center justify-center mb-4">
+                            <i className="ti ti-trash text-red-400 text-xl" />
+                        </div>
+
+                        <p className="text-sm font-medium text-black dark:text-zinc-200 mb-1.5">Delete this note?</p>
+                        <p className="text-xs font-mono text-zinc-600 leading-relaxed mb-6">
+                            This will permanently delete <span className="dark:text-zinc-300 text-black">"{snippetToDelete?.title}"</span> and remove it from search. This action cannot be undone.
+                        </p>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setshowCofirm(false)}
+                                className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium border border-zinc-800 text-zinc-500 hover:text-gray-800 dark:hover:text-zinc-300 hover:border-zinc-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={deleteSnippet}
+                                disabled={loading}
+                                className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+                            >
+                                {loading ? (
+                                    <>
+                                        <i className="ti ti-loader animate-spin text-base" />
+                                        Deleting
+                                    </>
+                                ) : (
+                                    'Confirm Delete'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            )}
+            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade} />}
         </div>
     )
 }

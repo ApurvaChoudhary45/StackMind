@@ -73,13 +73,13 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
         <div className={`overflow-hidden transition-all duration-200 ${collapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
           <p className="text-xs font-medium text-muted truncate whitespace-nowrap">{userName}</p>
           <p className="text-xs text-text-muted font-mono truncate whitespace-nowrap">{userEmail}</p>
-          {/* {plan === 'free' && <div className='flex justify-between items-center mt-2'>
+          {plan === 'free' && <div className='flex justify-between items-center mt-2'>
             <p className='text-xs dark:text-gray-400 font-semibold'>Free Plan</p>
           <Link href={`/dashboard/pricing`}><button className="rounded-full dark:bg-green-700 px-3 py-1 text-xs font-semibold dark:text-white text-green-500 transition dark:hover:bg-green-500 border dark:border-black border-zinc-300 hover:bg-zinc-200 ">
     Upgrade
   </button></Link>
           </div>}
-          {plan === 'pro' && <p className='text-xs dark:text-gray-400 font-semibold'>Pro Plan</p>} */}
+          {plan === 'pro' && <p className='text-xs dark:text-gray-400 font-semibold'>Pro Plan</p>}
           
         </div>
       </div>

@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import UpgradeModal from './UpgradeModal'
 
 type ReviewItem = {
     type: 'error' | 'warning' | 'suggestion'
@@ -68,6 +69,8 @@ export default function AnalyzeSnippet({ userId, analyze, setAnalyze }: analyzeS
     const [activeOptions, setActiveOptions] = useState(['bugs', 'performance', 'security', 'bestPractices'])
     const [answer, setAnswer] = useState('')
     const [sources, setSources] = useState<Source[]>([])
+    const [showUpgrade, setShowUpgrade] = useState<boolean | null>(null)
+const [upgradeReason, setUpgradeReason] = useState('')
 
     const toggleOption = (id: string) => {
         setActiveOptions(prev =>
@@ -87,6 +90,18 @@ export default function AnalyzeSnippet({ userId, analyze, setAnalyze }: analyzeS
                 body: JSON.stringify({ code, userId, options: activeOptions })
             })
             const data = await res.json()
+
+      if (!res.ok) {
+        if (data.upgrade) {
+          setUpgradeReason(data.error)
+          setShowUpgrade(true)
+          return
+        }
+
+        alert(data.error)
+        return
+      }
+
             setResult(data)
         } catch (error) {
             console.error('Review failed:', error)
@@ -257,6 +272,7 @@ animate-gradient-x
                         </>
                     )}
                 </div>
+                {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
             </div>}
         </>
     )

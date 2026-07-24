@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useEffect } from "react"
+import UpgradeModal from './UpgradeModal'
 
 type Source = {
     title: string
@@ -19,12 +20,14 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
     const [answer, setAnswer] = useState('')
     const [sources, setSources] = useState<Source[]>([])
     const [loading, setLoading] = useState(false)
+    const [showUpgrade, setShowUpgrade] = useState<boolean | null>(null)
+const [upgradeReason, setUpgradeReason] = useState('')
 
     useEffect(() => {
         const handleAIChat = (e: KeyboardEvent) => {
             if (e.altKey && e.key === 'q') {
                 setDrawerOpen(prev => !prev)
-            }   
+            }
         }
         document.addEventListener('keydown', handleAIChat)
         return () => document.removeEventListener('keydown', handleAIChat)
@@ -50,6 +53,17 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
                 body: JSON.stringify({ query, userId })
             })
             const data = await res.json()
+
+            if (!res.ok) {
+                if (data.upgrade) {
+                    setUpgradeReason(data.error)
+                    setShowUpgrade(true)
+                    return
+                }
+
+                alert(data.error)
+                return
+            }
             setAnswer(data.answer ?? '')
             setSources(data.sources ?? [])
         } catch (error) {
@@ -60,12 +74,12 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
     }
 
     useEffect(() => {
-  if (drawerOpen) {
-    document.body.classList.add('overflow-hidden')
-  } else {
-    document.body.classList.remove('overflow-hidden')
-  }
-}, [drawerOpen])
+        if (drawerOpen) {
+            document.body.classList.add('overflow-hidden')
+        } else {
+            document.body.classList.remove('overflow-hidden')
+        }
+    }, [drawerOpen])
 
     return (
         <>
@@ -100,7 +114,7 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
                         </span>
                     </div>
                     <button
-                        onClick={() => {setAnswer(''),setSources([]), setDrawerOpen(false)}}
+                        onClick={() => { setAnswer(''), setSources([]), setDrawerOpen(false) }}
                         className="w-6 h-6 flex items-center justify-center rounded-lg border border-zinc-800 text-zinc-600 hover:text-red-400 hover:border-red-400/30 transition-colors"
                     >
                         <i className="ti ti-x text-sm" />
@@ -150,7 +164,9 @@ const AskAIDrawer = ({ userId, mode = 'notes' }: Props) => {
                         </div>
                     )}
                 </div>
+
             </aside>
+            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
         </>
     )
 }
