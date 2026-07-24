@@ -9,12 +9,9 @@ declare global {
 }
 
 import { useRouter } from 'next/navigation'
-import WelcomeProPage from './ProWelcome'
 
 export default function CheckoutButton() {
     const [loading, setLoading] = useState(false)
-
-    const [redirect, setRedirect] = useState(false)
 
     const router = useRouter()
 
@@ -72,7 +69,6 @@ export default function CheckoutButton() {
                         return
                     }
 
-                    // await new Promise(resolve => setTimeout(resolve, 1000))
                     router.replace('/welcome-pro')
                     
 
