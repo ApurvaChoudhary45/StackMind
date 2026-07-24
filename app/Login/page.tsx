@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [emailLoading, setEmailLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false) // toggle between login/signup
+  const [isSignUp, setIsSignUp] = useState(false) 
 
   async function signInWithGitHub() {
     try {
@@ -75,9 +75,10 @@ export default function LoginPage() {
     } catch (error: any) {
       console.log(error)
       setErrorMsg(error.message || 'Something went wrong')
-    } finally {
-      setEmailLoading(false)
-    }
+       setEmailLoading(false)
+  
+    } 
+     
   }
 
   return (
