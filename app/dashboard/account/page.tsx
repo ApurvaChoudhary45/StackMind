@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Disconnect from '@/components/Disconnect'
 import ProviderLogin from '@/components/ProviderLogin'
 import DeleteAccount from '@/components/DeleteAccount'
+import CancelSubscription from '@/components/CancelSubscription'
 
 export default async function AccountPage() {
     const supabase = await createClient()
@@ -153,8 +154,10 @@ export default async function AccountPage() {
                 </div>
             </div>
 
+            <CancelSubscription/>
+
             {/* Danger Zone */}
-            <div className="bg-card border border-red-400/10 rounded-xl overflow-hidden">
+            <div className="bg-card border border-red-400/10 rounded-xl overflow-hidden mt-3">
                 <div className="px-5 py-4 border-b border-red-400/10">
                     <p className="text-sm font-medium text-red-400">Danger Zone</p>
                     <p className="text-xs font-mono light:text-black mt-0.5">Irreversible actions — proceed with caution</p>
