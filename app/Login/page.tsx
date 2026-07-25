@@ -178,63 +178,72 @@ export default function LoginPage() {
             </div>
 
             {/* NEW: email/password form */}
-            <form onSubmit={handleEmailAuth} className="w-full flex flex-col gap-3">
-              <input
-                type="email"
-                required
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-black/40 border border-green-400/20 text-white font-mono text-sm focus:outline-none focus:border-green-400"
-              />
-              <input
-                type="password"
-                required
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-black/40 border border-green-400/20 text-white font-mono text-sm focus:outline-none focus:border-green-400"
-              />
+            <form onSubmit={handleEmailAuth} className="flex w-full flex-col gap-3">
+  <input
+    type="email"
+    required
+    placeholder="Email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 font-mono text-sm text-black placeholder:text-zinc-500 focus:border-green-400 focus:outline-none dark:border-green-400/20 dark:bg-black/40 dark:text-white dark:placeholder:text-zinc-400"
+  />
 
-              {errorMsg && (
-                <p className="text-xs text-red-400 font-mono">{errorMsg}</p>
-              )}
+  <input
+    type="password"
+    required
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 font-mono text-sm text-black placeholder:text-zinc-500 focus:border-green-400 focus:outline-none dark:border-green-400/20 dark:bg-black/40 dark:text-white dark:placeholder:text-zinc-400"
+  />
 
-              <button
-                type="submit"
-                disabled={emailLoading}
-                className="w-full px-6 py-3 rounded-lg font-medium font-mono text-white bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {emailLoading
-                  ? ( isSignUp ?  <div className='flex justify-center items-center gap-5'>
-                  <i className="ti ti-loader animate-spin text-base" />
-                <span className='animate-pulse font-bold text font-mono text-white'>
-                  
-                  Signing up...</span>
-                </div> : <div className='flex justify-center items-center gap-5'>
-                  <i className="ti ti-loader animate-spin text-base" />
-                <span className='animate-pulse font-bold text font-mono text-white'>
-                  
-                  Signing in...</span>
-                </div>)
-                  : isSignUp
-                    ? 'Sign up with Email'
-                    : 'Sign in with Email'}
-              </button>
+  {errorMsg && (
+    <p className="font-mono text-xs text-red-500 dark:text-red-400">
+      {errorMsg}
+    </p>
+  )}
 
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSignUp(!isSignUp)
-                  setErrorMsg('')
-                }}
-                className="text-xs text-gray-500 hover:text-green-400 font-mono text-center"
-              >
-                {isSignUp
-                  ? 'Already have an account? Sign in'
-                  : "Don't have an account? Sign up"}
-              </button>
-            </form>
+  <button
+    type="submit"
+    disabled={emailLoading}
+    className="w-full rounded-lg bg-zinc-700 px-6 py-3 font-mono font-medium text-white transition hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+  >
+    {emailLoading ? (
+      isSignUp ? (
+        <div className="flex items-center justify-center gap-5">
+          <i className="ti ti-loader animate-spin text-base" />
+          <span className="animate-pulse font-mono font-bold text-white">
+            Signing up...
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-5">
+          <i className="ti ti-loader animate-spin text-base" />
+          <span className="animate-pulse font-mono font-bold text-white">
+            Signing in...
+          </span>
+        </div>
+      )
+    ) : isSignUp ? (
+      "Sign up with Email"
+    ) : (
+      "Sign in with Email"
+    )}
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      setIsSignUp(!isSignUp);
+      setErrorMsg("");
+    }}
+    className="text-center font-mono text-xs text-zinc-600 transition hover:text-green-600 dark:text-gray-500 dark:hover:text-green-400"
+  >
+    {isSignUp
+      ? "Already have an account? Sign in"
+      : "Don't have an account? Sign up"}
+  </button>
+</form>
           </div>
         </div>
       </div>

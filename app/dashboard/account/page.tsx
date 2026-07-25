@@ -8,11 +8,26 @@ import ProviderLogin from '@/components/ProviderLogin'
 import DeleteAccount from '@/components/DeleteAccount'
 import CancelSubscription from '@/components/CancelSubscription'
 
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+
+const adminSupabase = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
 export default async function AccountPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) redirect('/Login')
+
+     const { data: existingSub } = await adminSupabase
+        .from('subscriptions')
+        .select('user_id, plan, status')
+        .eq('user_id', user?.id)
+        .single()
+    
+        
 
     const avatar = user.user_metadata?.avatar_url
     const fullName = user.user_metadata?.full_name ?? user.email?.split('@')[0]
@@ -154,7 +169,7 @@ export default async function AccountPage() {
                 </div>
             </div>
 
-            <CancelSubscription/>
+            {existingSub?.plan ==='pro' && <CancelSubscription/>}
 
             {/* Danger Zone */}
             <div className="bg-card border border-red-400/10 rounded-xl overflow-hidden mt-3">
