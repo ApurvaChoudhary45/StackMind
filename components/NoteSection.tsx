@@ -38,7 +38,7 @@ const NoteSection = ({ project, notes, userId }: {
     const [isCreating, setIsCreating] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showUpgrade, setShowUpgrade] = useState<boolean | null>(null)
-const [upgradeReason, setUpgradeReason] = useState('')
+    const [upgradeReason, setUpgradeReason] = useState('')
 
     const [userNotes, setuserNotes] = useState<Note[]>(notes ?? []);
 
@@ -49,15 +49,13 @@ const [upgradeReason, setUpgradeReason] = useState('')
 
     const [showCofirm, setshowCofirm] = useState(false)
 
-    const [askSI, setaskSI] = useState<boolean | null>(false)
-
     const [expandedNoteId, setexpandedNoteId] = useState<string | null>(null)
 
     const [noteToDelete, setNoteToDelete] = useState<Note | null>(null)
 
     const [showTags, setShowTags] = useState(false)
 
-    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [editLoading, setEditLoading] = useState(false)
 
 
     useEffect(() => {
@@ -73,81 +71,87 @@ const [upgradeReason, setUpgradeReason] = useState('')
     }, [notes])
 
     const handleSave = async () => {
-    if (!title.trim()) return
+        if (!title.trim()) return
 
-    setLoading(true)
+        setLoading(true)
 
-    try {
-        const res = await fetch('/api/notes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                title,
-                content,
-                projectId: project.id,
-                userId,
-            }),
-        })
+        try {
+            const res = await fetch('/api/notes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title,
+                    content,
+                    projectId: project.id,
+                    userId,
+                }),
+            })
 
-        const data = await res.json()
-        console.log(data)
+            const data = await res.json()
+            console.log(data)
 
-        if (!res.ok) {
-            if (data.upgrade) {
-                setUpgradeReason(data.error)
-                setShowUpgrade(true)
+            if (!res.ok) {
+                if (data.upgrade) {
+                    setUpgradeReason(data.error)
+                    setShowUpgrade(true)
+                    return
+                }
+
+                alert(data.error)
                 return
             }
 
-            alert(data.error)
-            return
+            setTitle('')
+            setContent('')
+            setIsCreating(false)
+            router.refresh()
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
         }
-
-        setTitle('')
-        setContent('')
-        setIsCreating(false)
-        router.refresh()
-    } catch (error) {
-        console.error(error)
-    } finally {
-        setLoading(false)
     }
-}
 
     const editNote = async (id: string) => {
-    const { error } = await supabase
-        .from('notes')
-        .update({
-            title: newNoteTitle,
-            content: newNoteContent,
-        })
-        .eq('id', id)
+        try {
+            setEditLoading(true);
 
-    if (error) return
-
-    setuserNotes(prev =>
-        prev.map(note =>
-            note.id === id
-                ? {
-                    ...note,
+            const { error } = await supabase
+                .from('notes')
+                .update({
                     title: newNoteTitle,
                     content: newNoteContent,
-                }
-                : note
-        )
-    )
+                })
+                .eq('id', id);
 
-    setEditable(false)
-}
+            if (error) return;
 
-const canWeEdit = (note: Note) => {
-    setEditable(true)
-    setnewNoteTitle(note.title)
-    setnewNoteContent(note.content)
-    setnoteID(note.id)
-}
+            setuserNotes(prev =>
+                prev.map(note =>
+                    note.id === id
+                        ? {
+                            ...note,
+                            title: newNoteTitle,
+                            content: newNoteContent,
+                        }
+                        : note
+                )
+            );
+
+            setEditable(false);
+        } finally {
+            setEditLoading(false);
+        }
+    };
+
+    const canWeEdit = (note: Note) => {
+        setEditable(true)
+        setnewNoteTitle(note.title)
+        setnewNoteContent(note.content)
+        setnoteID(note.id)
+    }
 
     const deleteNote = async () => {
         if (!noteToDelete) return
@@ -252,10 +256,19 @@ const canWeEdit = (note: Note) => {
                         Cancel
                     </button>
                     <button
-
-                        className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300" onClick={() => editNote(noteID)}
+                        onClick={() => editNote(noteID)}
+                        disabled={editLoading}
                     >
-                        Edit Note
+                        {editLoading ? (
+                            <span className='flex gap-2 items-center'>
+                                <i className="ti ti-loader animate-spin" />
+                                Saving...
+                            </span>
+                                
+                        
+                        ) : (
+                            'Save'
+                        )}
                     </button>
                 </div>
             </div>}
@@ -356,12 +369,12 @@ const canWeEdit = (note: Note) => {
                             </button>
                         </div>
                     </div>
-                    
+
                 </div>
 
             )}
 
-            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade}/>}
+            {showUpgrade && <UpgradeModal showUpgrade={showUpgrade} upgradeReason={upgradeReason} setShowUpgrade={setShowUpgrade} />}
         </div>
     )
 }

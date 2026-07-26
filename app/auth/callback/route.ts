@@ -33,12 +33,17 @@ export async function GET(request: Request) {
       data = result.data
       error = result.error
     }
-    
-    if (data?.session?.provider_token) {
-      await supabase.from('github_tokens').upsert({
+
+    const provider = data?.session?.user.app_metadata?.provider
+
+    if (
+      provider === "github" &&
+      data?.session?.provider_token
+    ) {
+      await supabase.from("github_tokens").upsert({
         user_id: data.session.user.id,
         token: data.session.provider_token,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
     }
     const session = data?.session

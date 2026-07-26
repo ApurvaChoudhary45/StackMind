@@ -47,9 +47,19 @@ const ProviderLogin = ({ provider }: { provider: 'google' | 'github' }) => {
     }
 
     return (
-        <button className="text-xs font-mono font-medium bg-green-400 text-black px-3 py-1.5 rounded-lg hover:bg-green-300 transition-colors" onClick={()=>signInWithOAuth(provider)}>
-            Connect
-        </button>
+       <button
+    className="text-xs font-mono font-medium bg-green-400 text-black px-3 py-1.5 rounded-lg hover:bg-green-300 transition-colors flex items-center justify-center gap-2"
+    onClick={() => signInWithOAuth(provider)}
+>
+    {(provider === 'google' ? loading : googleLoad) ? (
+        <span className='flex items-center gap-3'>
+            <i className="ti ti-loader animate-spin text-base" />
+            Connecting...
+        </span>
+    ) : (
+        'Connect'
+    )}
+</button>
     )
 }
 

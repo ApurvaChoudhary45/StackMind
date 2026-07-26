@@ -29,7 +29,7 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
   ]
 
   const accountItems = [
-    // { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
+    { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
     { href: '/dashboard/account', label: 'Profile', icon: 'ti-user-circle' },
     { href: '/dashboard/journal', label: 'Journal', icon: 'ti-note' },
     { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' }, 
