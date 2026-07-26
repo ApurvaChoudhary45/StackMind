@@ -4,13 +4,52 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 const admin = createAdminClient()
 
-async function handleSubscriptionCancelled(subscription: any) {
 
+async function syncSubscription(subscription: any) {
     await admin
         .from('subscriptions')
         .update({
+            plan: 'pro',
+            status: subscription.status,
+
+            razorpay_subscription_id: subscription.id,
+            razorpay_customer_id: subscription.customer_id,
+
+            current_period_start: subscription.current_start
+                ? new Date(subscription.current_start * 1000)
+                : null,
+
+            current_period_end: subscription.current_end
+                ? new Date(subscription.current_end * 1000)
+                : null,
+
+            cancel_at_period_end:
+                subscription.cancel_at_cycle_end ?? false,
+
+            updated_at: new Date().toISOString(),
+        })
+        .eq(
+            'razorpay_subscription_id',
+            subscription.id
+        )
+}
+
+
+async function handleSubscriptionCancelled(subscription: any) {
+    await admin
+        .from('subscriptions')
+        .update({
+            status: subscription.status,
+
             cancel_at_period_end: true,
-            current_period_end: new Date(subscription.current_end * 1000),
+
+            cancelled_at: new Date().toISOString(),
+
+            current_period_end: new Date(
+                subscription.current_end * 1000
+            ),
+
+            updated_at: new Date().toISOString(),
         })
         .eq(
             'razorpay_subscription_id',
@@ -19,20 +58,26 @@ async function handleSubscriptionCancelled(subscription: any) {
 }
 
 async function handleSubscriptionCompleted(subscription: any) {
-
     await admin
         .from('subscriptions')
         .update({
             plan: 'free',
-            status: 'cancelled',
+
+            status: 'completed',
 
             cancel_at_period_end: false,
+
+            cancelled_at: null,
 
             razorpay_subscription_id: null,
 
             razorpay_customer_id: null,
 
+            current_period_start: null,
+
             current_period_end: null,
+
+            updated_at: new Date().toISOString(),
         })
         .eq(
             'razorpay_subscription_id',
@@ -75,16 +120,34 @@ export async function POST(req: NextRequest) {
 
         switch (event.event) {
 
+            case 'subscription.activated':
+                await syncSubscription(
+                    event.payload.subscription.entity
+                )
+                break
+
+            case 'subscription.charged':
+                await syncSubscription(
+                    event.payload.subscription.entity
+                )
+                break
+
             case 'subscription.cancelled':
-                await handleSubscriptionCancelled(event.payload.subscription.entity)
+                await handleSubscriptionCancelled(
+                    event.payload.subscription.entity
+                )
                 break
 
             case 'subscription.completed':
-                await handleSubscriptionCompleted(event.payload.subscription.entity)
+                await handleSubscriptionCompleted(
+                    event.payload.subscription.entity
+                )
                 break
 
             case 'payment.failed':
-                await handlePaymentFailed(event.payload.payment.entity)
+                await handlePaymentFailed(
+                    event.payload.payment.entity
+                )
                 break
 
             default:

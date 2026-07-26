@@ -1,8 +1,13 @@
 import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-
+import Razorpay from 'razorpay'
 export async function POST(req: NextRequest) {
+    const razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID!,
+        key_secret: process.env.RAZORPAY_KEY_SECRET!,
+    })
+
     try {
 
         const supabase = await createClient()
@@ -17,6 +22,7 @@ export async function POST(req: NextRequest) {
                 { status: 401 }
             )
         }
+
 
         const { data: subscription, error: subscriptionError } = await supabase
             .from('subscriptions')
@@ -63,16 +69,46 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        const razorpaySubscription = await razorpay.subscriptions.fetch(
+            subscription.razorpay_subscription_id
+        ) as any
+
         const { error: updateError } = await supabase
             .from('subscriptions')
             .update({
                 plan: 'pro',
-                status: 'active',
+
+                status: razorpaySubscription.status,
+
+                razorpay_subscription_id: razorpaySubscription.id,
+
+                razorpay_customer_id:
+                    razorpaySubscription.customer_id,
+
+                current_period_start:
+                    razorpaySubscription.current_start
+                        ? new Date(
+                            razorpaySubscription.current_start * 1000
+                        ).toISOString()
+                        : null,
+
+                current_period_end:
+                    razorpaySubscription.current_end
+                        ? new Date(
+                            razorpaySubscription.current_end * 1000
+                        ).toISOString()
+                        : null,
+
+                cancel_at_period_end: false,
+
+                cancelled_at: null,
+
                 updated_at: new Date().toISOString(),
-            })
-            .eq('user_id', user.id)
+            }).eq('user_id', user.id)
 
         if (updateError) {
+            console.error(updateError)
+
             return NextResponse.json(
                 {
                     error: 'Failed to update subscription',
@@ -82,7 +118,6 @@ export async function POST(req: NextRequest) {
                 }
             )
         }
-
         return NextResponse.json({
             success: true,
             message: 'Subscription activated successfully',

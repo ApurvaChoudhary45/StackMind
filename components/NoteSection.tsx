@@ -116,23 +116,38 @@ const [upgradeReason, setUpgradeReason] = useState('')
     }
 }
 
-    const canWeEdit = async (note: Note) => {
-        setEditable(true)
-        const data = await supabase.from('notes').select('*').eq('id', note.id)
-        setnewNoteTitle(data?.data?.[0]?.title)
-        setnewNoteContent(data?.data?.[0]?.content)
-        setnoteID(note.id)
-
-    }
-
     const editNote = async (id: string) => {
-        await supabase.from('notes').update({
+    const { error } = await supabase
+        .from('notes')
+        .update({
             title: newNoteTitle,
-            content: newNoteContent
-        }).eq('id', id)
+            content: newNoteContent,
+        })
+        .eq('id', id)
 
-        setEditable(false)
-    }
+    if (error) return
+
+    setuserNotes(prev =>
+        prev.map(note =>
+            note.id === id
+                ? {
+                    ...note,
+                    title: newNoteTitle,
+                    content: newNoteContent,
+                }
+                : note
+        )
+    )
+
+    setEditable(false)
+}
+
+const canWeEdit = (note: Note) => {
+    setEditable(true)
+    setnewNoteTitle(note.title)
+    setnewNoteContent(note.content)
+    setnoteID(note.id)
+}
 
     const deleteNote = async () => {
         if (!noteToDelete) return

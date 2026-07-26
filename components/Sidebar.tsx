@@ -29,10 +29,12 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
   ]
 
   const accountItems = [
-    { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
+    // { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
     { href: '/dashboard/account', label: 'Profile', icon: 'ti-user-circle' },
+    { href: '/dashboard/journal', label: 'Journal', icon: 'ti-note' },
     { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' }, 
-    { href: '/dashboard/journal', label: 'Journal', icon: 'ti-note' }, 
+    { href: '/dashboard/manage-subscription', label: 'Subscription', icon: 'ti-crown' },
+
   ]
 
   return (
@@ -82,6 +84,9 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
           {plan === 'pro' && <p className='text-xs dark:text-gray-400 font-semibold'>Pro Plan</p>}
           
         </div>
+        {plan !== 'free' && plan !== 'pro' && <Link href={`/dashboard/pricing`}><button className="rounded-full dark:bg-green-700 px-3 py-1 text-xs font-semibold dark:text-white text-green-500 transition dark:hover:bg-green-500 border dark:border-black border-zinc-300 hover:bg-zinc-200 ">
+    Upgrade
+  </button></Link>}
       </div>
 
       {/* Workspace Nav */}

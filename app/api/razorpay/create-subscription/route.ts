@@ -18,6 +18,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
         }
 
+        console.log({
+    key: process.env.RAZORPAY_KEY_ID,
+    secretExists: !!process.env.RAZORPAY_KEY_SECRET,
+})
         // Create a Razorpay subscription
         const subscription = await razorpay.subscriptions.create({
             plan_id: process.env.RAZORPAY_PLAN_ID!,

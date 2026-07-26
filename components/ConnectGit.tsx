@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { button, data, div } from "framer-motion/client";
 
@@ -47,7 +47,7 @@ type projectSection = {
 
 const ConnectGit = ({ projectId, userId }: projectSection) => {
   const supabase = createClient();
-
+  const [hasGithubConnected, setHasGithubConnected] = useState(false)
   const [loading, setLoading] = useState(false);
   const [repos, setRepos] = useState<repo[]>([]);
   const [contents, setContents] = useState<content[]>([])
@@ -60,22 +60,55 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
 
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
+// separate from `loading` (used for repo/file fetches) — tracks the initial
+// "does this user even have a github token" check
+const [checkingToken, setCheckingToken] = useState(true);
+
+
+  // keeps a live reference to hasGithubConnected so the `focus` listener
+  // (registered once on mount) never reads a stale value
+  const hasGithubConnectedRef = useRef(hasGithubConnected);
   useEffect(() => {
-    const checkToken = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+    hasGithubConnectedRef.current = hasGithubConnected;
+  }, [hasGithubConnected]);
 
-      const { data: tokenData } = await supabase
-        .from('github_tokens')
-        .select('token')
-        .eq('user_id', user?.id)
-        .single()
+  const checkToken = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-      if (tokenData?.token) {
-        // Token exists — fetch repos automatically
-        getGithub()
+    const { data: tokenData } = await supabase
+      .from('github_tokens')
+      .select('token')
+      .eq('user_id', user?.id)
+      .single()
+
+    if (tokenData?.token) {
+      setHasGithubConnected(true)
+      getGithub()
+    } else {
+      setHasGithubConnected(false)
+    }
+  }
+
+  useEffect(() => {
+    const runInitialCheck = async () => {
+      setCheckingToken(true)
+      await checkToken()
+      setCheckingToken(false)
+    }
+    runInitialCheck()
+
+    // If the user connects GitHub from Settings → Connected Accounts and
+    // comes back to this tab, re-check the token and auto-fetch repos
+    // instead of leaving them stuck on the "not connected" screen.
+    const onFocus = () => {
+      if (!hasGithubConnectedRef.current) {
+        checkToken()
       }
     }
-    checkToken()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   }, [])
 
   const getGithub = async () => {
@@ -93,9 +126,9 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
 
       if (!tokenData?.token) {
         console.error('No GitHub token found')
+        setHasGithubConnected(false)
         return
       }
-
 
       const res = await fetch('https://api.github.com/user/repos?per_page=100', {
         headers: {
@@ -103,31 +136,80 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
         }
       })
 
-      if (res.status === 401) {
-        // Token expired — delete it from DB and ask user to reconnect
+      // Any non-OK response (401 expired, 403 revoked/rate-limited, etc.)
+      // means the stored token is unusable — treat it the same way.
+      if (!res.ok) {
         await supabase.from('github_tokens').delete().eq('user_id', user?.id)
         setTokenExpired(true)
+        setHasGithubConnected(false)
         setRepos([])
         return
       }
 
       const data = await res.json();
-      console.log(data)
+
+      // Guard against GitHub returning a non-array error object even on
+      // a 200-ish response, so we never render the connected view with junk data.
+      if (!Array.isArray(data)) {
+        console.error('Unexpected GitHub response', data)
+        setHasGithubConnected(false)
+        setRepos([])
+        return
+      }
+
       setRepos(data);
     } catch (error) {
       console.error(error);
+      setHasGithubConnected(false)
     } finally {
       setLoading(false);
     }
   };
-
 
   const getContent = async (repo: repoContent) => {
     setopenRepo(true)
     try {
       setLoading(true)
 
-      const getData = await fetch(`https://api.github.com/repos/${repo?.owner?.login}/${repo.name}/contents/`)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { data: tokenData } = await supabase
+        .from('github_tokens')
+        .select('token')
+        .eq('user_id', user?.id)
+        .single()
+
+      if (!tokenData?.token) {
+        console.error('No GitHub token found')
+        setContents([])
+        return
+      }
+
+      const getData = await fetch(
+        `https://api.github.com/repos/${repo?.owner?.login}/${repo.name}/contents/`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`
+          }
+        }
+      )
+
+      if (getData.status === 401) {
+        await supabase.from('github_tokens').delete().eq('user_id', user?.id)
+        setTokenExpired(true)
+        setHasGithubConnected(false)
+        setContents([])
+        setopenRepo(false)
+        return
+      }
+
+      if (!getData.ok) {
+        console.error('Failed to fetch repo contents', getData.status)
+        setContents([])
+        return
+      }
 
       const res = await getData.json()
       console.log(res)
@@ -138,7 +220,6 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
     finally {
       setLoading(false);
     }
-
   }
 
   const closeRepo = () => {
@@ -148,7 +229,28 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
   const importAsSnippet = async (file: any) => {
     setStatus('loading')
     try {
-      const res = await fetch(file.download_url)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { data: tokenData } = await supabase
+        .from('github_tokens')
+        .select('token')
+        .eq('user_id', user?.id)
+        .single()
+
+      const res = await fetch(file.download_url, {
+        headers: tokenData?.token
+          ? { Authorization: `Bearer ${tokenData.token}` }
+          : {}
+      })
+
+      if (!res.ok) {
+        console.error('Failed to fetch file content', res.status)
+        setStatus('idle')
+        return
+      }
+
       const data = await res.text()
       console.log(data)
       const extension = file.name.split('.').pop()
@@ -162,44 +264,54 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
       });
 
       setStatus('success')
-      setTimeout(() => setStatus("idle"), 2000);  
+      setTimeout(() => setStatus("idle"), 2000);
     } catch (error) {
-      console.log(error)  
+      console.log(error)
       setStatus('idle')
     }
-
   }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background text-text-muted">
-      {repos.length === 0 ? (
-        loading ? (
-          <>
-            <h1 className="text-lg font-mono mb-8">Connect Your GitHub</h1>
-            <button className="bg-green-500 text-black px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors text-sm animate-pulse">
-              <i className="ti ti-brand-github px-2"></i>
-              Connecting...
-            </button>
-            <p className="mt-4 text-sm text-gray-500">
-              // You can import snippets from your GitHub repo //
-            </p>
-          </>
-        ) : (
-          <>
-            {!tokenExpired && <><h1 className="text-lg font-mono mb-8">Connect Your GitHub</h1>
-              <button
-                className="bg-green-500 text-black px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors text-sm"
-                onClick={getGithub}
-              >
-                <i className="ti ti-brand-github px-2"></i>
-                Connect GitHub
-              </button>
-              <p className="mt-4 text-sm text-gray-500">
-              // You can import snippets from your GitHub repo //
-              </p></>}
-          </>
-        )
-      ) : (
+      {checkingToken || (hasGithubConnected && loading) ? (
+  <>
+    <h1 className="text-lg font-mono mb-8">Connect Your GitHub</h1>
+    <button className="bg-green-500 text-black px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors text-sm animate-pulse">
+      <i className="ti ti-brand-github px-2"></i>
+      Connecting...
+    </button>
+    <p className="mt-4 text-sm text-gray-500">
+      // You can import snippets from your GitHub repo //
+    </p>
+  </>
+) : !hasGithubConnected ? (
+  <>
+    {!tokenExpired && (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
+          <i className="ti ti-brand-github text-3xl text-green-400" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">GitHub Not Connected</h2>
+          <p className="max-w-md text-sm text-muted-foreground">
+            You signed in using Google. To import repositories,
+            connect your GitHub account from
+            <span className="font-semibold text-green-400">
+              {" "}Settings → Connected Accounts
+            </span>.
+            Once connected, your repositories will appear here automatically.
+          </p>
+        </div>
+        <button
+          disabled
+          className="cursor-not-allowed rounded-lg bg-green-500/20 px-6 py-3 text-sm font-semibold text-green-300 opacity-70"
+        >
+          GitHub Required
+        </button>
+      </div>
+    )}
+  </>
+): (
         <div className="p-6 bg-background h-screen overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <p className="font-mono text-sm text-zinc-600">

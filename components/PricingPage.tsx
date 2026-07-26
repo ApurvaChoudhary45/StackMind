@@ -160,7 +160,7 @@ export default function PricingPage() {
 
         <div className="mb-8">
           <span className="text-6xl font-bold">
-            {annual ? "$48" : "$5"}
+            {annual ? "$48" : "$4.5"}
           </span>
 
           <span className="ml-2 text-zinc-500 dark:text-zinc-400">
@@ -169,8 +169,8 @@ export default function PricingPage() {
 
           <div className="mt-3 text-emerald-600 dark:text-emerald-300">
             {annual
-              ? "≈ ₹4,608/year (Save 20%)"
-              : "≈ ₹480/month"}
+              ? "≈ ₹3,830/year (Save 20%)"
+              : "≈ ₹399/month"}
           </div>
         </div>
 

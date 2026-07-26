@@ -169,7 +169,7 @@ export default async function AccountPage() {
                 </div>
             </div>
 
-            {existingSub?.plan ==='pro' && <CancelSubscription/>}
+            {/* {existingSub?.plan ==='pro' && <CancelSubscription/>} */}
 
             {/* Danger Zone */}
             <div className="bg-card border border-red-400/10 rounded-xl overflow-hidden mt-3">

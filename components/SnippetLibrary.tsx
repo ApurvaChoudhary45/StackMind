@@ -407,7 +407,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                                 Saving...
                             </>
                         ) : (
-                            'Edit Note'
+                            'Save Note'
                         )}
                     </button>
                 </div>
