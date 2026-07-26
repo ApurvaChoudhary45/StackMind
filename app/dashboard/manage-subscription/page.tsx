@@ -23,7 +23,7 @@ const Subscription = async () => {
         
 
         return (
-            <div className='bg-card overflow-y-auto'>
+            <div className='bg-card overflow-y-auto h-full'>
             <BillingPage plan={existingSub?.plan} cancelAtPeriodEnd={existingSub?.cancel_at_period_end} currentPeriodEnd={existingSub?.current_period_end} aireviews={existingSub?.ai_queries_today} codereviews={existingSub?.code_reviews_today} />
             </div>
 

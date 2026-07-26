@@ -63,7 +63,7 @@ export default function BillingPage({
     }
 
     return (
-        <div className="w-full mx-auto p-8 space-y-8 overflow-y-auto">
+        <div className="w-full mx-auto p-8 space-y-8 overflow-y-auto h-full">
 
             {/* Header */}
 
@@ -446,5 +446,6 @@ export default function BillingPage({
             )}
 
         </div>
+        
     )
 }
