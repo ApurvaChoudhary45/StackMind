@@ -192,7 +192,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <CheckoutButton />
+        <CheckoutButton annual = {annual}/>
 
         <div className="space-y-4 pt-3">
           {proFeatures.map((feature) => (

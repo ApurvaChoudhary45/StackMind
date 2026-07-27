@@ -8,9 +8,14 @@ declare global {
     }
 }
 
+type recurring = {
+    annual: boolean
+
+}
+
 import { useRouter } from 'next/navigation'
 
-export default function CheckoutButton() {
+export default function CheckoutButton({ annual }: recurring) {
     const [loading, setLoading] = useState(false)
 
     const router = useRouter()
@@ -19,8 +24,14 @@ export default function CheckoutButton() {
         try {
             setLoading(true)
 
-            const response = await fetch('/api/razorpay/create-subscription', {
-                method: 'POST',
+            const response = await fetch("/api/razorpay/create-subscription", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    billingCycle: annual ? "yearly" : "monthly",
+                }),
             })
 
             const data = await response.json()
@@ -70,7 +81,7 @@ export default function CheckoutButton() {
                     }
 
                     router.replace('/welcome-pro')
-                    
+
 
                 }
 
@@ -90,14 +101,14 @@ export default function CheckoutButton() {
 
     return (
         <div>
-        <button
-            onClick={handleCheckout}
-            disabled={loading}
-            className="mb- w-full rounded-xl bg-gradient-to-r from-emerald-500 to-green-400 py-3 font-semibold text-black transition hover:scale-[1.02] p-3"
-        >
-            {loading ? 'Preparing Checkout...' : 'Upgrade to Pro'}
-        </button>
+            <button
+                onClick={handleCheckout}
+                disabled={loading}
+                className="mb- w-full rounded-xl bg-gradient-to-r from-emerald-500 to-green-400 py-3 font-semibold text-black transition hover:scale-[1.02] p-3"
+            >
+                {loading ? 'Preparing Checkout...' : 'Upgrade to Pro'}
+            </button>
         </div>
-        
+
     )
 }

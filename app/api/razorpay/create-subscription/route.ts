@@ -19,20 +19,22 @@ export async function POST(req: NextRequest) {
         }
 
         console.log({
-    key: process.env.RAZORPAY_KEY_ID,
-    secretExists: !!process.env.RAZORPAY_KEY_SECRET,
-})
-        // Create a Razorpay subscription
-        const subscription = await razorpay.subscriptions.create({
-            plan_id: process.env.RAZORPAY_PLAN_ID!,
-            customer_notify: 1,
-            total_count: 12, // 12 months — required field but subscription auto-renews
-            notes: {
-                userId: user.id,
-                email: user.email ?? ''
-            }
+            key: process.env.RAZORPAY_KEY_ID,
+            secretExists: !!process.env.RAZORPAY_KEY_SECRET,
         })
+        // Create a Razorpay subscription
+        const { billingCycle } = await req.json()
+        console.log(billingCycle)
+        const planId =
+            billingCycle === "yearly"
+                ? process.env.RAZORPAY_PLAN_ID_ANNUAL!
+                : process.env.RAZORPAY_PLAN_ID!
 
+        const subscription = await razorpay.subscriptions.create({
+            plan_id: planId,
+            customer_notify: 1,
+            total_count: billingCycle === "yearly" ? 1 : 12,
+        })
         await supabase
             .from('subscriptions')
             .update({
