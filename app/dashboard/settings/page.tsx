@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import CopyTokenButton from '@/components/CopyTokenButton';
+import StackMindCLIVS from '@/components/StackMindCLIVS';
 
 export default function SettingsPage() {
     // const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('dark')
@@ -219,8 +220,11 @@ export default function SettingsPage() {
                         4. Paste your token
                     </p>
                     <CopyTokenButton/>
+                    
                 </div>
+               
             </div>
+             <StackMindCLIVS/>
 
             {/* Save */}
             <div className="flex justify-end">
