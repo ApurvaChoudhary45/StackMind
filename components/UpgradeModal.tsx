@@ -7,6 +7,7 @@ type UpgradePro = {
     setShowUpgrade: React.Dispatch<React.SetStateAction<boolean | null>>
 }
 
+import Link from 'next/link'
 const UpgradeModal = ({showUpgrade, upgradeReason, setShowUpgrade } : UpgradePro) => {
   return (
     <div>
@@ -77,7 +78,11 @@ const UpgradeModal = ({showUpgrade, upgradeReason, setShowUpgrade } : UpgradePro
                     Maybe Later
                 </button>
 
-                <CheckoutButton/>
+                <Link href='/dashboard/pricing'><button
+            className="mb- w-full rounded-xl bg-gradient-to-r from-emerald-500 to-green-400 py-3 font-semibold text-black transition hover:scale-[1.02] p-3"
+        >
+            Upgrade to Pro
+        </button></Link>
 
             </div>
 
