@@ -3,7 +3,7 @@ import { embedText } from '@/lib/embedding'
 import { searchVectors } from '@/lib/qdrant'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
-
+import { checkDailyLimit } from '@/lib/limit'
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
 })
@@ -22,6 +22,18 @@ export async function POST(req: NextRequest) {
 
         const { data: { user }, error } = await supabase.auth.getUser()
         if (error || !user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+
+            const limit = await checkDailyLimit(user.id, 'code_reviews')
+
+if (!limit.allowed) {
+    return NextResponse.json(
+        {
+            error: limit.reason,
+            upgrade: true,
+        },
+        { status: 403 }
+    )
+}
 
         const { question, selectedText } = await req.json()
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+
 export async function GET(req: NextRequest) {
     try {
         // Get token from Authorization header
@@ -16,6 +17,9 @@ export async function GET(req: NextRequest) {
 
         const { data: { user }, error } = await supabase.auth.getUser()
         if (error || !user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+
+
+
 
         // Get all the notes from the database
         const { data: notes } = await supabase

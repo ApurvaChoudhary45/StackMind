@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
+import { canCreateSnippet } from '@/lib/limit'
 export async function POST(req: NextRequest) {
     try {
         // Get token from Authorization header
@@ -16,6 +16,19 @@ export async function POST(req: NextRequest) {
 
         const { data: { user }, error } = await supabase.auth.getUser()
         if (error || !user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+
+
+const limit = await canCreateSnippet(user.id)
+
+if (!limit.allowed) {
+    return NextResponse.json(
+        {
+            error: limit.reason,
+            upgrade: true,
+        },
+        { status: 403 }
+    )
+}
 
         const { title, code, language } = await req.json()
 

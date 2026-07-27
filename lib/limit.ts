@@ -43,17 +43,18 @@ export async function checkDailyLimit(
     const today = new Date().toISOString().split('T')[0]
 
     if (sub.last_reset_date !== today) {
-        await adminSupabase
-            .from('subscriptions')
-            .update({
-                ai_queries_today: 0,
-                code_reviews_today: 0,
-                last_reset_date: today,
-            })
-            .eq('user_id', userId)
+    await adminSupabase
+        .from("subscriptions")
+        .update({
+            ai_queries_today: 0,
+            code_reviews_today: 0,
+            last_reset_date: today,
+        })
+        .eq("user_id", userId)
 
-        return { allowed: true }
-    }
+    sub.ai_queries_today = 0
+    sub.code_reviews_today = 0
+}
 
     const currentUsage = sub[`${feature}_today`] ?? 0
     const limit = FREE_LIMITS[feature]
