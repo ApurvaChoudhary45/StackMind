@@ -206,9 +206,9 @@ export default function PricingPage() {
     development workflow.
   </p>
 
-  <button className="mt-8 rounded-xl bg-emerald-500 px-8 py-3 font-semibold text-black transition hover:bg-emerald-400">
+  <Link href='/Login'><button className="mt-8 rounded-xl bg-emerald-500 px-8 py-3 font-semibold text-black transition hover:bg-emerald-400">
     Get Started
-  </button>
+  </button></Link>
 </div>
   </div>
 </section>
