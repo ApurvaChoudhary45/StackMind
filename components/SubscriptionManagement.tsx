@@ -400,7 +400,7 @@ export default function BillingPage({
                         </div>
 
                         <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 mb-6">
-                            <p className="text-sm leading-6 text-yellow-200">
+                            <p className="text-sm leading-6 dark:text-yellow-200 text-red-600">
 
                                 • You will keep all Pro features until your renewal date.
 
