@@ -167,9 +167,9 @@ export default function BugCard({ bug }: { bug: Bug }) {
             {bug.status === 'open' && closeAI && <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col'>
                 <p className='dark:text-green-300 text-xs font-mono'>{analysis}</p>
                 <div className='flex justify-center items-center gap-3 pt-2'>
-                    <span className='text-white font-mono text-sm'>Was it helpful?</span>
-                    <button className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-white hover:bg-green-100 hover:cursor-pointer' onClick={() => bugFixed(bug.id)}><i className="ti ti-check"/></button>
-                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-white hover:bg-green-100 hover:cursor-pointer'><i className="ti ti-x"/></button>
+                    <span className='dark:text-white font-mono text-sm'>Was it helpful?</span>
+                    <button className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-gray-400 hover:bg-green-100 hover:cursor-pointer' onClick={() => bugFixed(bug.id)}><i className="ti ti-check"/></button>
+                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-gray-400 hover:bg-green-100 hover:cursor-pointer'><i className="ti ti-x"/></button>
                 </div>
 
             </div>}
