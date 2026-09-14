@@ -16,7 +16,7 @@ export async function POST() {
         const supabase = await createClient();
         const adminSupabase = createAdminClient();
 
-        // 1. Logged-in user
+        // Logged in user
         const {
             data: { user },
         } = await supabase.auth.getUser();
@@ -28,7 +28,7 @@ export async function POST() {
             );
         }
 
-        // 2. Get current subscription from DB
+        // Current subscription
         const { data: subscription, error } = await adminSupabase
             .from("subscriptions")
             .select("*")
@@ -36,65 +36,79 @@ export async function POST() {
             .single();
 
         if (error || !subscription) {
-            console.error("Subscription lookup failed:", error);
-
             return NextResponse.json(
                 { error: "Subscription not found." },
                 { status: 404 }
             );
         }
 
-        const razorpaySubscriptionId =
-            subscription.razorpay_subscription_id;
-
-        if (!razorpaySubscriptionId) {
+        if (!subscription.razorpay_subscription_id) {
             return NextResponse.json(
                 { error: "No Razorpay subscription found." },
                 { status: 400 }
             );
         }
 
-        console.log(
-            "Cancelling Razorpay subscription:",
-            razorpaySubscriptionId
-        );
-
-        // 3. Fetch subscription from Razorpay first
-        const razorpaySubscription =
-            await razorpay.subscriptions.fetch(
-                razorpaySubscriptionId
-            );
-
-        console.log("Razorpay subscription state:", {
-            id: razorpaySubscription.id,
-            status: razorpaySubscription.status,
-            current_start: razorpaySubscription.current_start,
-            current_end: razorpaySubscription.current_end,
-            charge_at: razorpaySubscription.charge_at,
-            paid_count: razorpaySubscription.paid_count,
-            remaining_count: razorpaySubscription.remaining_count,
-        });
-
-        // 4. Don't attempt to cancel an already-cancelled subscription
-        if (razorpaySubscription.status === "cancelled") {
+        // Already marked as cancelling — avoid calling Razorpay again
+        if (subscription.cancel_at_period_end) {
             return NextResponse.json({
                 success: true,
-                message: "Subscription is already cancelled.",
+                message:
+                    "Your subscription is already set to cancel at the end of the billing period.",
             });
         }
 
-        // 5. Cancel at the end of the current billing cycle
-        await razorpay.subscriptions.cancel(
-            razorpaySubscriptionId,
-            true
-        );
+        // Cancel at end of current billing cycle (not immediately)
+        try {
+            await razorpay.subscriptions.cancel(
+                subscription.razorpay_subscription_id,
+                true // cancel_at_cycle_end = true
+            );
+        } catch (rpErr: any) {
+            const description = rpErr?.error?.description;
+            const reason = rpErr?.error?.reason;
 
-        console.log(
-            "Razorpay cancellation successful:",
-            razorpaySubscriptionId
-        );
+            console.error(
+                "Razorpay cancel error:",
+                JSON.stringify(rpErr, null, 2)
+            );
 
-        // 6. Mark cancellation in our DB
+            // If Razorpay says it's already cancelled, treat as success
+            // and sync our DB instead of surfacing an error to the user.
+            if (
+                reason === "subscription_already_cancelled" ||
+                description?.toLowerCase().includes("already")
+            ) {
+                const { error: syncError } = await adminSupabase
+                    .from("subscriptions")
+                    .update({
+                        cancel_at_period_end: true,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("user_id", user.id);
+
+                if (syncError) throw syncError;
+
+                return NextResponse.json({
+                    success: true,
+                    message:
+                        "Your subscription was already cancelled. Your Pro plan will remain active until the current billing period ends.",
+                });
+            }
+
+            // Otherwise, surface Razorpay's real reason instead of a generic message
+            return NextResponse.json(
+                {
+                    error:
+                        description ||
+                        rpErr?.message ||
+                        "Failed to cancel subscription with payment provider.",
+                },
+                { status: rpErr?.statusCode ? Number(rpErr.statusCode) : 500 }
+            );
+        }
+
+        // Mark for cancellation
         const { error: updateError } = await adminSupabase
             .from("subscriptions")
             .update({
@@ -104,11 +118,6 @@ export async function POST() {
             .eq("user_id", user.id);
 
         if (updateError) {
-            console.error(
-                "Supabase subscription update failed:",
-                updateError
-            );
-
             throw updateError;
         }
 
@@ -118,25 +127,14 @@ export async function POST() {
                 "Your subscription has been cancelled. Your Pro plan will remain active until the current billing period ends.",
         });
     } catch (err: any) {
-        console.error("========== CANCEL SUBSCRIPTION ERROR ==========");
-        console.error("message:", err?.message);
-        console.error("statusCode:", err?.statusCode);
-        console.error("error:", err?.error);
-        console.error("description:", err?.error?.description);
-        console.error("code:", err?.error?.code);
-        console.error("==============================================");
-
-        return NextResponse.json(
-            {
-                error:
-                    err?.error?.description ||
-                    err?.message ||
-                    "Something went wrong.",
-                code: err?.error?.code || null,
-            },
-            {
-                status: err?.statusCode || 500,
-            }
+        console.error(
+            "Cancel subscription error:",
+            JSON.stringify(err, null, 2)
         );
+
+        const message =
+            err?.error?.description || err?.message || "Something went wrong.";
+
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
