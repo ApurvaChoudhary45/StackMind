@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import NoteEditor from './NoteEditor'
 import RagSearch from './RagSearch'
@@ -31,7 +30,6 @@ const NoteSection = ({ project, notes, userId }: {
     notes: Note[]
     userId: string
 }) => {
-    const supabase = createClient()
     const router = useRouter()
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
@@ -42,7 +40,6 @@ const NoteSection = ({ project, notes, userId }: {
 
     const [userNotes, setuserNotes] = useState<Note[]>(notes ?? []);
 
-    const [editable, setEditable] = useState(false)
     const [newNoteTitle, setnewNoteTitle] = useState('')
     const [newNoteContent, setnewNoteContent] = useState('')
     const [noteID, setnoteID] = useState('')
@@ -109,6 +106,7 @@ const NoteSection = ({ project, notes, userId }: {
             router.refresh()
         } catch (error) {
             console.error(error)
+            alert('Could not save the note. Please try again.')
         } finally {
             setLoading(false)
         }
@@ -118,15 +116,13 @@ const NoteSection = ({ project, notes, userId }: {
         try {
             setEditLoading(true);
 
-            const { error } = await supabase
-                .from('notes')
-                .update({
-                    title: newNoteTitle,
-                    content: newNoteContent,
-                })
-                .eq('id', id);
-
-            if (error) return;
+            const response = await fetch('/api/editnote', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ noteId: id, title: newNoteTitle, content: newNoteContent }),
+            })
+            const data = await response.json()
+            if (!response.ok) throw new Error(data.error || 'Could not update the note.')
 
             setuserNotes(prev =>
                 prev.map(note =>
@@ -134,35 +130,38 @@ const NoteSection = ({ project, notes, userId }: {
                         ? {
                             ...note,
                             title: newNoteTitle,
-                            content: newNoteContent,
+                            content: data.content,
                         }
                         : note
                 )
             );
 
-            setEditable(false);
+            setnoteID('')
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'Could not update the note.')
         } finally {
             setEditLoading(false);
         }
     };
 
     const canWeEdit = (note: Note) => {
-        setEditable(true)
         setnewNoteTitle(note.title)
         setnewNoteContent(note.content)
         setnoteID(note.id)
     }
 
-    const deleteNote = async () => {
-        if (!noteToDelete) return
+    const deleteNote = async (noteId: string) => {
         try {
             setLoading(true)
-            await fetch('/api/deletenote', {
+            const response = await fetch('/api/deletenote', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ noteId: noteToDelete.id })
+                body: JSON.stringify({ noteId })
             })
-            setuserNotes(prev => prev.filter(i => i.id !== noteToDelete.id))
+            if (!response.ok) throw new Error()
+            setuserNotes(prev => prev.filter(i => i.id !== noteId))
+        } catch {
+            alert('Could not delete the note. Please try again.')
         } finally {
             setLoading(false)
             setshowCofirm(false)
@@ -176,8 +175,7 @@ const NoteSection = ({ project, notes, userId }: {
             setshowCofirm(true)
         }
         else {
-            setNoteToDelete(note)
-            await deleteNote()
+            await deleteNote(note.id)
         }
     }
 
@@ -188,7 +186,7 @@ const NoteSection = ({ project, notes, userId }: {
 
 
     return (
-        <div className="p-8 bg-background h-screen text-white overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-background p-4 text-foreground sm:p-8">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <p className="text-text-muted text-sm">Project</p>
@@ -235,51 +233,60 @@ const NoteSection = ({ project, notes, userId }: {
                 </div>
             )}
 
-            {editable && <div className="mb-8 border border-border rounded-lg p-6">
-                <input
-                    type="text"
-                    placeholder="Note Title"
-                    value={newNoteTitle}
-                    onChange={(e) => setnewNoteTitle(e.target.value)}
-                    className="w-full bg-transparent border-b border-zinc-700 text-input-text text-xl font-semibold mb-4 pb-2 focus:outline-none focus:border-green-400"
-                />
-                <input
-                    type="text"
-                    placeholder="Description (optional)"
-                    value={newNoteContent}
-                    onChange={(e) => setnewNoteContent(e.target.value)}
-                    className="w-full dark:bg-black/50 border border-zinc-700 dark:text-white text-black rounded p-2 mb-3 focus:outline-none focus:border-green-400"
-                />
-
-                <div className="flex gap-3 justify-end">
-                    <button onClick={() => setEditable(false)} className="px-4 py-2 text-gray-400 hover:text-zinc-700 dark:hover:text-white">
-                        Cancel
-                    </button>
-                    <button
-                        onClick={() => editNote(noteID)}
-                        disabled={editLoading}
-                    >
-                        {editLoading ? (
-                            <span className='flex gap-2 items-center'>
-                                <i className="ti ti-loader animate-spin" />
-                                Saving...
-                            </span>
-                                
-                        
-                        ) : (
-                            'Save'
-                        )}
-                    </button>
-                </div>
-            </div>}
-
-
             {userNotes.length === 0 && !isCreating && (
                 <p className="text-gray-400 text-center mt-20">No notes yet. Create your first one!</p>
             )}
 
             <div className="grid grid-cols-1 gap-4 bg-card">
-                {userNotes.map((note) => (
+                {userNotes.map((note) => noteID === note.id ? (
+                    <form
+                        key={note.id}
+                        aria-label="Edit note"
+                        onSubmit={(event) => {
+                            event.preventDefault()
+                            if (!editLoading && newNoteTitle.trim()) void editNote(note.id)
+                        }}
+                        className="min-w-0 space-y-4 rounded-xl border border-green-500/30 bg-background p-4 sm:p-6"
+                    >
+                        <fieldset disabled={editLoading} className="min-w-0 space-y-4">
+                            <label className="block text-sm font-medium text-foreground">
+                                Note title
+                                <input
+                                    autoFocus
+                                    required
+                                    type="text"
+                                    value={newNoteTitle}
+                                    onChange={(event) => setnewNoteTitle(event.target.value)}
+                                    className="mt-2 w-full rounded-lg border border-input-border bg-input px-3 py-2 text-lg font-semibold text-input-text"
+                                />
+                            </label>
+
+                            <NoteEditor
+                                key={note.id}
+                                content={newNoteContent}
+                                onChange={setnewNoteContent}
+                                readOnly={editLoading}
+                            />
+
+                            <div className="flex flex-wrap justify-end gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setnoteID('')}
+                                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-input disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={!newNoteTitle.trim() || editLoading}
+                                    className="rounded-lg bg-green-400 px-4 py-2 text-sm font-semibold text-black hover:bg-green-300 disabled:opacity-50"
+                                >
+                                    {editLoading ? 'Saving...' : 'Save changes'}
+                                </button>
+                            </div>
+                        </fieldset>
+                    </form>
+                ) : (
                     <div key={note.id} className="border border-border rounded-lg p-4 hover:border-green-400/50 transition-colors flex flex-col gap-3">
 
                         {/* Note content */}
@@ -318,6 +325,7 @@ const NoteSection = ({ project, notes, userId }: {
                             <button
                                 className='text-xs font-mono text-blue-500 hover:text-blue-400 border border-blue-500/20 hover:border-blue-400/40 px-3 py-1.5 rounded-lg transition-colors'
                                 onClick={() => canWeEdit(note)}
+                                disabled={editLoading}
                             >
                                 <i className="ti ti-pencil mr-1" />
                                 Edit
@@ -354,7 +362,7 @@ const NoteSection = ({ project, notes, userId }: {
                                 Cancel
                             </button>
                             <button
-                                onClick={deleteNote}
+                                onClick={() => noteToDelete && deleteNote(noteToDelete.id)}
                                 disabled={loading}
                                 className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
                             >

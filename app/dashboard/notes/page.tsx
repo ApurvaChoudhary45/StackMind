@@ -1,3 +1,4 @@
+import { sanitizeNoteHtml } from '@/lib/note-html'
 // app/dashboard/notes/page.tsx
 import AddNote from '@/components/AddNote'
 import NotesGrid from '@/components/NoteSec';
@@ -11,11 +12,13 @@ export default async function NotesPage() {
     if(!user) redirect('/Login')
 
 
-    const { data: notes } = await supabase
+    const { data: notes, error } = await supabase
         .from('notes')
         .select('*, projects(name, id)')
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false })
+
+    if (error) throw error
 
     return (
         <div className="p-6 bg-background h-screen overflow-y-auto">
@@ -30,7 +33,7 @@ export default async function NotesPage() {
   <span className="text-gray-400 text-lg font-medium font-mono">
     No Notes Found
   </span>
-</div> : <NotesGrid notes={notes ?? []}/>}
+</div> : <NotesGrid notes={(notes ?? []).map(note => ({ ...note, content: sanitizeNoteHtml(note.content) }))}/>}
         </div>
     )
 }

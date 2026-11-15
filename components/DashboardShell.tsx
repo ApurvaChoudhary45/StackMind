@@ -21,7 +21,7 @@ export default function DashboardShell({ userName, userEmail, projectCount, plan
     }, [])
 
     return (
-        <div className="flex h-screen bg-black overflow-hidden">
+        <div className="flex h-dvh overflow-hidden bg-background text-foreground">
     {/* Mobile backdrop */}
     {!collapsed && (
         <div
@@ -39,12 +39,15 @@ export default function DashboardShell({ userName, userEmail, projectCount, plan
         setCollapsed={setCollapsed}
     />
 
-    <main className="flex-1 flex flex-col h-screen overflow-hidden">
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {/* Mobile hamburger button — only shows on mobile */}
         <div className="md:hidden flex items-center gap-3 px-4 py-3 border-b border-border sticky top-0 bg-background z-20 flex-shrink-0">
             <button
                 onClick={() => setCollapsed(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-green-400 hover:border-green-400/30 transition-colors"
+                aria-label="Open sidebar"
+                aria-controls="dashboard-sidebar"
+                aria-expanded={!collapsed}
+                className="flex size-9 items-center justify-center rounded-lg border border-border text-text-text-muted hover:border-green-500/30 hover:text-text-muted transition-colors"
             >
                 <i className="ti ti-layout-sidebar-left-expand text-base" />
             </button>

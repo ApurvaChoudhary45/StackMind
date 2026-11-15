@@ -1,4 +1,5 @@
 "use client";
+import { trackActivity } from '@/lib/client-activity'
 import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -179,6 +180,7 @@ const ConnectGit = ({ projectId, userId }: projectSection) => {
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(previewContent)
+    void trackActivity('file_copied')
 
     setCopied(true)
 

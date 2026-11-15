@@ -8,6 +8,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { useState } from 'react'
 
 import { createClient } from '@/lib/supabase/client'
+import BugRecommendation from './BugRecommendation'
 
 type Bug = {
     id: string
@@ -46,11 +47,12 @@ export default function BugCard({ bug }: { bug: Bug }) {
                 body: JSON.stringify({ title: bug.title, description: bug.description })
             })
             const res = await data.json()
+            if (!data.ok) throw new Error(res.error || 'Could not analyze this bug.')
             setanalysis(res.analysis)
-            console.log(res.analysis)
             setcloseAI(true)
         } catch (error) {
-            console.log(error)
+            setanalysis(error instanceof Error ? error.message : 'Could not analyze this bug.')
+            setcloseAI(false)
         }
         finally{
             setloading(false)
@@ -66,10 +68,8 @@ export default function BugCard({ bug }: { bug: Bug }) {
         transform: CSS.Translate.toString(transform)
     }
 
-    const viewError = (bug: Bug) => {
+    const viewError = () => {
         setIsOpen(true)
-        console.log('King')
-        console.log(bug.id)
     }
 
     const bugFixed = async (id: string) => {
@@ -98,7 +98,7 @@ export default function BugCard({ bug }: { bug: Bug }) {
                         {bug.priority.toUpperCase()}
                     </span>
 
-                    {bug.status === 'open' && <button className='text-green-400 underline text-sm hover:text-green-600 cursor-pointer' onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(), viewError(bug) }}>View</button>}
+                    {<button className='text-green-400 underline text-sm hover:text-green-600 cursor-pointer' onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); viewError() }}>View</button>}
                 </div>
 
 
@@ -154,9 +154,7 @@ export default function BugCard({ bug }: { bug: Bug }) {
               </span>
             </div>
 
-            <p className="whitespace-pre-wrap leading-8 text-[15px] font-mono dark:text-green-200 text-zinc-700">
-              {analysis}
-            </p>
+            <BugRecommendation content={analysis || bug.description || 'No description provided.'} />
           </div>
         )}
 
@@ -164,15 +162,23 @@ export default function BugCard({ bug }: { bug: Bug }) {
     </div>
   </div>
 )}
-            {bug.status === 'open' && closeAI && <div className='border-1 border-green-100 rounded-2xl p-2 flex justify-center items-center flex-col'>
-                <p className='dark:text-green-300 text-xs font-mono'>{analysis}</p>
-                <div className='flex justify-center items-center gap-3 pt-2'>
-                    <span className='dark:text-white font-mono text-sm'>Was it helpful?</span>
-                    <button className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-gray-400 hover:bg-green-100 hover:cursor-pointer' onClick={() => bugFixed(bug.id)}><i className="ti ti-check"/></button>
-                    <button onClick={closerAI} className='border-1 border-gray-600 rounded-lg p-2 dark:hover:bg-gray-400 hover:bg-green-100 hover:cursor-pointer'><i className="ti ti-x"/></button>
+            {bug.status === 'open' && closeAI && <section aria-label="AI recommendation" className="min-w-0 overflow-hidden rounded-xl border border-green-500/20 bg-card">
+                <div className="flex items-center gap-2 border-b border-border px-4 py-3 text-sm font-semibold text-text-muted">
+                    <i className="ti ti-sparkles" aria-hidden="true" />
+                    Suggested fix
+                </div>
+                <div className="max-h-80 overflow-y-auto overscroll-contain p-4">
+                    <BugRecommendation content={analysis} />
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
+                    <span className="text-xs text-text-text-muted">Was it helpful?</span>
+                    <div className="flex gap-2">
+                        <button title="Start working on this fix" aria-label="Start working on this fix" className="flex size-9 items-center justify-center rounded-lg border border-border text-text-muted hover:bg-green-500/10" onClick={() => bugFixed(bug.id)}><i className="ti ti-check" aria-hidden="true" /></button>
+                        <button title="Dismiss recommendation" aria-label="Dismiss recommendation" onClick={closerAI} className="flex size-9 items-center justify-center rounded-lg border border-border text-text-text-muted hover:bg-input"><i className="ti ti-x" aria-hidden="true" /></button>
+                    </div>
                 </div>
 
-            </div>}
+            </section>}
 
             {bug.status === 'open' && <div>
                 <p className='text-green-500 cursor-pointer hover:text-green-300' onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(), analyze() }}>🤖 AI Bot</p>

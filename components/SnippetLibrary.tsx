@@ -1,4 +1,5 @@
 'use client'
+import { trackActivity } from '@/lib/client-activity'
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -100,7 +101,9 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
             }
 
         } catch (error) {
-            console.log(error)
+            console.error(error)
+            alert('Could not save the snippet. Please try again.')
+            return
         }
         finally {
             setloading(false)
@@ -111,21 +114,24 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
         setDescription('')
         setNewNoteId('')
         setIsCreating(false)
+        router.refresh()
 
     }
 
 
     // setAllSnippets(prev => [snippets, ...prev])
-    async function deleteSnippet() {
-        if (!snippetToDelete) return
+    async function deleteSnippet(snippetId: string) {
         try {
             setloading(true)
-            await fetch('/api/deletesnippet', {
+            const response = await fetch('/api/deletesnippet', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ snippetId: snippetToDelete?.id })
+                body: JSON.stringify({ snippetId })
             })
-            setAllSnippets(prev => prev.filter(i => i.id !== snippetToDelete?.id))
+            if (!response.ok) throw new Error()
+            setAllSnippets(prev => prev.filter(i => i.id !== snippetId))
+        } catch {
+            alert('Could not delete the snippet. Please try again.')
         } finally {
             setloading(false)
             setshowCofirm(false)
@@ -139,13 +145,13 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
             setshowCofirm(true)
         }
         else {
-            setSnippetToDelete(snippet)
-            await deleteSnippet()
+            await deleteSnippet(snippet.id)
         }
     }
 
     async function handleCopy(snippet: Snippet) {
         await navigator.clipboard.writeText(snippet.code)
+        void trackActivity('snippet_copied')
         setCopied(snippet.id)
         setTimeout(() => {
             setCopied(null)
@@ -153,7 +159,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
     }
 
 
-    const filtered = allSnippets.filter(s => filterLang || s.language === filterLang).filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
+    const filtered = allSnippets.filter(s => filterLang === 'all' || s.language?.toLowerCase() === filterLang).filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
 
     function selectNote(snippet: Snippet) {
         setnewId(snippet.id)
@@ -183,13 +189,20 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
 
     const saveEditedNote = async () => {
 
-        await supabase.from('snippets').update({
+        const { error } = await supabase.from('snippets').update({
             title: newTitle,
             description: newDescription,
             language: newLanguage,
             code: newCode
         })
             .eq('id', newId)
+            .select('id')
+            .single()
+
+        if (error) {
+            alert('Could not save changes to the snippet.')
+            return
+        }
 
         setAllSnippets(prev => prev.map(bug => bug.id === newId ? { ...bug, title: newTitle, description: newDescription, language: newLanguage, code: newCode } : bug))
         setisEditing(false)
@@ -489,7 +502,7 @@ export default function SnippetLibrary({ snippets, projectId, userId }: {
                                 Cancel
                             </button>
                             <button
-                                onClick={deleteSnippet}
+                                onClick={() => snippetToDelete && deleteSnippet(snippetToDelete.id)}
                                 disabled={loading}
                                 className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
                             >

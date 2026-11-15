@@ -34,7 +34,7 @@ body {
 }
 
 
-@variant dark (&:where(.dark, .dark *));  /* ← ADD THIS */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* System theme detection */
 @media (prefers-color-scheme: dark) {
@@ -68,7 +68,7 @@ body {
   --card-bg: #f9f9f9;          /* card background */
   --border-color: #e5e5e5;     /* card borders */
 
-  --text-muted: #16a34a;       /* green-600 accent in light mode */
+  --text-muted: #15803d;       /* green-700 accent in light mode */
   --text-text-muted: #52525b;  /* zinc-600 muted text */
   --text-hover: #0d9488;       /* teal-600 hover for light mode */
 
@@ -92,7 +92,7 @@ html.dark {
   --border-color: #27272a;     /* zinc-800 border */
 
   --text-muted: #22c55e;       /* green-500 accent in dark mode */
-  --text-text-muted: #71717a;  /* zinc-600 muted text */
+  --text-text-muted: #a1a1aa;  /* zinc-400 muted text */
   --text-hover: #4ade80;       /* green-400 hover for dark mode */
 
   --button-bg: #166534;        /* green-700 */
@@ -133,7 +133,69 @@ html.dark {
   --font-mono: var(--font-geist-mono);
 }
 
+@layer base {
+  :where(a, button, [role="button"], input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+}
+
 /* Tiptap editor styles */
+.note-editor-content .tiptap {
+  min-height: 14rem;
+  max-height: 55dvh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  padding: 0.25rem 0.5rem;
+  line-height: 1.65;
+}
+
+.note-editor-content .tiptap:focus {
+  outline: none;
+}
+
+.note-editor-content .tiptap :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1em 0 0.4em;
+  color: var(--foreground);
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.note-editor-content .tiptap h1 {
+  font-size: 1.5rem;
+}
+
+.note-editor-content .tiptap h2 {
+  font-size: 1.25rem;
+}
+
+.note-editor-content .tiptap :is(ul, ol, blockquote) {
+  margin: 0.75rem 0;
+  padding-inline-start: 1.5rem;
+}
+
+.note-editor-content .tiptap ul {
+  list-style: disc;
+}
+
+.note-editor-content .tiptap ol {
+  list-style: decimal;
+}
+
+.note-editor-content .tiptap blockquote {
+  border-inline-start: 3px solid var(--input-border);
+}
+
+.note-editor-content .tiptap a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.note-editor-content .tiptap pre {
+  margin: 0.75rem 0;
+  overflow-wrap: normal;
+}
+
 .tiptap pre {
   background: #1e1e1e;
   border-radius: 8px;
@@ -151,4 +213,60 @@ html.dark {
   color: #4ade80;
   font-size: 1.4rem;
   font-weight: bold;
+}
+
+/* AI recommendation typography */
+.bug-recommendation {
+  overflow-wrap: anywhere;
+}
+.bug-recommendation > :first-child {
+  margin-top: 0;
+}
+.bug-recommendation :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+.bug-recommendation p {
+  margin: 0.75rem 0;
+}
+.bug-recommendation :is(ul, ol) {
+  margin: 0.75rem 0;
+  padding-inline-start: 1.25rem;
+}
+.bug-recommendation ul {
+  list-style: disc;
+}
+.bug-recommendation ol {
+  list-style: decimal;
+}
+.bug-recommendation li + li {
+  margin-top: 0.5rem;
+}
+.bug-recommendation pre {
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--input-bg);
+  overflow-wrap: normal;
+}
+.bug-recommendation code {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.85em;
+}
+.bug-recommendation :not(pre) > code {
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  background: var(--input-bg);
+}
+.bug-recommendation a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+.bug-recommendation blockquote {
+  border-inline-start: 2px solid var(--border-color);
+  padding-inline-start: 0.75rem;
+  color: var(--text-text-muted);
 }

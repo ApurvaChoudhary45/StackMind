@@ -65,7 +65,7 @@ const [upgradeReason, setUpgradeReason] = useState('')
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setallBugs(prev => [payload.new as Bug, ...prev])
+            setallBugs(prev => [payload.new as Bug, ...prev.filter(bug => bug.id !== payload.new.id)])
           }
           if (payload.eventType === 'UPDATE') {
             setallBugs(prev =>
@@ -91,13 +91,16 @@ const [upgradeReason, setUpgradeReason] = useState('')
 
     if (!over) return
 
-    if (active.id == over.id) return
+    if (over.id === allBugs.find(bug => bug.id === active.id)?.status || !columns.some(column => column.id === over.id)) return
 
-    const newStatus = over.id as string
-
-    setallBugs(prev => prev.map(bug => bug.id == active.id ? { ...bug, status: newStatus } : bug))
-
-    await supabase.from('bugs').update({ status: newStatus }).eq('id', active.id)
+    const newStatus = String(over.id)
+    const { data, error } = await supabase.from('bugs').update({ status: newStatus })
+      .eq('id', active.id).eq('project_id', projectId).eq('user_id', userId).select().single()
+    if (error) {
+      alert('Could not move the bug. Please try again.')
+      return
+    }
+    setallBugs(prev => prev.map(bug => bug.id === active.id ? data as Bug : bug))
 
   }
 
@@ -143,11 +146,14 @@ const [upgradeReason, setUpgradeReason] = useState('')
           return
         }
 
-        alert(data.error)
+        alert(data.error || 'Could not create the bug.')
         return
       }
+      setallBugs(prev => [data as Bug, ...prev.filter(bug => bug.id !== data.id)])
     } catch (error) {
-      console.log(error)
+      console.error(error)
+      alert('Could not create the bug. Please try again.')
+      return
     }
     finally {
       setLoading(false)
@@ -159,11 +165,11 @@ const [upgradeReason, setUpgradeReason] = useState('')
   }
 
   return (
-    <div className="p-8 bg-background h-screen overflow-y-auto">
+    <div className="min-h-0 flex-1 overflow-y-auto bg-background p-4 sm:p-8">
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-green-400">Bug Tracker</h1>
-        <div className='flex gap-10'>
+        <div className='flex flex-wrap gap-3'>
           <button
             onClick={() => setisCreating(true)}
             className="px-4 py-2 bg-green-400 text-black font-semibold rounded hover:bg-green-300"

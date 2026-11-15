@@ -23,13 +23,14 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: 'ti-layout-dashboard' },
+    { href: '/dashboard/activity', label: 'Activity', icon: 'ti-history' },
     { href: '/dashboard/notes', label: 'Notes', icon: 'ti-notebook' },
     { href: '/dashboard/bugs', label: 'Bugs', icon: 'ti-bug' },
     { href: '/dashboard/snippets', label: 'Snippets', icon: 'ti-code' },
   ]
 
   const accountItems = [
-    { href: '/dashboard/github', label: 'Github', icon: 'ti-brand-github' },
+    { href: '/dashboard/github', label: 'GitHub', icon: 'ti-brand-github' },
     { href: '/dashboard/account', label: 'Profile', icon: 'ti-user-circle' },
     { href: '/dashboard/journal', label: 'Journal', icon: 'ti-note' },
     { href: '/dashboard/settings', label: 'Settings', icon: 'ti-settings' }, 
@@ -38,13 +39,13 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
   ]
 
   return (
-    <aside className={`
+    <aside id="dashboard-sidebar" className={`
     ${collapsed ? '-translate-x-full md:translate-x-0 md:w-14' : 'w-64'}
-    transition-all duration-300
+    transition-all duration-300 motion-reduce:transition-none
     bg-card border-r border-border
     flex flex-col flex-shrink-0
     fixed top-0 left-0 md:sticky md:top-0
-    h-screen
+    h-dvh
     overflow-y-auto overflow-x-hidden
     z-40
 
@@ -68,13 +69,13 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
       </div>
 
       {/* User */}
-      <div className="px-3 py-3 border-b border-border flex items-center gap-2 overflow-hidden">
-        <div className="w-8 h-8 rounded-full bg-card border border-green-400/20 flex items-center justify-center dark: text-green-400 light:text-black font-mono text-xs font-medium flex-shrink-0">
+      <div className="px-3 py-3 border-b border-border flex items-center gap-2 overflow-hidden shrink-0">
+        <div className="w-8 h-8 rounded-full bg-card border border-green-400/20 flex items-center justify-center text-text-muted font-mono text-xs font-medium flex-shrink-0">
           {initials}
         </div>
         <div className={`overflow-hidden transition-all duration-200 ${collapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-          <p className="text-xs font-medium text-muted truncate whitespace-nowrap">{userName}</p>
-          <p className="text-xs text-text-muted font-mono truncate whitespace-nowrap">{userEmail}</p>
+          <p className="text-xs font-medium text-foreground truncate whitespace-nowrap">{userName}</p>
+          <p className="text-xs text-text-text-muted font-mono truncate whitespace-nowrap">{userEmail}</p>
           {plan === 'free' && <div className='flex justify-between items-center mt-2'>
             <p className='text-xs dark:text-gray-400 font-semibold'>Free Plan</p>
           <Link href={`/dashboard/pricing`}><button className="rounded-full dark:bg-green-700 px-3 py-1 text-xs font-semibold dark:text-white text-green-500 transition dark:hover:bg-green-500 border dark:border-black border-zinc-300 hover:bg-zinc-200 ">
@@ -91,17 +92,18 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
 
       {/* Workspace Nav */}
       <div className="px-2 pt-3 pb-1">
-        <p className={`text-xs font-medium tracking-widest uppercase text-zinc-700 px-2 mb-2 whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
+        <p className={`text-xs font-medium tracking-widest uppercase text-text-text-muted px-2 mb-2 whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
           Workspace
         </p>
         {navItems.map(item => (
           <div key={item.href} className="relative group">
             <Link
               href={item.href}
+              aria-current={pathname === item.href ? "page" : undefined}
               className={`flex items-center gap-3 px-2 py-2 rounded-lg text-sm mb-0.5 transition-colors ${
                 pathname === item.href
-                  ? 'bg-green-950/60 text-green-400'
-                  : 'bg-muted hover:text-zinc-300 hover:bg-zinc-900'
+                  ? 'bg-green-500/10 font-medium text-text-muted'
+                  : 'text-text-text-muted hover:bg-input hover:text-foreground'
               }`}
             >
               <i className={`ti ${item.icon} text-base flex-shrink-0`} />
@@ -128,14 +130,19 @@ export default function Sidebar({ userName, userEmail, projectCount,plan, collap
 
       {/* Account Nav */}
       <div className="px-2 py-1">
-        <p className={`text-xs font-medium tracking-widest uppercase text-zinc-700 px-2 mb-2 whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
+        <p className={`text-xs font-medium tracking-widest uppercase text-text-text-muted px-2 mb-2 whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
           Account
         </p>
         {accountItems.map(item => (
           <div key={item.href} className="relative group">
             <Link
               href={item.href}
-              className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm bg-muted hover:text-zinc-300 hover:bg-zinc-900 transition-colors mb-0.5"
+              aria-current={pathname === item.href ? "page" : undefined}
+              className={`mb-0.5 flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors ${
+                pathname === item.href
+                  ? 'bg-green-500/10 font-medium text-text-muted'
+                  : 'text-text-text-muted hover:bg-input hover:text-foreground'
+              }`}
             >
               <i className={`ti ${item.icon} text-base flex-shrink-0`} />
               <span className={`whitespace-nowrap transition-all duration-200 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>

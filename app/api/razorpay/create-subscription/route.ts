@@ -18,13 +18,20 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
         }
 
-        console.log({
-            key: process.env.RAZORPAY_KEY_ID,
-            secretExists: !!process.env.RAZORPAY_KEY_SECRET,
-        })
-        // Create a Razorpay subscription
-        const { billingCycle } = await req.json()
-        console.log(billingCycle)
+        const { billingCycle } = await req.json().catch(() => null) ?? {}
+        if (billingCycle !== 'monthly' && billingCycle !== 'yearly') {
+            return NextResponse.json({ error: 'Invalid billing cycle.' }, { status: 400 })
+        }
+
+        const { data: current, error: lookupError } = await supabase.from('subscriptions')
+            .select('plan, status')
+            .eq('user_id', user.id)
+            .maybeSingle()
+        if (lookupError) throw lookupError
+        if (!current) return NextResponse.json({ error: 'Subscription record not found.' }, { status: 404 })
+        if (current.plan === 'pro') {
+            return NextResponse.json({ error: 'Your account already has Pro access.' }, { status: 409 })
+        }
         const planId =
             billingCycle === "yearly"
                 ? process.env.RAZORPAY_PLAN_ID_ANNUAL!
@@ -35,7 +42,7 @@ export async function POST(req: NextRequest) {
             customer_notify: 1,
             total_count: billingCycle === "yearly" ? 1 : 12,
         })
-        await supabase
+        const { error: updateError } = await supabase
             .from('subscriptions')
             .update({
                 razorpay_subscription_id: subscription.id,
@@ -43,6 +50,7 @@ export async function POST(req: NextRequest) {
                 updated_at: new Date().toISOString(),
             })
             .eq('user_id', user.id)
+        if (updateError) throw updateError
 
         return NextResponse.json({
             subscriptionId: subscription.id,

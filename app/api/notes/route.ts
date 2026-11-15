@@ -1,9 +1,10 @@
+import { sanitizeNoteHtml } from '@/lib/note-html'
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { storeVectors, setupCollection } from '@/lib/qdrant'
 import Anthropic from '@anthropic-ai/sdk'
-import { canCreateNote, canCreateProject } from '@/lib/limit'
+import { canCreateNote } from '@/lib/limit'
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
 })
@@ -74,8 +75,6 @@ Return the JSON array now:`
 
 export async function POST(req: NextRequest) {
     try {
-        const { title, content, projectId, userId } = await req.json()
-
         const supabase = await createClient()
 
         const { data: { user } } = await supabase.auth.getUser()
@@ -86,6 +85,17 @@ export async function POST(req: NextRequest) {
                 { status: 401 }
             )
         }
+
+        const body = await req.json().catch(() => null)
+        const { title, content, projectId } = body ?? {}
+        if (typeof title !== 'string' || !title.trim() || typeof content !== 'string' || typeof projectId !== 'string') {
+            return NextResponse.json({ error: 'A title, content, and project are required.' }, { status: 400 })
+        }
+
+        const { data: project, error: projectError } = await supabase.from('projects')
+            .select('id').eq('id', projectId).eq('user_id', user.id).maybeSingle()
+        if (projectError) throw projectError
+        if (!project) return NextResponse.json({ error: 'Project not found.' }, { status: 404 })
 
         const limit = await canCreateNote(user.id)
 
@@ -111,9 +121,9 @@ export async function POST(req: NextRequest) {
             .from('notes')
             .insert({
                 title,
-                content,
+                content: sanitizeNoteHtml(content),
                 project_id: projectId,
-                user_id: userId,
+                user_id: user.id,
                 tags  // ← tags saved in the same insert, no extra DB call needed
             })
             .select()
@@ -121,23 +131,27 @@ export async function POST(req: NextRequest) {
 
         if (error) throw new Error(error.message)
 
-        // Step 3 — Embed the note for RAG search
-        const textToEmbed = `${title} ${content}`
-        const vector = await embedText(textToEmbed)
+        try {
+            // Step 3 — Embed the note for RAG search
+            const textToEmbed = `${title} ${content}`
+            const vector = await embedText(textToEmbed)
 
-        // Step 4 — Store in Qdrant
-        await setupCollection()
-        await storeVectors([{
-            id: note.id,
-            vector,
-            payload: {
-                noteId: note.id,
-                title: note.title,
-                content: note.content,
-                projectId,
-                userId
-            }
-        }])
+            // Step 4 — Store in Qdrant
+            await setupCollection()
+            await storeVectors([{
+                id: note.id,
+                vector,
+                payload: {
+                    noteId: note.id,
+                    title: note.title,
+                    content: note.content,
+                    projectId,
+                    userId: user.id
+                }
+            }])
+        } catch (error) {
+            console.error('Note saved but indexing failed:', error)
+        }
 
         return NextResponse.json({ success: true, note })
 

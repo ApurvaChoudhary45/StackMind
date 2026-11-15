@@ -7,9 +7,9 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest) {
     try {
 
-        const body = await req.json()
+        const body = await req.json().catch(() => null)
 
-        const { name, description } = body
+        const { name, description } = body ?? {}
 
 
         const supabase = await createClient()
@@ -22,6 +22,11 @@ export async function POST(req: NextRequest) {
                 { status: 401 }
             )
         }
+        if (typeof name !== 'string' || !name.trim() ||
+            (description != null && typeof description !== 'string')) {
+            return NextResponse.json({ error: 'A project name is required.' }, { status: 400 })
+        }
+
         const limit = await canCreateProject(user.id)
 
         if (!limit.allowed) {
@@ -38,12 +43,13 @@ export async function POST(req: NextRequest) {
 
 
         const projects = await supabase.from('projects').insert({
-            name: name,
+            name: name.trim(),
             description: description,
             user_id: user?.id
         })
 
-        return NextResponse.json({ message: 'Created', projects })
+        if (projects.error) throw projects.error
+        return NextResponse.json({ message: 'Created', projects }, { status: 201 })
     } catch (error) {
         console.error(error)
 

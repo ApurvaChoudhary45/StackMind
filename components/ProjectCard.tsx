@@ -13,34 +13,19 @@ type Project = {
   id: string
 }
 
-export default function ProjectCard() {
+export default function ProjectCard({ initialProjects }: { initialProjects: Project[] }) {
   const supabase = useMemo(() => createClient(), [])
-  const [projects, setProjects] = useState<Project[]>([])
+  const [projects, setProjects] = useState<Project[]>(initialProjects)
 
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
   const [showCofirm, setshowCofirm] = useState(false)
-  const [loading, setloading] = useState(true)
+  const [loading, setloading] = useState(false)
 
 
 
   useEffect(() => {
-
-    const fetchData = async () => {
-      setloading(true)
-      try {
-        const data =  await fetch('/api/getproject')
-        const res = await data.json()
-        setProjects(res?.projects)
-      } catch (error) {
-        console.log(error)
-      }
-      finally {
-        setloading(false)
-      }
-
-    }
-    fetchData()
-  }, [])
+    setProjects(initialProjects)
+  }, [initialProjects])
 
   useEffect(() => {
     const channel = supabase
@@ -53,14 +38,14 @@ export default function ProjectCard() {
           table: 'projects',
         },
         async () => {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from('projects')
             .select('*')
             .order('created_at', {
               ascending: false,
             })
 
-          setProjects(data ?? [])
+          if (!error) setProjects(data)
         }
       )
       .subscribe()
@@ -72,15 +57,18 @@ export default function ProjectCard() {
 
 
 
-  const deleteProject = async () => {
+  const deleteProject = async (projectId: string) => {
     try {
       setloading(true)
-      await fetch('/api/deleteProject', {
+      const response = await fetch('/api/deleteProject', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId: projectToDelete?.id })
+        body: JSON.stringify({ projectId })
       })
-      setProjects(prev => prev.filter(i => i.id !== projectToDelete?.id))
+      if (!response.ok) throw new Error()
+      setProjects(prev => prev.filter(i => i.id !== projectId))
+    } catch {
+      alert('Could not delete the project. Please try again.')
     } finally {
       setloading(false)
       setshowCofirm(false)
@@ -95,8 +83,7 @@ export default function ProjectCard() {
       setshowCofirm(true)
     }
     else {
-      setProjectToDelete(project)
-      await deleteProject()
+      await deleteProject(project.id)
     }
   }
 
@@ -112,15 +99,15 @@ export default function ProjectCard() {
 
     <div className="space-y-1 text-center">
       <h3 className="font-semibold text-white">
-        Creating Dashboard...
+        Deleting project...
       </h3>
 
       <p className="text-sm text-zinc-400">
-        Preparing your workspace.
+        Updating your workspace.
       </p>
     </div>
   </div>
-</div>) : projects?.length === 0 ? (<div className="flex min-h-[65vh] flex-col items-center justify-center gap-6 rounded-3xl border border-dashed border-green-400/20 bg-card mt-5">
+</div>) : projects.length === 0 ? (<div className="flex min-h-[65vh] flex-col items-center justify-center gap-6 rounded-3xl border border-dashed border-green-400/20 bg-card mt-5">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
             <i className="ti ti-folder-plus text-4xl text-green-400" />
           </div>
@@ -235,7 +222,7 @@ export default function ProjectCard() {
                 Cancel
               </button>
               <button
-                onClick={deleteProject}
+                onClick={() => projectToDelete && deleteProject(projectToDelete.id)}
                 disabled={loading}
                 className="flex-1 py-2.5 rounded-lg text-sm font-mono font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
               >

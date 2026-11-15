@@ -1,3 +1,4 @@
+import { recordActivity } from '@/lib/activity'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
@@ -17,77 +18,80 @@ export async function GET(request: Request) {
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as 'signup' | 'email' | 'recovery' | 'invite' | 'magiclink' | null
 
-  if (code || token_hash) {
-    const supabase = await createClient()
-
-    let data, error
-
-    if (code) {
-      // existing OAuth / PKCE flow — untouched
-      const result = await supabase.auth.exchangeCodeForSession(code)
-      data = result.data
-      error = result.error
-    } else if (token_hash && type) {
-      // NEW: email confirmation / magic link / recovery flow
-      const result = await supabase.auth.verifyOtp({ token_hash, type })
-      data = result.data
-      error = result.error
-    }
-
-    const provider = data?.session?.user.app_metadata?.provider
-
-    if (
-      provider === "github" &&
-      data?.session?.provider_token
-    ) {
-      await supabase.from("github_tokens").upsert({
-        user_id: data.session.user.id,
-        token: data.session.provider_token,
-        updated_at: new Date().toISOString(),
-      })
-    }
-    const session = data?.session
-    const user = session?.user
-
-    if (!user) {
-      console.error('No user found in session:', session, error)
-      return NextResponse.redirect(`${origin}/login?error=no_user`)
-    }
-
-    // Check if subscription exists
-    const { data: existingSub } = await adminSupabase
-      .from('subscriptions')
-      .select('user_id')
-      .eq('user_id', user.id)
-      .single()
-
-    if (!existingSub) {
-      // New user — create free subscription
-      await adminSupabase.from('subscriptions').insert({
-        user_id: user.id,
-        plan: 'free',
-        status: 'active'
-      })
-    }
-
-    // We need to add a domain a personal one in resend so that email can be send to other emails as well
-
-
-    const created = new Date(user.created_at)
-    const now = new Date()
-    const diffMinutes = (now.getTime() - created.getTime()) / 1000 / 60
-    const isNewUser = diffMinutes < 5
-
-    if (isNewUser) {
-      const userName = user?.user_metadata?.full_name
-        ?? user?.user_metadata?.user_name
-        ?? user?.email?.split('@')[0]
-        ?? 'Developer'
-
-      // Send welcome email — don't await, don't block redirect
-      sendWelcomeEmail(user?.email!, userName)
-    }
+  if (!code && !(token_hash && type)) {
+    return NextResponse.redirect(new URL('/Login?error=no_user', origin))
   }
 
+  const supabase = await createClient()
+
+  let data, error
+
+  if (code) {
+    // existing OAuth / PKCE flow — untouched
+    const result = await supabase.auth.exchangeCodeForSession(code)
+    data = result.data
+    error = result.error
+  } else if (token_hash && type) {
+    // NEW: email confirmation / magic link / recovery flow
+    const result = await supabase.auth.verifyOtp({ token_hash, type })
+    data = result.data
+    error = result.error
+  }
+
+  const provider = data?.session?.user.app_metadata?.provider
+
+  if (
+    provider === "github" &&
+    data?.session?.provider_token
+  ) {
+    await supabase.from("github_tokens").upsert({
+      user_id: data.session.user.id,
+      token: data.session.provider_token,
+      updated_at: new Date().toISOString(),
+    })
+  }
+  const session = data?.session
+  const user = session?.user
+
+  if (!user) {
+    console.error('Auth callback failed:', error?.message)
+    return NextResponse.redirect(`${origin}/Login?error=no_user`)
+  }
+
+  // Check if subscription exists
+  const { data: existingSub } = await adminSupabase
+    .from('subscriptions')
+    .select('user_id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!existingSub) {
+    // New user — create free subscription
+    await adminSupabase.from('subscriptions').insert({
+      user_id: user.id,
+      plan: 'free',
+      status: 'active'
+    })
+  }
+
+  // We need to add a domain a personal one in resend so that email can be send to other emails as well
+
+
+  const created = new Date(user.created_at)
+  const now = new Date()
+  const diffMinutes = (now.getTime() - created.getTime()) / 1000 / 60
+  const isNewUser = diffMinutes < 5
+
+  if (isNewUser && user.email) {
+    const userName = user?.user_metadata?.full_name
+      ?? user?.user_metadata?.user_name
+      ?? user?.email?.split('@')[0]
+      ?? 'Developer'
+
+    // Send welcome email — don't await, don't block redirect
+    sendWelcomeEmail(user.email, userName)
+  }
+
+  await recordActivity(user.id, 'signed_in', 'account', 'Signed in to StackMind')
   return NextResponse.redirect(`${origin}/dashboard`)
 }

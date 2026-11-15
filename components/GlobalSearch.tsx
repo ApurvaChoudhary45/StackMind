@@ -7,7 +7,7 @@ type Result = {
     id: string
     title: string
     type: 'bug' | 'snippet' | 'note'
-    project_id: string
+    project_id: string | null
 }
 
 const typeConfig = {
@@ -35,10 +35,10 @@ const typeConfig = {
 }
 
 const typeHref = (item: Result) => {
-    const base = `/dashboard/projects/${item.project_id}`
-    if (item.type === 'bug') return `${base}/bugs`
-    if (item.type === 'snippet') return `${base}/snippets`
-    return `${base}/notes`
+    const section = item.type === 'bug' ? 'bugs' : item.type === 'snippet' ? 'snippets' : 'notes'
+    return item.project_id
+        ? '/dashboard/projects/' + item.project_id + '/' + section
+        : '/dashboard/' + section
 }
 
 const GlobalSearch = () => {
@@ -46,58 +46,67 @@ const GlobalSearch = () => {
     const [query, setQuery] = useState('')
     const [results, setResults] = useState<Result[]>([])
     const [loading, setLoading] = useState(false)
-    const [detail, setDetail] = useState(false)
-    const [backPage, setbackPage] = useState(false)
+    const [error, setError] = useState('')
 
-    useEffect(() => {
-  if (isOpen) {
-    document.body.classList.add('overflow-hidden')
-  } else {
-    document.body.classList.remove('overflow-hidden')
-  }
-}, [isOpen])
-    // Ctrl+K toggle
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault()
-                setIsOpen(prev => !prev)
-            }
-            if (e.key === 'Escape') setIsOpen(false)
-        }
-        document.addEventListener('keydown', handleKeyDown)
-        return () => document.removeEventListener('keydown', handleKeyDown)
-    }, [])
-
-    // Debounced search
-    useEffect(() => {
-        if (!query.trim()) { setResults([]); return }
-        setLoading(true)
-        const timer = setTimeout(async () => {
-            const data = await fetch(`/api/search?q=${query}`)
-            const res = await data.json()
-            setResults(res?.result ?? [])
-            setLoading(false)
-        }, 500)
-        return () => clearTimeout(timer)
-    }, [query])
-
-    // Reset on close
     const handleClose = () => {
         setIsOpen(false)
         setQuery('')
         setResults([])
+        setLoading(false)
+        setError('')
     }
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+                event.preventDefault()
+                if (isOpen) handleClose()
+                else setIsOpen(true)
+            }
+            if (event.key === 'Escape' && isOpen) handleClose()
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [isOpen])
+
+    useEffect(() => {
+        if (!isOpen || !query.trim()) return
+
+        const controller = new AbortController()
+        const timer = setTimeout(async () => {
+            try {
+                const response = await fetch('/api/search?' + new URLSearchParams({ q: query }), {
+                    signal: controller.signal,
+                })
+                if (!response.ok) {
+                    throw new Error(response.status === 401 ? 'Sign in to search your workspace.' : 'Search failed. Try again.')
+                }
+                const data = await response.json()
+                if (!controller.signal.aborted) setResults(data.result ?? [])
+            } catch (error) {
+                if (!controller.signal.aborted) setError(error instanceof Error ? error.message : 'Search failed.')
+            } finally {
+                if (!controller.signal.aborted) setLoading(false)
+            }
+        }, 350)
+
+        return () => {
+            clearTimeout(timer)
+            controller.abort()
+        }
+    }, [isOpen, query])
 
     if (!isOpen) return null
 
     return (
         <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 pt-24 px-4 overflow-hidden"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-[60] pt-8 sm:pt-24 px-4 overflow-hidden"
             onClick={handleClose}
         >   
             <div
-                className="bg-zinc-950 border border-zinc-800 rounded-xl w-full max-w-xl shadow-2xl overflow-hidden overflow-y-auto overscroll-contain"
+                role="dialog"
+                aria-label="Search workspace"
+                className="max-h-[85dvh] bg-zinc-950 border border-zinc-800 rounded-xl w-full max-w-xl shadow-2xl overflow-hidden overflow-y-auto overscroll-contain"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Search Input */}
@@ -108,8 +117,15 @@ const GlobalSearch = () => {
                         type="text"
                         placeholder="Search notes, bugs, snippets..."
                         value={query}
-                        onChange={e => setQuery(e.target.value)}
-                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-zinc-200 placeholder:text-zinc-600"
+                        aria-label="Search notes, bugs, and snippets"
+                        onChange={event => {
+                            const nextQuery = event.target.value
+                            setQuery(nextQuery)
+                            setResults([])
+                            setError('')
+                            setLoading(Boolean(nextQuery.trim()))
+                        }}
+                        className="min-w-0 flex-1 bg-transparent border-none outline-none text-sm font-mono text-zinc-200 placeholder:text-zinc-600"
                     />
                     <kbd className="text-xs font-mono text-zinc-600 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-md">
                         ESC
@@ -118,7 +134,7 @@ const GlobalSearch = () => {
 
                 {/* Results */}
                 <div className="max-h-96 overflow-y-auto">
-                    {query.length === 0 && (
+                    {!query.trim() && (
                         <div className="px-4 py-8 text-center">
                             <i className="ti ti-search text-zinc-700 text-2xl mb-2 block" />
                             <p className="text-xs font-mono text-zinc-600">
@@ -127,11 +143,12 @@ const GlobalSearch = () => {
                         </div>
                     )}
 
-                    {query.length > 0 && !loading && results.length === 0 && (
+                    {error && <p role="alert" className="px-4 py-6 text-sm text-red-300">{error}</p>}
+                    {query.trim() && !error && !loading && results.length === 0 && (
                         <div className="px-4 py-8 text-center">
                             <i className="ti ti-mood-empty text-zinc-700 text-2xl mb-2 block" />
                             <p className="text-xs font-mono text-zinc-600">
-                                No results for <span className="text-zinc-400">"{query}"</span>
+                                No results for <span className="text-zinc-400">&ldquo;{query}&rdquo;</span>
                             </p>
                         </div>
                     )}
@@ -187,25 +204,13 @@ const GlobalSearch = () => {
                 {/* Footer */}
                 <div className="px-4 py-2.5 border-t border-zinc-900 flex items-center gap-4">
                     <div className="flex items-center gap-1.5 text-xs font-mono text-zinc-600">
-                        <kbd className="bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-xs">↵</kbd>
-                        to open
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs font-mono text-zinc-600">
                         <kbd className="bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-xs">ESC</kbd>
                         to close
                     </div>
                     <div className="ml-auto text-xs font-mono text-zinc-700">
                         {results.length > 0 && `${results.length} results`}
                     </div>
-                    <button onClick={()=>setDetail(true)}>Hey</button>
                 </div>
-                {detail && <div className="fixed inset-0 flex justify-center items-center bg-black/90">
-                    <div className="bg-zinc-800/90 h-[70vh] w-[80vw] rounded-2xl" onClick={(e)=>e.stopPropagation()}>
-
-                    <span className="text-black" onClick={()=>setDetail(false)}>back</span>
-                    </div>
-                    
-                    </div>}
             </div>
         </div>
     )

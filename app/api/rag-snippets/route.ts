@@ -1,3 +1,5 @@
+import { recordActivity } from '@/lib/activity'
+import { parseCodeReview } from '@/lib/code-review'
 import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { searchVectors } from '@/lib/qdrant'
@@ -12,7 +14,7 @@ const anthropic = new Anthropic({
 
 export async function POST(req: NextRequest) {
     try {
-        const { code, options, userId } = await req.json()
+        const { code, options } = await req.json().catch(() => null) ?? {}
 
         const supabase = await createClient()
 
@@ -23,6 +25,10 @@ export async function POST(req: NextRequest) {
                 { error: 'Unauthorized' },
                 { status: 401 }
             )
+        }
+
+        if (typeof code !== 'string' || !code.trim() || !Array.isArray(options) || options.some(option => typeof option !== 'string')) {
+            return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
         }
 
         const limit = await checkDailyLimit(user.id, 'code_reviews')
@@ -43,16 +49,9 @@ export async function POST(req: NextRequest) {
         const queryVector = await embedText(code)
 
         // Step 2 — Search Qdrant for similar notes
-        const results = await searchVectors(queryVector, 5, userId)
+        const results = await searchVectors(queryVector, 5, user.id, true)
 
 
-
-        if (results.length === 0) {
-            return NextResponse.json({
-                answer: "I couldn't find any relevant snippets for your question. Try adding some snippets first!",
-                sources: []
-            })
-        }
 
         // Step 4 — Build context from retrieved notes
         const context = results.map((result, index) =>
@@ -99,21 +98,14 @@ Rules:
             }]
         })
 
-        const rawAnswer = message.content[0].type === 'text'
-            ? message.content[0].text.trim()
-            : '{}'
-
-        const cleaned = rawAnswer.replace(/```json|```/g, '').trim()
-
-        let reviewData = { items: [], score: 0 }
-        try {
-            reviewData = JSON.parse(cleaned)
-        } catch (err) {
-            console.error('Failed to parse review:', cleaned)
+        const text = message.content.find(block => block.type === 'text')?.text ?? ''
+        const review = parseCodeReview(text)
+        if (!review) {
+            return NextResponse.json({ error: 'The review could not be read. Please try again.' }, { status: 502 })
         }
+        await recordActivity(user.id, 'used', 'ai', 'Reviewed code with AI')
         return NextResponse.json({
-            items: reviewData.items,
-            score: reviewData.score,
+            ...review,
             sources: results.map(r => ({
                 title: r.title,
                 score: r.score

@@ -1,6 +1,7 @@
 // app/dashboard/settings/page.tsx
 'use client'
 
+import { trackActivity } from '@/lib/client-activity'
 import { useState, useEffect } from 'react'
 
 import { useTheme } from 'next-themes'
@@ -86,6 +87,7 @@ export default function SettingsPage() {
         localStorage.setItem('enableTag', String(showTags))
         localStorage.setItem('fontSize', fontSize)
         localStorage.setItem('defaultLanguage', defaultLanguage)
+        void trackActivity('settings_saved')
         alert('Settings have been saved')
     }
 
@@ -112,7 +114,7 @@ export default function SettingsPage() {
                         {(['dark', 'light', 'system'] as const).map(t => (
                             <button
                                 key={t}
-                                onClick={() => setTheme(t)}
+                                onClick={() => { setTheme(t); void trackActivity('theme_changed') }}
                                 className={`text-xs font-mono px-3 py-1.5 rounded-lg border transition-colors ${theme === t
                                     ? 'bg-button text-button-text border-border'
                                     : 'text-muted border-border hover:text-zinc-400'

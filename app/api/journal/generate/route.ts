@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createSessionClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic({
@@ -146,13 +147,24 @@ Rules:
 }
 
 // ─── Route Handler ─────────────────────────────────────────────
+function hasCronSecret(req: NextRequest): boolean {
+    const secret = process.env.CRON_SECRET
+    return Boolean(secret && (
+        req.headers.get('authorization') === 'Bearer ' + secret ||
+        req.headers.get('x-cron-secret') === secret
+    ))
+}
+
 export async function POST(req: NextRequest) {
     try {
-        const { userId } = await req.json()
-
-        if (userId) {
+        if (!hasCronSecret(req)) {
+            const supabase = await createSessionClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            }
             // Manual trigger — generate for specific user
-            const result = await generateJournalForUser(userId)
+            const result = await generateJournalForUser(user.id)
             return NextResponse.json(result)
         } else {
             // Cron trigger — generate for ALL users
@@ -185,8 +197,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
     try {
 
-        const secret = req.headers.get('x-cron-secret')
-        if (secret !== process.env.CRON_SECRET) {
+        if (!hasCronSecret(req)) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 

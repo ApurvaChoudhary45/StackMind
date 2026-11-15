@@ -1,4 +1,5 @@
 'use client'
+import { trackActivity } from '@/lib/client-activity'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -15,19 +16,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [emailLoading, setEmailLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [notice, setNotice] = useState('')
   const [isSignUp, setIsSignUp] = useState(false) 
 
   async function signInWithGitHub() {
     try {
       setloading(true)
-      await supabase.auth.signInWithOAuth({
+      setErrorMsg('')
+      setNotice('')
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`
         }
       })
+      if (error) throw error
     } catch (error) {
-      console.log(error)
+      setErrorMsg(error instanceof Error ? error.message : 'Could not start sign-in.')
       setloading(false)
     }
   }
@@ -35,14 +40,17 @@ export default function LoginPage() {
   async function signInWithGoogle() {
     try {
       setGoogleLoad(true)
-      await supabase.auth.signInWithOAuth({
+      setErrorMsg('')
+      setNotice('')
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`
         }
       })
+      if (error) throw error
     } catch (error) {
-      console.log(error)
+      setErrorMsg(error instanceof Error ? error.message : 'Could not start sign-in.')
       setGoogleLoad(false)
     }
   }
@@ -51,11 +59,12 @@ export default function LoginPage() {
   async function handleEmailAuth(e: React.FormEvent) {
     e.preventDefault()
     setErrorMsg('')
+    setNotice('')
     setEmailLoading(true)
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -63,40 +72,44 @@ export default function LoginPage() {
           }
         })
         if (error) throw error
-        setErrorMsg('Check your email to confirm your account.')
+        if (data.session) {
+          await trackActivity('signed_in')
+          window.location.href = '/dashboard'
+          return
+        }
+        setNotice('Check your email to confirm your account.')
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
         if (error) throw error
+        await trackActivity('signed_in')
         window.location.href = '/dashboard' // or wherever post-login goes
       }
-    } catch (error: any) {
-      console.log(error)
-      setErrorMsg(error.message || 'Something went wrong')
-       setEmailLoading(false)
-  
-    } 
-     
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : 'Something went wrong.')
+    } finally {
+      setEmailLoading(false)
+    }
   }
 
   return (
-    <>
+    <main className="flex min-h-dvh flex-col bg-background text-foreground">
       <div className='p-4 dark:bg-black/90 bg-card'>
         <Link href='/'><span className="font-mono text-green-400 text-lg px-5">Stack<span className="text-gray-500">//</span>Mind</span></Link>
       </div>
-      <div className="h-screen dark:bg-black bg-background flex items-center justify-center p-6">
-        <div className="max-w-4xl w-full flex flex-col md:grid md:grid-cols-2 gap-6 dark:bg-zinc-900 bg-background rounded-2xl overflow-hidden border border-green-400/20">
+      <div className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
+        <div className="grid w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/5 md:max-w-4xl md:grid-cols-2">
 
           {/* Left: Welcome / Branding */}
-          <aside className=" md:flex flex-col justify-center items-start p-8 dark:bg-black bg-card border-r border-green-400/20">
+          <aside className="hidden flex-col items-start justify-center border-r border-border bg-background p-8 md:flex">
             <span className="font-mono text-green-400 text-lg mb-6">
               Stack<span className="text-gray-500">//</span>Mind
             </span>
-            <h1 className="text-2xl font-extrabold mb-2 font-mono dark:text-white">
+            <p className="text-2xl font-extrabold mb-2 font-mono dark:text-white">
               Your second brain for dev projects.
-            </h1>
+            </p>
             <p className="text-sm text-gray-500 mb-6">
               Notes with syntax highlighting, bug tracking, and a searchable code snippet library — all in one place.
             </p>
@@ -123,11 +136,13 @@ export default function LoginPage() {
             </div>
           </aside>
 
-          <div className="flex flex-col items-center justify-center gap-4 p-8">
+          <div className="flex min-w-0 flex-col items-center justify-center gap-4 p-5 sm:p-8">
+
+            <h1 className="w-full text-2xl font-semibold tracking-tight">{isSignUp ? "Create your account" : "Sign in to StackMind"}</h1>
 
             {/* OAuth buttons — unchanged */}
             {loading ? (
-              <button className='cursor-not-allowed bg-black/40 px-6 py-3 rounded-lg w-full'>
+              <button disabled className='cursor-not-allowed bg-black/40 px-6 py-3 rounded-lg w-full'>
                 <div className='flex justify-center items-center gap-5'>
                   <i className="ti ti-loader animate-spin text-base" />
                 <span className='animate-pulse font-bold text font-mono text-white'>
@@ -140,16 +155,17 @@ export default function LoginPage() {
               <div className='flex justify-between items-center gap-5 w-full'>
                 <button
                   onClick={signInWithGitHub}
-                  className="dark:bg-black/60 bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 cursor-pointer flex justify-center items-center gap-5 font-mono w-full"
+                  disabled={googleLoad || emailLoading}
+                  className="dark:bg-black/60 bg-black text-white px-3 py-3 rounded-lg font-medium hover:bg-gray-500 cursor-pointer flex justify-center items-center gap-3 text-sm w-full"
                 >
-                  <img src="/github.png" alt="" className='w-7.7 h-7' />
+                  <img src="/github.png" alt="" className='size-5 object-contain' />
                   Continue with GitHub
                 </button>
               </div>
             )}
 
             {googleLoad ? (
-              <button className='cursor-not-allowed bg-black/40 px-6 py-3 rounded-lg w-full'>
+              <button disabled className='cursor-not-allowed bg-black/40 px-6 py-3 rounded-lg w-full'>
                 <div className='flex justify-center items-center gap-5'>
                   <i className="ti ti-loader animate-spin text-base" />
                 <span className='animate-pulse font-bold text font-mono text-white'>
@@ -162,9 +178,10 @@ export default function LoginPage() {
               <div className='flex justify-between items-center gap-5 w-full'>
                 <button
                   onClick={signInWithGoogle}
-                  className="bg-green-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 cursor-pointer flex justify-center items-center gap-5 font-mono w-full"
+                  disabled={loading || emailLoading}
+                  className="bg-green-700 text-white px-3 py-3 rounded-lg font-medium hover:bg-green-600 cursor-pointer flex justify-center items-center gap-3 text-sm w-full"
                 >
-                  <img src="/google.png" alt="" className='w-7.7 h-7' />
+                  <img src="/google.png" alt="" className='size-5 object-contain' />
                   Continue with Google
                 </button>
               </div>
@@ -181,6 +198,8 @@ export default function LoginPage() {
             <form onSubmit={handleEmailAuth} className="flex w-full flex-col gap-3">
   <input
     type="email"
+    aria-label="Email"
+    autoComplete="email"
     required
     placeholder="Email"
     value={email}
@@ -190,6 +209,8 @@ export default function LoginPage() {
 
   <input
     type="password"
+    aria-label="Password"
+    autoComplete={isSignUp ? "new-password" : "current-password"}
     required
     placeholder="Password"
     value={password}
@@ -197,15 +218,17 @@ export default function LoginPage() {
     className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 font-mono text-sm text-black placeholder:text-zinc-500 focus:border-green-400 focus:outline-none dark:border-green-400/20 dark:bg-black/40 dark:text-white dark:placeholder:text-zinc-400"
   />
 
+  {notice && <p role="status" className="text-sm text-text-muted">{notice}</p>}
+
   {errorMsg && (
-    <p className="font-mono text-xs text-red-500 dark:text-red-400">
+    <p role="status" className="font-mono text-xs text-red-500 dark:text-red-400">
       {errorMsg}
     </p>
   )}
 
   <button
     type="submit"
-    disabled={emailLoading}
+    disabled={emailLoading || loading || googleLoad}
     className="w-full rounded-lg bg-zinc-700 px-6 py-3 font-mono font-medium text-white transition hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-700 dark:hover:bg-zinc-600"
   >
     {emailLoading ? (
@@ -233,11 +256,13 @@ export default function LoginPage() {
 
   <button
     type="button"
+    disabled={emailLoading || loading || googleLoad}
     onClick={() => {
       setIsSignUp(!isSignUp);
       setErrorMsg("");
+      setNotice("");
     }}
-    className="text-center font-mono text-xs text-zinc-600 transition hover:text-green-600 dark:text-gray-500 dark:hover:text-green-400"
+    className="py-2 text-center text-sm text-text-text-muted transition hover:text-green-700 dark:hover:text-green-400"
   >
     {isSignUp
       ? "Already have an account? Sign in"
@@ -247,6 +272,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-    </>
+    </main>
   )
 }

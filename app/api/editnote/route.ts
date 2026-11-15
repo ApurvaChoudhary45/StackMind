@@ -1,45 +1,44 @@
+import { sanitizeNoteHtml } from '@/lib/note-html'
 import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
-import { storeVectors } from '@/lib/qdrant'
+import { setupCollection, storeVectors } from '@/lib/qdrant'
 
-export async function PUT(req: NextRequest) {
+export async function PUT(req: Request) {
     try {
-        const { noteId, title, content, projectId, userId } = await req.json()
-
         const supabase = await createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-        // Step 1 — Update in Supabase
-        const { error } = await supabase
-            .from('notes')
-            .update({ title, content })
+        const { noteId, title, content } = await req.json().catch(() => null) ?? {}
+        if (typeof noteId !== 'string' || typeof title !== 'string' || !title.trim() || typeof content !== 'string') {
+            return NextResponse.json({ error: 'A note ID, title, and content are required.' }, { status: 400 })
+        }
+
+        const { data: note, error } = await supabase.from('notes')
+            .update({ title, content: sanitizeNoteHtml(content) })
             .eq('id', noteId)
+            .eq('user_id', user.id)
+            .select('id, project_id, content')
+            .maybeSingle()
+        if (error) throw error
+        if (!note) return NextResponse.json({ error: 'Note not found.' }, { status: 404 })
 
-        if (error) throw new Error(error.message)
+        try {
+            const vector = await embedText(title + ' ' + content)
+            await setupCollection()
+            await storeVectors([{
+                id: note.id,
+                vector,
+                payload: { noteId: note.id, title, content, projectId: note.project_id, userId: user.id },
+            }])
+        } catch (error) {
+            console.error('Note updated but indexing failed:', error)
+        }
 
-        // Step 2 — Re-embed updated content
-        const vector = await embedText(`${title} ${content}`)
-
-        // Step 3 — Upsert to Qdrant (replaces old vector)
-        await storeVectors([{
-            id: noteId,
-            vector,
-            payload: {
-                noteId,
-                title,
-                content,
-                projectId,
-                userId
-            }
-        }])
-
-        return NextResponse.json({ success: true })
-
+        return NextResponse.json({ success: true, content: note.content })
     } catch (error) {
         console.error('Failed to update note:', error)
-        return NextResponse.json(
-            { error: 'Failed to update note' },
-            { status: 500 }
-        )
+        return NextResponse.json({ error: 'Failed to update note.' }, { status: 500 })
     }
 }

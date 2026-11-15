@@ -1,3 +1,5 @@
+import { recordActivity } from '@/lib/activity'
+import { parseCodeReview } from '@/lib/code-review'
 import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { searchVectors } from '@/lib/qdrant'
@@ -43,14 +45,7 @@ if (!limit.allowed) {
 
         const queryVector = await embedText(query)
 
-        const results = await searchVectors(queryVector, 5, userId)
-
-        if (results.length === 0) {
-            return NextResponse.json({
-                answer: "I couldn't find any relevant snippets for your question. Try adding some snippets first!",
-                sources: []
-            })
-        }
+        const results = await searchVectors(queryVector, 5, userId, true)
 
         // Step 4 — Build context from retrieved notes
         const context = results.map((result, index) =>
@@ -97,21 +92,14 @@ if (!limit.allowed) {
             }]
         })
 
-        const rawAnswer = message.content[0].type === 'text'
-            ? message.content[0].text.trim()
-            : '{}'
-
-        const cleaned = rawAnswer.replace(/```json|```/g, '').trim()
-
-        let reviewData = { items: [], score: 0 }
-        try {
-            reviewData = JSON.parse(cleaned)
-        } catch (err) {
-            console.error('Failed to parse review:', cleaned)
+        const text = message.content.find(block => block.type === 'text')?.text ?? ''
+        const review = parseCodeReview(text)
+        if (!review) {
+            return NextResponse.json({ error: 'The review could not be read. Please try again.' }, { status: 502 })
         }
+        await recordActivity(user.id, 'used', 'ai', 'Reviewed code from developer tools')
         return NextResponse.json({
-            items: reviewData.items,
-            score: reviewData.score,
+            ...review,
             sources: results.map(r => ({
                 title: r.title,
                 score: r.score

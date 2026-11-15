@@ -1,9 +1,9 @@
 
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import SnippetLibrary from "@/components/SnippetLibrary";
 import GithubImport from '@/components/GithubImport'
-export default async function SnippetPage({params} : {params : {id : string}}) {
+export default async function SnippetPage({params} : {params: Promise<{ id: string }>}) {
     
     const supabase = await createClient()
     const {id} = await params
@@ -12,7 +12,12 @@ export default async function SnippetPage({params} : {params : {id : string}}) {
 
     if(!user) redirect('/Login')
     
-    const {data : snippets, error : SnippetError} = await supabase.from('snippets').select('*').eq('project_id', id).order('created_at', {ascending : false})
+    const { data: project, error: projectError } = await supabase.from('projects')
+        .select('id, name').eq('id', id).eq('user_id', user.id).maybeSingle()
+    if (projectError) throw projectError
+    if (!project) notFound()
+
+    const {data : snippets, error : SnippetError} = await supabase.from('snippets').select('*').eq('project_id', id).eq('user_id', user.id).order('created_at', {ascending : false})
     if(SnippetError) throw new Error(SnippetError?.message)
     return(
 <>

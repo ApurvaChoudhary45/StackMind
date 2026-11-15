@@ -22,7 +22,16 @@ export async function POST(req: NextRequest) {
             description,
             priority,
             project_id,
-        } = await req.json()
+        } = await req.json().catch(() => ({})) ?? {}
+
+        if (typeof title !== 'string' || !title.trim() || typeof project_id !== 'string' ||
+            !['low', 'medium', 'high'].includes(priority)) {
+            return NextResponse.json({ error: 'A title, priority, and project are required.' }, { status: 400 })
+        }
+        const { data: project, error: projectError } = await supabase.from('projects')
+            .select('id').eq('id', project_id).eq('user_id', user.id).maybeSingle()
+        if (projectError) throw projectError
+        if (!project) return NextResponse.json({ error: 'Project not found.' }, { status: 404 })
 
         const limit = await canCreateBug(user.id)
 

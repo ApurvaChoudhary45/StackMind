@@ -1,10 +1,12 @@
 'use client'
+import { trackActivity } from '@/lib/client-activity'
 
 import { createClient } from '@/lib/supabase/client'
 
 import { useRouter } from 'next/navigation'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import SignOutOverlay from './SignOutOverlay'
 
 type SidebarProps = {
@@ -22,6 +24,7 @@ const LogOut = ({ collapsed }: SidebarProps) => {
 
   const handleLogOut = async () => {
     setSigningOut(true)
+    await trackActivity('signed_out')
     await supabase.auth.signOut()
     await new Promise(resolve => setTimeout(resolve, 800))
     router.replace('/Login')
@@ -44,14 +47,14 @@ const LogOut = ({ collapsed }: SidebarProps) => {
 
   return (
     <div>
-      {collapsed ? <button onClick={handleLogOut}><i className="ti ti-logout cursor-pointer"></i></button> : <button onClick={handleLogOut} className='flex gap-12  items-center  rounded-lg text-sm text-zinc-500 hover:text-red-600  transition-colors cursor-pointer'>
+      {collapsed ? <button onClick={handleLogOut} aria-label="Log out"><i className="ti ti-logout cursor-pointer"></i></button> : <button onClick={handleLogOut} className='flex gap-12  items-center  rounded-lg text-sm text-zinc-500 hover:text-red-600  transition-colors cursor-pointer'>
         <div className='flex items-center gap-2'>
           <i className="ti ti-logout"></i>
           <span className='font-mono'>Log out</span>
         </div>
         <span className='font-mono text-xs'>Alt + K</span>
       </button>}
-      {signingOut && <SignOutOverlay/>}
+      {signingOut && createPortal(<SignOutOverlay />, document.body)}
     </div>
   )
 }

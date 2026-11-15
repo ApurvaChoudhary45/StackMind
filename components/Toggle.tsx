@@ -1,4 +1,5 @@
 'use client'
+import { trackActivity } from '@/lib/client-activity'
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
@@ -31,19 +32,19 @@ const ThemeToggle = () => {
       {open && (
         <div className="absolute bottom-full mb-2 right-0 bg-background dark:bg-zinc-900 border border-border rounded-md shadow-lg w-32 p-2 z-50">
           <button
-            onClick={() => { setTheme('light'); setOpen(false); }}
+            onClick={() => { setTheme('light'); setOpen(false); void trackActivity('theme_changed'); }}
             className="block w-full text-left px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
           >
             Light <i className="ti ti-sun"/>
           </button>
           <button
-            onClick={() => { setTheme('dark'); setOpen(false); }}
+            onClick={() => { setTheme('dark'); setOpen(false); void trackActivity('theme_changed'); }}
             className="block w-full text-left px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
           >
             Dark <i className="ti ti-moon"/>
           </button>
           <button
-            onClick={() => { setTheme('system'); setOpen(false); }}
+            onClick={() => { setTheme('system'); setOpen(false); void trackActivity('theme_changed'); }}
             className="block w-full text-left px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
           >
             System <i className="ti ti-device-desktop"/>

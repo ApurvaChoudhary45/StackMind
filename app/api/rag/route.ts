@@ -1,3 +1,4 @@
+import { recordActivity } from '@/lib/activity'
 import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { searchVectors } from '@/lib/qdrant'
@@ -10,7 +11,7 @@ const anthropic = new Anthropic({
 
 export async function POST(req: NextRequest) {
     try {
-        const { query, userId } = await req.json()
+        const { query } = await req.json().catch(() => null) ?? {}
 
         const supabase = await createClient()
 
@@ -21,6 +22,10 @@ export async function POST(req: NextRequest) {
                 { error: 'Unauthorized' },
                 { status: 401 }
             )
+        }
+
+        if (typeof query !== 'string' || !query.trim()) {
+            return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
         }
 
         const limit = await checkDailyLimit(user.id, 'ai_queries')
@@ -41,11 +46,12 @@ export async function POST(req: NextRequest) {
         const queryVector = await embedText(query)
 
         // Step 2 — Search Qdrant for similar notes
-        const results = await searchVectors(queryVector, 5, userId)
+        const results = await searchVectors(queryVector, 5, user.id)
 
 
 
         if (results.length === 0) {
+            await recordActivity(user.id, 'used', 'ai', 'Asked AI about notes')
             return NextResponse.json({
                 answer: "I couldn't find any relevant notes for your question. Try adding some notes first!",
                 sources: []
@@ -83,6 +89,7 @@ Important:
             ? message.content[0].text
             : ''
 
+        await recordActivity(user.id, 'used', 'ai', 'Asked AI about notes')
         return NextResponse.json({
             answer,
             sources: results.map(r => ({

@@ -1,3 +1,4 @@
+import { recordActivity } from '@/lib/activity'
 import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { searchVectors } from '@/lib/qdrant'
@@ -106,6 +107,7 @@ Important:
             ? message.content[0].text
             : ''
 
+        await recordActivity(user.id, 'used', 'ai', 'Asked AI from developer tools')
         return NextResponse.json({
             answer,
             sources: noteResults.map(r => ({

@@ -22,6 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     const { count } = await supabase
         .from('projects')
         .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
 
 
 
@@ -30,7 +31,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             userName={user?.email?.split('@')[0] ?? 'Developer'}
             userEmail={user?.email ?? ''}
             projectCount={count ?? 0}
-            plan={existingSub?.plan}
+            plan={existingSub?.plan ?? 'free'}
         >
             {children}
         </DashboardShell>

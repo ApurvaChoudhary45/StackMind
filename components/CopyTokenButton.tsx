@@ -1,4 +1,5 @@
 'use client'
+import { trackActivity } from '@/lib/client-activity'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -15,6 +16,7 @@ export default function CopyTokenButton() {
         }
 
         await navigator.clipboard.writeText(session.access_token)
+        void trackActivity('token_copied')
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }

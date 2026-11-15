@@ -38,13 +38,13 @@ export default function PricingPage() {
   ];
 
   return (
-    <section className="relative min-h-screen overflow-y-auto bg-white py-24 text-black dark:bg-black dark:text-white">
+    <section className="relative min-h-screen overflow-x-clip overflow-y-auto bg-white py-16 text-black sm:py-24 dark:bg-black dark:text-white">
   {/* Background Glow */}
   <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[140px] dark:bg-emerald-500/20" />
   <div className="absolute bottom-0 left-0 h-[350px] w-[350px] rounded-full bg-emerald-400/5 blur-[130px] dark:bg-emerald-400/10" />
   <div className="absolute right-0 top-1/3 h-[250px] w-[250px] rounded-full bg-green-500/5 blur-[120px] dark:bg-green-500/10" />
 
-  <div className="relative mx-auto max-w-4xl px-10">
+  <div className="relative mx-auto max-w-4xl px-3 sm:px-8">
     {/* Heading */}
     <div className="mx-auto max-w-3xl text-center">
       <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1 text-sm text-emerald-600 backdrop-blur dark:border-emerald-500/30 dark:text-emerald-300">
@@ -52,7 +52,7 @@ export default function PricingPage() {
         Simple Pricing
       </div>
 
-      <h1 className="text-5xl font-bold tracking-tight md:text-3xl">
+      <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
         Pricing that
         <span className="block bg-gradient-to-r from-emerald-300 via-green-400 to-emerald-500 bg-clip-text text-transparent">
           grows with you
@@ -65,7 +65,7 @@ export default function PricingPage() {
       </p>
 
       {/* Toggle */}
-      <div className="mt-4 flex items-center justify-center gap-5">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
         <span
           className={`font-medium ${
             !annual
@@ -77,6 +77,10 @@ export default function PricingPage() {
         </span>
 
         <button
+          type="button"
+          role="switch"
+          aria-label="Annual billing"
+          aria-checked={annual}
           onClick={() => setAnnual(!annual)}
           className={`relative h-8 w-16 rounded-full transition-all duration-300 ${
             annual ? "bg-emerald-500" : "bg-zinc-300 dark:bg-zinc-800"
@@ -108,7 +112,7 @@ export default function PricingPage() {
     </div>
 
     {/* Cards */}
-    <div className="mt-10 grid gap-10 lg:grid-cols-2">
+    <div className="mt-10 grid gap-5 lg:grid-cols-2 lg:gap-8">
       {/* FREE */}
       <div className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm backdrop-blur-xl transition duration-500 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-white/5 dark:hover:border-zinc-700 dark:hover:bg-white/10">
         <div className="mb-6 flex items-center justify-between">
@@ -123,7 +127,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mb-8">
-          <span className="text-6xl font-bold">$0</span>
+          <span className="text-4xl font-bold sm:text-6xl">$0</span>
           <span className="ml-2 text-zinc-500">Forever</span>
         </div>
 
@@ -159,7 +163,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mb-8">
-          <span className="text-6xl font-bold">
+          <span className="text-4xl font-bold sm:text-6xl">
             {annual ? "$48" : "$4.5"}
           </span>
 
@@ -196,7 +200,7 @@ export default function PricingPage() {
       </div>
       
     </div>
-    <div className="mt-24 rounded-3xl border border-emerald-200 bg-gradient-to-r from-emerald-100/50 via-white to-emerald-100/50 p-10 text-center backdrop-blur dark:border-emerald-500/20 dark:from-emerald-500/10 dark:via-transparent dark:to-emerald-500/10">
+    <div className="mt-24 rounded-3xl border border-emerald-200 bg-gradient-to-r from-emerald-100/50 via-white to-emerald-100/50 p-5 text-center backdrop-blur sm:p-10 dark:border-emerald-500/20 dark:from-emerald-500/10 dark:via-transparent dark:to-emerald-500/10">
   <h3 className="text-3xl font-bold">
     Build smarter with StackMind
   </h3>

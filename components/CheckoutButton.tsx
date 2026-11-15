@@ -23,6 +23,7 @@ export default function CheckoutButton({ annual }: recurring) {
     async function handleCheckout() {
         try {
             setLoading(true)
+            if (!window.Razorpay) throw new Error('Checkout is unavailable. Refresh and try again.')
 
             const response = await fetch("/api/razorpay/create-subscription", {
                 method: "POST",
@@ -39,8 +40,6 @@ export default function CheckoutButton({ annual }: recurring) {
             if (!response.ok) {
                 throw new Error(data.error)
             }
-
-            console.log('Subscription Created:', data)
 
             const options = {
                 key: data.keyId,
@@ -59,30 +58,29 @@ export default function CheckoutButton({ annual }: recurring) {
 
                 modal: {
                     ondismiss: () => {
-                        console.log('Checkout Closed')
+                        setLoading(false)
                     },
                 },
 
                 handler: async function (response: any) {
-                    const res = await fetch('/api/razorpay/verify', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(response),
-                    })
+                    try {
+                        const res = await fetch('/api/razorpay/verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(response),
+                        })
+                        const data = await res.json()
+                        if (!res.ok) {
+                            alert(data.error || 'Could not verify your payment.')
+                            return
+                        }
 
-
-                    const data = await res.json()
-
-                    if (!res.ok) {
-                        alert(data.error)
-                        return
+                        router.replace('/welcome-pro')
+                    } catch {
+                        alert('Could not verify your payment. Check your subscription before retrying.')
+                    } finally {
+                        setLoading(false)
                     }
-
-                    router.replace('/welcome-pro')
-
-
                 }
 
             }
@@ -93,8 +91,7 @@ export default function CheckoutButton({ annual }: recurring) {
             razorpay.open()
         } catch (error) {
             console.error(error)
-            alert('Something went wrong')
-        } finally {
+            alert(error instanceof Error ? error.message : 'Could not open checkout.')
             setLoading(false)
         }
     }

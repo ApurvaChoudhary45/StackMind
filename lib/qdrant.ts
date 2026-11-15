@@ -1,6 +1,7 @@
 
 import { QdrantClient } from "@qdrant/js-client-rest";
 
+import { createAdminClient } from '@/lib/supabase/admin'
 import { VectorPoint, SearchResult } from "../types";
 
 // This how we connect to Qadrant
@@ -107,8 +108,9 @@ export async function storeVectors(points: VectorPoint[]): Promise<void> {
 
 export async function searchVectors(
     queryVector: number[],      // embedText(userQuestion) result
-    topK: number = 5,           // how many results to return
-    userId?: string       // if docID available search within one document
+    topK: number,           // how many results to return
+    userId: string,
+    includeSnippets = false
 ): Promise<SearchResult[]> {
     try {
 
@@ -119,13 +121,8 @@ export async function searchVectors(
             score_threshold: 0.3 // So here the threshold is 0.3 anything below this would be  irrelevant 
         }
 
-        if (userId) {
-            searchOptions.filter = {
-                must: [{
-                    key: 'userId',        // filter by this payload field
-                    match: { value: userId }  // must equal this value
-                }]
-            }
+        searchOptions.filter = {
+            must: [{ key: 'userId', match: { value: userId } }],
         }
         console.log(`   Filtering to document: ${userId}`)
 
@@ -135,13 +132,41 @@ export async function searchVectors(
 
         // Now Transform Qdrant results into our SearchResult type
 
-        return results.map(result => ({
-            noteId: result.payload?.noteId as string,
-            title: result.payload?.title as string,
-            content: result.payload?.content as string,
-            projectId: result.payload?.projectId as string,
-            score: result.score,
-        }))
+        const ids = results.map(result => String(result.id))
+        if (ids.length === 0) return []
+
+        const supabase = createAdminClient()
+        const notesResult = await supabase.from('notes')
+            .select('id, title, content, project_id')
+            .eq('user_id', userId)
+            .in('id', ids)
+        if (notesResult.error) throw notesResult.error
+        const documents = notesResult.data
+
+        if (includeSnippets) {
+            const snippetsResult = await supabase.from('snippets')
+                .select('id, title, code, project_id')
+                .eq('user_id', userId)
+                .in('id', ids)
+            if (snippetsResult.error) throw snippetsResult.error
+            documents.push(...snippetsResult.data.map(({ code, ...snippet }) => ({
+                ...snippet,
+                content: code,
+            })))
+        }
+
+        const byId = new Map(documents.map(document => [document.id, document]))
+        return results.flatMap(result => {
+            const document = byId.get(String(result.id))
+            if (!document) return []
+            return [{
+                noteId: document.id,
+                title: document.title,
+                content: document.content,
+                projectId: document.project_id,
+                score: result.score,
+            }]
+        })
 
 
     } catch (error) {
@@ -156,12 +181,8 @@ export async function searchVectors(
 export async function deleteDocumentVectors(noteId: string): Promise<void> {
     try {
         await client.delete(COLLECTION_NAME, {
-            filter: {
-                must: [{
-                    key: 'noteId',
-                    match: { value: noteId }
-                }]
-            }
+            wait: true,
+            points: [noteId],
         })
     } catch (error) {
         console.error('Failed to delete vectors:', error)

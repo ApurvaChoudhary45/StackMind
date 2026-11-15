@@ -1,3 +1,4 @@
+import { recordActivity } from '@/lib/activity'
 import { NextRequest, NextResponse } from 'next/server'
 import { embedText } from '@/lib/embedding'
 import { searchVectors } from '@/lib/qdrant'
@@ -13,48 +14,36 @@ export async function POST(req: NextRequest) {
     try {
 
     
-        const { query, userId } = await req.json()
+        const { query } = await req.json().catch(() => null) ?? {}
 
         const supabase = await createClient()
-        
-                const { data: { user } } = await supabase.auth.getUser()
-        
-                if (!user) {
-                    return NextResponse.json(
-                        { error: 'Unauthorized' },
-                        { status: 401 }
-                    )
-                }
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-                const limit = await checkDailyLimit(user.id, 'ai_queries')
-
-if (!limit.allowed) {
-    return NextResponse.json(
-        {
-            error: limit.reason,
-            upgrade: true
-        },
-        {
-            status: 403
+        if (typeof query !== 'string' || !query.trim()) {
+            return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
         }
-    )
-}
+
+        const limit = await checkDailyLimit(user.id, 'ai_queries')
+
+        if (!limit.allowed) {
+            return NextResponse.json({ error: limit.reason, upgrade: true }, { status: 403 })
+        }
 
         // Step 1 — Run both in parallel (faster)
-        const [queryVector] = await Promise.all([
-            embedText(query),
-            
-        ])
+        const queryVector = await embedText(query)
 
         // Step 2 — Search Qdrant for related notes + fetch bugs from Supabase
-        const [noteResults, { data: bugs }] = await Promise.all([
-            searchVectors(queryVector, 5, userId),
+        const [noteResults, { data: bugs, error: bugsError }] = await Promise.all([
+            searchVectors(queryVector, 5, user.id),
             supabase
                 .from('bugs')
                 .select('*, projects(name)')
-                .eq('user_id', userId)
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false })
         ])
+
+        if (bugsError) throw bugsError
 
         // Step 3 — Build notes context (graceful fallback if none)
         const notesContext = noteResults.length > 0
@@ -105,6 +94,7 @@ Important:
             ? message.content[0].text
             : ''
 
+        await recordActivity(user.id, 'used', 'ai', 'Asked AI about bugs')
         return NextResponse.json({
             answer,
             sources: noteResults.map(r => ({
